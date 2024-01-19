@@ -187,17 +187,18 @@ if (!String.prototype.isWellFormed) {
  *
  * @param {RegExp} regexp - The regular expression to match against the string.
  * @throws {TypeError} - If the passed argument is not a regular expression.
+ * @throws {TypeError} - If the regexp is not passed with the global flag.
  * @return {Iterator} - An iterator that contains all the matches found in the string.
  */
 if (!String.prototype.matchAll) {
     String.prototype.matchAll = function (regexp) {
         if (!(regexp instanceof RegExp)) {
-            throw new TypeError("Argument must be a regular expression");
-        }
+            throw new TypeError("matchAll(): Argument must be a regular expression");
+        };
 
         if (!regexp.global) {
-            regexp = new RegExp(regexp.source, 'g');
-        }
+            throw new TypeError("matchAll(): Called with a non-global RegExp argument");
+        };
 
         var match;
         var matches = [];
