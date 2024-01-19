@@ -8,11 +8,11 @@ This version can be used with Adobe programs such as  InDesign/InCopy, Photoshop
 This project was originally made as a learning tool and to solve problems encountered when creating InDesign scripts.
 
 ## What's Inside
-- Array Extensions: A set of methods added to the native Array object, inspired by ES6 features.
-- String Enhancements: New methods for the String object to aid in text processing and to bring it closer to the modern JavaScript standard.
-- Object Utilities: Enhancements for the Object class, focusing on property management and object introspection.
-- Map and Set: Introducing Map and Set objects for more advanced data structures.
-- Other Utilities: Various utilities and functions targeted at specific scripting needs in ExtendScript.
+- **Array Extensions**: A set of methods added to the native Array object, inspired by ES6 features.
+- **String Enhancements**: New methods for the String object to aid in text processing and to bring it closer to the modern JavaScript standard.
+- **Object Utilities**: Enhancements for the Object class, focusing on property management and object introspection.
+- **Map and Set**: Introducing Map and Set objects for more advanced data structures.
+- **Other Utilities**: Various utilities and functions targeted at specific scripting needs in ExtendScript.
 
 ## How to Use
 Each category (e.g. Array, String, Object) has its own README.md file with a detailed explanation. 

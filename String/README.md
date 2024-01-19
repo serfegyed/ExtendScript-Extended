@@ -14,6 +14,7 @@ These are possible implementation of the JavaScript built-in String methods.
 - `fromCodePoint()`	:	Returns a string created by using the specified sequence of code points
 - `includes()`		:	Checks if the string includes the given substring.
 - `isWellFormed()`	:	Checks whether a string is well-formed.
+- `matchAll()`		:	Matches a string against a regular expression and returns an iterator
 - `padEnd()`		:	Pads the current string from the end with a given string
 - `padStart()`		:	Pads the current string from the start with a given string
 - `repeat()`		:	Constructs and returns a new string which contains the specified number of copies of the string on which it was called

@@ -133,6 +133,13 @@ Set.prototype.from = function (iterables) {
     return this;
 };
 
+/**
+ * Checks if any element in the Set satisfies the provided testing function.
+ *
+ * @param {function} callback - A function that will be called for each element in the Set.
+ * @param {Object} thisArg - An optional object to use as `this` when executing the callback function.
+ * @return {boolean} Returns `true` if at least one element satisfies the provided testing function, otherwise `false`.
+ */
 Set.prototype.some = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Set.some(): Missing callback function");
@@ -147,6 +154,13 @@ Set.prototype.some = function (callback, thisArg) {
     return false;
 };
 
+/**
+ * Checks if every element in the set satisfies the provided callback function.
+ *
+ * @param {function} callback - The callback function to test each element.
+ * @param {Object} thisArg - Optional. The value to use as `this` when executing the callback.
+ * @returns {boolean} Returns `true` if every element in the set satisfies the callback function, otherwise `false`.
+ */
 Set.prototype.every = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Set.every(): Missing callback function");
@@ -161,6 +175,13 @@ Set.prototype.every = function (callback, thisArg) {
     return true;
 };
 
+/**
+ * Filters the elements of the set based on the provided callback function.
+ *
+ * @param {function} callback - The function used to filter the elements. It should accept a single parameter and return a boolean value.
+ * @param {Object} thisArg - The value to use as `this` when executing the callback function.
+ * @return {Set} A new Set object containing only the elements for which the callback function returns true.
+ */
 Set.prototype.filter = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Set.filter(): Missing callback function");
@@ -178,6 +199,14 @@ Set.prototype.filter = function (callback, thisArg) {
     return filteredSet;
 };
 
+/**
+ * Maps each element of the Set to a new value using a provided callback function.
+ *
+ * @param {Function} callback - The callback function to apply to each element of the Set. It should accept the current element as its argument and return the new value.
+ * @param {*} thisArg - Optional. The value to use as `this` when executing the callback function.
+ * @throws {TypeError} If the `callback` parameter is not a function.
+ * @returns {Set} A new Set with the mapped values.
+ */
 Set.prototype.map = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Set.map(): Missing callback function");
@@ -193,6 +222,13 @@ Set.prototype.map = function (callback, thisArg) {
     return newSet;
 };
 
+/**
+ * Finds the first element in the Set that satisfies the provided testing function.
+ *
+ * @param {function} callback - The testing function to call on each element.
+ * @param {Object} thisArg - Object to use as `this` when executing the callback.
+ * @return {*} The first element in the Set that satisfies the provided testing function, or undefined if no such element is found.
+ */
 Set.prototype.find = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Set.find(): Missing callback function");
