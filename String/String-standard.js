@@ -11,6 +11,8 @@
  *		fromCodePoint()	:	Returns a string created by using the specified sequence of code points
  *		includes()		:	Checks if the string includes the given substring.
  *		isWellFormed()	:	Checks whether a string is well-formed.
+ *		matchAll()		:	Matches a string against a regular expression
+ *		pad()			:	Pads the current string from the beginning and end with a given string
  *		padEnd()		:	Pads the current string from the end with a given string
  *		padStart()		:	Pads the current string from the start with a given string
  *		repeat()		:	Constructs and returns a new string which contains the specified number of copies of the string on which it was called
@@ -177,6 +179,40 @@ if (!String.prototype.isWellFormed) {
             ++i;
         }
         return true;
+    };
+}
+
+/**
+ * Returns an iterator of all results matching a string against a regular expression, including capturing groups.
+ *
+ * @param {RegExp} regexp - The regular expression to match against the string.
+ * @throws {TypeError} - If the passed argument is not a regular expression.
+ * @return {Iterator} - An iterator that contains all the matches found in the string.
+ */
+if (!String.prototype.matchAll) {
+    String.prototype.matchAll = function (regexp) {
+        if (!(regexp instanceof RegExp)) {
+            throw new TypeError("Argument must be a regular expression");
+        }
+
+        if (!regexp.global) {
+            regexp = new RegExp(regexp.source, 'g');
+        }
+
+        var match;
+        var matches = [];
+
+        while ((match = regexp.exec(this)) !== null) {
+            var matchArray = Array.from(match);
+            matchArray.index = match.index;
+            matchArray.input = match.input;
+            matches.push(matchArray);
+
+            if (match.index === regexp.lastIndex) {
+                regexp.lastIndex++;
+            }
+        }
+        return matches.values(); // Using Array.prototype.values
     };
 }
 
