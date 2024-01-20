@@ -22,10 +22,10 @@
  * @param {string} chr - The character(s) to be removed.
  * @return {string} - The modified string with the specified characters removed.
  * @example
- *     > $.writeln("   hello world   ".trim());
+ *     > $.writeln("   hello world   ".chop());
  *     "hello world"
  * @example
- * > $.writeln("*-*-*-hello world*-*-*-".trim("*-"));
+ * > $.writeln("*-*-*-hello world*-*-*-".chop("*-"));
  *     "hello world"
  */
 if (!String.prototype.chop) {
@@ -40,10 +40,10 @@ if (!String.prototype.chop) {
  * @param {string} chr - The character or characters to remove.
  * @return {string} - The modified string.
  * @example 
- *	> $.writeln("   hello world   ".trimEnd());
+ *	> $.writeln("   hello world   ".chopEnd());
  *     "   hello world"
  * @example 
-    > $.writeln("*-*-*-hello world*-*-*-".trimEnd("*-"));
+    > $.writeln("*-*-*-hello world*-*-*-".chopEnd("*-"));
  *     "*-*-*-hello world"
  */
 if (!String.prototype.chopEnd) {
@@ -64,9 +64,9 @@ if (!String.prototype.chopEnd) {
  *
  * @param {string} chr - The character to search for.
  * @return {string} - The resulting string after removing the leading characters.
- * @example > $.writeln("   hello world   ".trimStart());
+ * @example > $.writeln("   hello world   ".chopStart());
  *     "hello world   "
- * @example > $.writeln("*-*-*-hello world*-*-*-".trimStart("*-"));
+ * @example > $.writeln("*-*-*-hello world*-*-*-".chopStart("*-"));
  *     "hello world*-*-*-"
  */
 if (!String.prototype.chopStart) {

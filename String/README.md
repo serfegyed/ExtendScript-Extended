@@ -27,7 +27,6 @@ These are possible implementation of the JavaScript built-in String methods.
 
 ### Non-standard methods
 
-*(They are mostly methods in some stage of tc39 proposal phase)*
 - `chop()`			:	Removes specified characters from the start and end of a string.
 - `chopEnd()`		:	Removes trailing characters from the string until the last occurrence of the specified character.
 - `chopStart()`		:	Removes leading characters from the string until the first occurrence of the specified character.
