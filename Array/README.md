@@ -50,6 +50,7 @@ These are possible implementation of the modern JavaScript built-in Array functi
 - `indexAfter()` - Does what it says
 - `insert()` - Inserts an element into the array at given index. Returns a new enlarged array
 - `isEmpty()` - Checks is parameter is an empty array
+- `isSorted()` - Checks if the array is sorted
 - `last()` - Returns the last item of this array
 - `max()` - Returns the maximum value in an array
 - `merge()` - Merges multiple arrays into the current array.
