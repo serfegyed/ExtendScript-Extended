@@ -53,7 +53,7 @@ These are possible implementation of the modern JavaScript built-in Array functi
 - `isSorted()` - Checks if the array is sorted
 - `last()` - Returns the last item of this array
 - `max()` - Returns the maximum value in an array
-- `merge()` - Merges multiple arrays into the current array.
+- `merge()` - Merges a _sorted_ array into the _sorted_ current array. If any of them are unsorted, the result will be unpredictable.
 - `min()` - The minimum value in an array
 - `pluck()` - Quickly pluck a single attribute from an array of objects
 - `random()` - Generates a random element from the array
