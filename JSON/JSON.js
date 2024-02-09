@@ -24,7 +24,7 @@ if (!JSON) {
         }
 
         if (typeof value === 'string') {
-            return '"' + value + '"';
+            return '"' + value.replace(/"/g, '\\"') + '"';
         }
 
         // If the value is an array, recursively call stringify on each element
