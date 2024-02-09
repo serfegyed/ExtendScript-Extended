@@ -2,8 +2,7 @@
  *   @name JSON
  *   @desc  These implementations are simplified and do not include all of the features
  *		    and options of the ECMAScript 5 `JSON` object.
- *          It supports all the standard JSON data types including numbers, booleans, null,
- *		    NaN, Infinity, strings, arrays, and objects.
+ *          It supports all the standard JSON data types including numbers, booleans, null, strings, arrays, and objects.
  *   @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON
  ****************************************************************************************************************/
 if (!JSON) {
