@@ -11,10 +11,6 @@ function testJSONParse(jsonString, expectedResult, custReplacer) {
     return '';
 }
 
-console.log(JSON.stringify({ "name": "John", "age": 30, reg: "\/^\\d+\/g" }))
-console.log(JSON.stringify({ "name": "John", "age": 30, reg: /^\d+/g }))
-console.log(JSON.stringify({ name: "John", age: 30 }))
-
 console.log("/*************** Valid JSON strings *************/");
 const test1 = '{"name": "John", "age": 30}';
 const result1 = '{"name":"John","age":30}';
@@ -112,7 +108,7 @@ var jsonString = JSON.stringify(data, replacer2);
 console.log(jsonString);
 
 
-console.log("*** Filtering properties with null values ***");
+console.log("\n*** Filtering properties with null values ***");
 function replacer3(key, value) {
     if (value === null) {
         return undefined;
@@ -122,9 +118,55 @@ function replacer3(key, value) {
 var myData = {
     name: "Alice",
     email: "alice@example.com",
+    phone: undefined,
     profileComplete: null,
     interests: ["reading", "hiking", "coding"]
 };
 
 var jsonString = JSON.stringify(myData, replacer3);
 console.log(jsonString);
+
+console.log("\n/************** Custom reviver ***********/");
+console.log("*** Handling NaN, Infinity, -Infinity and undefined ***");
+function customReplacer(key, value) {
+    if (typeof value === 'number') {
+        if (isNaN(value)) {
+            return 'NaN';
+        } else if (value === Infinity) {
+            return 'Infinity';
+        } else if (value === -Infinity) {
+            return '-Infinity';
+        }
+    }
+    if (typeof value === 'undefined') {
+        return 'undefined';
+    }
+    return value;
+}
+function customReviver(key, value) {
+    if (value === 'NaN') {
+        return NaN;
+    } else if (value === 'Infinity') {
+        return Infinity;
+    } else if (value === '-Infinity') {
+        return -Infinity;
+    } else if (value === 'undefined') {
+        return undefined;
+    }
+    return value;
+}
+var data = {
+    regularNumber: 42,
+    bigNumber: Infinity,
+    smallNumber: -Infinity,
+    notANumber: NaN,
+    missingValue: undefined,
+};
+
+// Serialize with custom replacer
+var serialized = JSON.stringify(data, customReplacer);
+console.log(serialized); // '{"regularNumber":42,"bigNumber":"Infinity","smallNumber":"-Infinity","notANumber":"NaN","missingValue":"undefined"}'
+
+// Deserialize with custom reviver
+var parsed = JSON.parse(serialized, customReviver);
+console.log(parsed); // {regularNumber: 42, bigNumber: Infinity, smallNumber: -Infinity, notANumber: NaN, missingValue: undefined}

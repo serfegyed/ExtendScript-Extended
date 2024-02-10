@@ -8,6 +8,7 @@ This JSON polyfill provides a way to serialize and deserialize data in ExtendScr
 
 - **JSON Serialization:** Converts JavaScript values to their JSON string representation.
 - **Custom Replacer Function:** Allows for filtering or transforming values and properties during serialization.
+- **Custom Reviver Function:** Allows for filtering or transforming values and properties during deserialization.
 - **Compatibility:** Designed to work in environments lacking native JSON support, specifically targeting Adobe ExtendScript environments.
 
 ## Usage
@@ -103,6 +104,56 @@ var myObject = JSON.parse(jsonString);
 console.log(myObject);
 // Output: {unicode: "©"}
 ```
+#### Using the Custom Reviver Function
+
+```javascript
+// Handling NaN, Infinity, -Infinity and undefined
+function customReplacer(key, value) {
+    if (typeof value === 'number') {
+        if (isNaN(value)) {
+            return 'NaN';
+        } else if (value === Infinity) {
+            return 'Infinity';
+        } else if (value === -Infinity) {
+            return '-Infinity';
+        }
+    }
+    if (typeof value === 'undefined') {
+        return 'undefined';
+    }
+    return value;
+}
+
+function customReviver(key, value) {
+    if (value === 'NaN') {
+        return NaN;
+    } else if (value === 'Infinity') {
+        return Infinity;
+    } else if (value === '-Infinity') {
+        return -Infinity;
+    } else if (value === 'undefined') {
+        return undefined;
+    }
+    return value;
+}
+var data = {
+    regularNumber: 42,
+    bigNumber: Infinity,
+    smallNumber: -Infinity,
+    notANumber: NaN,
+    missingValue: undefined,
+};
+
+// Serialize with custom replacer
+var serialized = JSON.stringify(data, customReplacer);
+console.log(serialized); 
+// '{"regularNumber":42,"bigNumber":"Infinity","smallNumber":"-Infinity","notANumber":"NaN","missingValue":"undefined"}'
+
+// Deserialize with custom reviver
+var parsed = JSON.parse(serialized, customReviver);
+console.log(parsed); 
+// {regularNumber: 42, bigNumber: Infinity, smallNumber: -Infinity, notANumber: NaN, missingValue: undefined}
+```
 
 ## Implementation Notes
 - The polyfill is designed to be as compatible as possible with ECMAScript 3 standards, making it suitable for use in ExtendScript environments.
@@ -112,7 +163,7 @@ console.log(myObject);
 ## Limitations
 
 - This polyfill focuses on providing basic JSON serialization capabilities and not fully replicate all features of the native JSON.stringify method found in modern JavaScript environments. 
-- Specifically, it may not handle all edge cases or advanced features such as custom toJSON methods, space argument for pretty-printing, JSON.parse 'reviever' function, etc.
+- Specifically, it may not handle all edge cases or advanced features such as custom toJSON methods, space argument for pretty-printing, etc.
 - The polyfill does not support undefined, Function, Symbol, Map, Set, WeakMap, WeakSet, or any non-JSON data types. Attempting to serialize these types will result in them being omitted or replaced with null.
 - Circular references in the object to be serialized will cause an error, as JSON does not support them.
 - The performance of this polyfill may be slower than native JSON support in environments that provide it. However, it offers a viable solution for environments without JSON support.

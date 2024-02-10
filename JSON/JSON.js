@@ -59,7 +59,7 @@ if (!JSON) {
      * @param {string} jsonString - The JSON string to be converted to a JavaScript value.
      * @return {any} The JavaScript value represented by the input JSON string.
      */
-    JSON.parse = function (jsonString) {
+    JSON.parse = function (jsonString, reviver) {
         var index = 0;
 
         // Skip spaces
@@ -102,7 +102,6 @@ if (!JSON) {
                 index += 4;
                 return null;
             }
-
 
             // Handle arrays
             if (ch === "[") {
@@ -228,7 +227,6 @@ if (!JSON) {
             return arr;
         };
 
-
         // Parse a JSON object recursively
         var parseObject = function () {
             var obj = {};
@@ -267,9 +265,26 @@ if (!JSON) {
             return obj;
         };
 
+        // Function to walk and revive parsed object or array
+        function revive(holder, key) {
+            var value = holder[key];
+            if (value && typeof value === 'object') {
+                for (var k in value) {
+                    if (Object.hasOwnProperty.call(value, k)) {
+                        value[k] = revive(value, k);
+                    }
+                }
+            }
+            return reviver.call(holder, key, value);
+        }
 
         // Start parsing the JSON string
         var result = parseValue();
+
+        // Apply reviver function if provided
+        if (typeof reviver === 'function') {
+            result = revive({ '': result }, '');
+        }
 
         // Make sure there are no trailing characters
         while (index < jsonString.length) {
