@@ -6,8 +6,8 @@
  * @return {Array} - A new array with the updated element.
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/with
  */
+#include "..\\..\\Object\\Lib\\deepCopy.js"
 if (!Array.prototype.with) {
-    #include "..\\..\\Object\\Lib\\deepCopy.js"
     Array.prototype.with = function (index, value) {
         var copy = Object.deepCopy(this);
         copy[index] = value;

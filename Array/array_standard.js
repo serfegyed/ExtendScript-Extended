@@ -321,7 +321,6 @@ if (!Array.prototype.flat) {
  * ! Dependency: flat()
  */
 if (!Array.prototype.flatMap) {
-    #include ".\\flat.js"
     Array.prototype.flatMap = function (callback) {
         callback = callback || function (x) {
             return x;
@@ -639,8 +638,8 @@ if (!Array.prototype.some) {
  * @return {Array} A new array with the elements in reverse order.
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toReversed
  */
+#include "..\\..\\Object\\Lib\\deepCopy.js"
 if (!Array.prototype.toReversed) {
-    #include "..\\..\\Object\\Lib\\deepCopy.js"
     Array.prototype.toReversed = function () {
         var copy = Object.deepCopy(this);
         return Array.prototype.reverse.call(copy);
@@ -654,8 +653,8 @@ if (!Array.prototype.toReversed) {
  * @return {Array} A new array with the elements sorted in ascending order.
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSorted
  */
+#include "..\\..\\Object\\Lib\\deepCopy.js"
 if (!Array.prototype.toSorted) {
-    #include "..\\..\\Object\\Lib\\deepCopy.js"
     Array.prototype.toSorted = function (compareFunc) {
         var copy = Object.deepCopy(this);
         if (compareFunc) {
@@ -675,8 +674,8 @@ if (!Array.prototype.toSorted) {
  * @return {Array} - A new array with the spliced elements.
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced
  */
+#include "..\\..\\Object\\Lib\\deepCopy.js"
 if (!Array.prototype.toSpliced) {
-    #include "..\\..\\Object\\Lib\\deepCopy.js"
     Array.prototype.toSpliced = function (index /*, deleteCount, item1, item2, itemN*/) {
         var copy = Object.deepCopy(this);
         var args = Array.prototype.slice.call(arguments);
@@ -742,8 +741,8 @@ if (!Array.prototype.values) {
  * @return {Array} - A new array with the updated element.
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/with
  */
+#include "..\\..\\Object\\Lib\\deepCopy.js"
 if (!Array.prototype.with) {
-    #include "..\\..\\Object\\Lib\\deepCopy.js"
     Array.prototype.with = function (index, value) {
         var copy = Object.deepCopy(this);
         copy[index] = value;

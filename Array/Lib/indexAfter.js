@@ -9,8 +9,8 @@
  * element, or -1 if the element is not found.
  * !dependencies: indexOf()
  */
+#include ".\\indexOf.js"
 if (!Array.prototype.indexAfter) {
-	#include ".\\indexOf.js"
 	Array.prototype.indexAfter = function (element/*, fromIndex*/) {
 		// Check if fromIndex is out of bounds
 		var fromIndex = Math.floor(arguments[1]) || 0;

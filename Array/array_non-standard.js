@@ -22,9 +22,8 @@ if (!Array.prototype.clear) {
  * @return {Array} A new array with all falsy values removed.
  * !dependencies: filter()
  */
-
+#include ".\\filter.js"
 if (!Array.prototype.compact) {
-    #include ".\\filter.js"
     Array.prototype.compact = function () {
         return this.filter(Boolean);
     };
@@ -52,8 +51,8 @@ if (!Array.prototype.first) {
  * element, or -1 if the element is not found.
  * !dependencies: indexOf()
  */
+#include ".\\indexOf.js"
 if (!Array.prototype.indexAfter) {
-    #include ".\\indexOf.js"
     Array.prototype.indexAfter = function (element/*, fromIndex*/) {
         // Check if fromIndex is out of bounds
         var fromIndex = Math.floor(arguments[1]) || 0;
@@ -188,9 +187,8 @@ if (!Array.prototype.max) {
  * @throws {TypeError} Throws a TypeError if the provided value is not an array or if the compare function is not a function.
  * @returns {Array} The original array with the merged result.
  */
-
+#include ".\\isArray.js"
 if (!Array.prototype.merge) {
-    #include ".\\isArray.js"
     Array.prototype.merge = function (arrayToMerge, compareFunc) {
         if (!Array.isArray(arrayToMerge)) {
             throw new TypeError('The provided value is not an array.');
@@ -276,8 +274,8 @@ if (!Array.prototype.min) {
  *     78
  * !dependency map()
  */
+#include ".\\map.js"
 if (!Array.prototype.pluck) {
-    #include ".\\map.js"
     Array.prototype.pluck = function (name) {
         return this.map(function (item) {
             return item[name];
@@ -380,9 +378,9 @@ if (!Array.prototype.rotate) {
  *     8
  *! dependency map(), reduce()
  */
+#include ".\\map.js"
+#include ".\\reduce.js"
 if (!Array.prototype.sum) {
-    #include ".\\map.js"
-    #include ".\\reduce.js"
     Array.prototype.sum = function (salient) {
         if (salient && typeof salient === "string") {
             var mapper = function (obj) {

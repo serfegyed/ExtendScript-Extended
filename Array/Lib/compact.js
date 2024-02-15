@@ -4,9 +4,8 @@
  * @return {Array} A new array with all falsy values removed.
  * !dependencies: filter()
  */
-
+#include "./filter.js"
 if (!Array.prototype.compact) {
-#include ".\\filter.js"
     Array.prototype.compact = function () {
         return this.filter(Boolean);
     };

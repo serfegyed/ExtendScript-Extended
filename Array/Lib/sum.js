@@ -16,9 +16,9 @@
  *     8
  *! dependency map(), reduce()
  */
+#include ".\\map.js"
+#include ".\\reduce.js"
 if (!Array.prototype.sum) {
-    #include ".\\map.js"
-    #include ".\\reduce.js"
     Array.prototype.sum = function (salient) {
         if (salient && typeof salient === "string") {
             var mapper = function (obj) {
