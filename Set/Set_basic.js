@@ -11,14 +11,9 @@
  *
  * Standard methods for the Set object:
  *  - add(value) - Adds a value to the set.
- *  - clear() - Clears all element in the set and sets the size to 0.
  *  - delete(value) - Deletes the given value from the set.
- *  - entries() - Returns a new set iterator object that contains the value/value pairs for each element in the set.
- *  - forEach() - Iterates through each element of the set and applies a callback function.
  *  - has(value) - Checks if the given value exists in the set object or not.
- *  - keys() - The keys() method is an alias for the values() method.
  *  - size() - The number of elemets in the set
- *  - values() - Returns a new set iterator object that contains the values for each element in the set.
  * 
  */
 
