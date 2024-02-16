@@ -56,19 +56,6 @@
  * @author Egyed Serf
  * @license MIT
  */
-Array.from = function (arrayLike /*, mapFn, thisArg*/) {
-    var result = [];
-    var length = arrayLike.length;
-    var mapFunction = arguments[1] || function (x) {
-        return x;
-    };
-    var thisArg = arguments[2] || undefined;
-    for (var i = 0; i < length; i++) {
-        result.push(mapFunction.call(thisArg, arrayLike[i], i));
-    }
-    return result;
-};
-
 function Map(iterable) {
     this._data = {};
     this._size = 0;

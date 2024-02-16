@@ -8,90 +8,15 @@
  * 
  * Methods for the Map class:
  * - clear()    - Clears the map.
- * - delete()   - Deletes a key-value pair from the map.
  * - entries()  - Returns a new iterator object that contains the key/value pairs in the map.
  * - forEach()  - Iterates through each element of the map and applies a callback function.
- * - get()      - Retrieves a value from the map's data using the provided key.
- * - has()      - Checks if the given key exists in the map's data.
  * - keys()     - Returns a new iterator object that contains the keys in the map.
- * - set()      - Sets the value of a key in the map.
  * - size()     - Returns the number of key-value pairs in the map.
  * - values()   - Returns a new iterator object that contains the values in the map.
  * 
  * @external:   nothing
  */
-function Map(iterable) {
-    this._data = {};
-    this._size = 0;
-
-    if (iterable instanceof Array) {
-        for (var i = 0; i < iterable.length; i++) {
-            var entry = iterable[i];
-            if (entry instanceof Array) {
-                this.set(entry[0], entry[1]);
-            };
-        };
-    };
-};
-
-/**
- * Returns the number of key-value pairs in the map.
- *
- * @return {number} The number of key-value pairs in the map.
- */
-Map.prototype.size = function () {
-    return this._size;
-};
-
-/**
- * Sets the value of a key in the data object.
- *
- * @param {string} key - The key to set.
- * @param {*} value - The value to set for the key.
- */
-Map.prototype.set = function (key, value) {
-    if (!this.has(key)) {
-        this._size++;
-    }
-    this._data[key] = value;
-    return this;
-};
-
-/**
- * Retrieves a value from the object's data using the provided key.
- *
- * @param {string} key - The key to retrieve the value for.
- * @return {*} The value associated with the provided key.
- */
-Map.prototype.get = function (key) {
-    return this._data[key];
-};
-
-/**
- * Checks if the given key exists in the object's data.
- *
- * @param {string} key - The key to check for existence in the object's data.
- * @return {boolean} True if the object's data contains the given key, false otherwise.
- */
-Map.prototype.has = function (key) {
-    return this._data.hasOwnProperty(key);
-};
-
-/**
- * Deletes a key-value pair from the data object.
- *
- * @param {string} key - the key to delete
- */
-Map.prototype.delete = function (key) {
-    if (this.has(key)) {
-        delete this._data[key];
-        this._size--;
-        return true;
-    } else {
-        return false;
-    }
-};
-
+#include "./Map_basic.js";
 /**
  * Clears the data object.
  *
