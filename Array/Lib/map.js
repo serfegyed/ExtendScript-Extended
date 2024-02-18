@@ -8,14 +8,15 @@
  */
 if (!Array.prototype.map) {
     Array.prototype.map = function (callback, thisArg) {
-        var len = this.length;
-        if (typeof callback !== "function") throw new TypeError();
-        var thisArg = thisArg || undefined;
+        if (typeof callback !== 'function') throw new TypeError('Callback must be a function');
 
-        var res = new Array(len);
-        for (var i = 0; i < len; i++) {
-            if (i in this) res[i] = callback.call(thisArg, this[i], i, this);
+        var length = this.length;
+        var result = new Array(length);
+        for (var i = 0; i < length; i++) {
+            if (i in this) {
+                result[i] = callback.call(thisArg, this[i], i, this);
+            }
         }
-        return res;
+        return result;
     };
-};
+}

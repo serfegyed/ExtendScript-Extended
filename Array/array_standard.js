@@ -9,21 +9,32 @@
  *
  * @param {number} index - The index of the element to retrieve.
  * @return {*} - The element at the specified index, or undefined if the index is out of range.
+ * !dependency Math.trunc
  */
 if (!Array.prototype.at) {
+    #include "../Math/Lib/Math.trunc.js"
     Array.prototype.at = function (index) {
-        index = Math.floor(index) || 0;
-        // Check if index is a number and not NaN
-        if (typeof index !== 'number' || isNaN(index)) {
-            throw new TypeError('Index must be a valid number');
-        }
-        // Check range
-        if (index < -this.length || index >= this.length) {
+        // Check array length
+        if (this.length === 0) {
             return undefined;
+        };
+
+        // Convert index to an integer
+        index = Math.trunc(index);
+
+        // Adjust index if Infinite or NaN
+        if (isNaN(index)) { index = 0 };
+        if (!isFinite(index)) { return undefined };
+
+        // Adjust for negative indices
+        if (index < 0) {
+            index += this.length;
         }
 
-        // Adjust negative index
-        index = index < 0 ? this.length + index : index;
+        // Check range
+        if (index < 0 || index >= this.length) {
+            return undefined;
+        }
 
         return this[index];
     };
@@ -39,28 +50,22 @@ if (!Array.prototype.at) {
  * @param {number} start - The index position from which to start copying elements.
  * @param {number} [end] - The index position up to which to copy elements.
  * @return {Array} The modified array.
+ * !dependency Math.trunc
  */
 if (!Array.prototype.copyWithin) {
+    #include "../Math/Lib/Math.trunc.js"
     Array.prototype.copyWithin = function (target, start, end) {
-        var len = this.length >>> 0;
-        var to = target >> 0;
-        var from = start >> 0;
-        var last = end === undefined ? len : end >> 0;
+        var len = this.length;
+        var to = Math.trunc(target);
+        var from = Math.trunc(start);
+        var last = end === undefined ? len : Math.trunc(end);
 
-        // Normalize negative indices
-        if (to < 0) to = Math.max(len + to, 0);
-        if (from < 0) from = Math.max(len + from, 0);
-        if (last < 0) last = Math.max(len + last, 0);
+        // Normalize indices
+        to = to < 0 ? Math.max(len + to, 0) : Math.min(to, len);
+        from = from < 0 ? Math.max(len + from, 0) : Math.min(from, len);
+        last = last < 0 ? Math.max(len + last, 0) : Math.min(last, len);
 
-        // Ensure indices are within range
-        to = Math.min(Math.max(to, 0), len);
-        from = Math.min(Math.max(from, 0), len);
-        last = Math.min(Math.max(last, 0), len);
-
-        // Compute the number of elements to copy
         var count = Math.min(last - from, len - to);
-
-        // Determine direction of copy
         var direction = from < to && to < from + count ? -1 : 1;
 
         if (direction === -1) {
@@ -68,11 +73,12 @@ if (!Array.prototype.copyWithin) {
             to += count - 1;
         }
 
-        // Copy elements
         while (count > 0) {
-            if (from in this) this[to] = this[from];
-            else delete this[to];
-
+            if (from in this) {
+                this[to] = this[from];
+            } else {
+                delete this[to];
+            }
             from += direction;
             to += direction;
             count--;
@@ -80,7 +86,7 @@ if (!Array.prototype.copyWithin) {
 
         return this;
     };
-};
+}
 
 /**
  * Returns an iterator object that contains the key/value pairs for each index of the array.
@@ -121,18 +127,19 @@ if (!Array.prototype.entries) {
  * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/every
  */
 if (!Array.prototype.every) {
-    Array.prototype.every = function (callback /*, thisArg*/) {
+    Array.prototype.every = function (callback, thisArg) {
         var len = this.length;
-        if (typeof callback !== "function") throw new TypeError();
-        var thisArg = arguments[1] || undefined;
+        if (typeof callback !== "function") throw new TypeError("Callback must be a function");
 
         for (var i = 0; i < len; i++) {
-            if (i in this && !callback.call(thisArg, this[i], i, this))
+            // Check if i is an own property of the array to handle sparse arrays
+            if (Object.prototype.hasOwnProperty.call(this, i) && !callback.call(thisArg, this[i], i, this)) {
                 return false;
+            }
         }
         return true;
     };
-};
+}
 
 /**
  * Fill all the elements of an array with a static value from a start index to an end index (excluding the end index).
@@ -144,40 +151,25 @@ if (!Array.prototype.every) {
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill
  */
 if (!Array.prototype.fill) {
-    Array.prototype.fill = function (value /*, start, end*/) {
-        var len = this.length;
+    Array.prototype.fill = function (value, start, end) {
+        // Convert start and end to integers, providing default values if undefined
+        start = start !== undefined ? Math.floor(start) : 0;
+        end = end !== undefined ? Math.floor(end) : this.length;
 
-        // Handle start parameter
-        var start = arguments[1];
-        start = start === undefined ? 0 : Math.floor(start);
-        if (start < 0) {
-            start = Math.max(len + start, 0);
-        } else {
-            start = Math.min(start, len);
-        }
+        // Adjust negative indices relative to the length of the array
+        start = start < 0 ? Math.max(this.length + start, 0) : Math.min(start, this.length);
+        end = end < 0 ? Math.max(this.length + end, 0) : Math.min(end, this.length);
 
-        // Handle end parameter
-        var end = arguments[2];
-        end = end === undefined ? len : Math.floor(end);
-        if (end < 0) {
-            end = Math.max(len + end, 0);
-        } else {
-            end = Math.min(end, len);
-        }
-
-        // If start is greater than or equal to end, do nothing
-        if (start >= end) {
-            return this;
-        }
-
-        // Fill the array
-        for (var i = start; i < end; i++) {
-            this[i] = value;
+        // Fill the array if the start is less than the end
+        if (start < end) {
+            for (var i = start; i < end; i++) {
+                this[i] = value;
+            }
         }
 
         return this;
     };
-};
+}
 
 /**
  * Filters the elements of an array based on a provided callback function.
@@ -187,22 +179,25 @@ if (!Array.prototype.fill) {
  * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/filter
  */
 if (!Array.prototype.filter) {
-    Array.prototype.filter = function (callback /*, thisArg*/) {
+    Array.prototype.filter = function (callback, thisArg) {
         var len = this.length;
-        if (typeof callback !== "function")
-            throw new TypeError("Callback must be a function");
+        if (typeof callback !== 'function') {
+            throw new TypeError('Callback must be a function');
+        }
 
         var res = [];
-        var thisArg = thisArg || undefined;
+        thisArg = thisArg || undefined;
         for (var i = 0; i < len; i++) {
-            if (i in this) {
+            if (Object.prototype.hasOwnProperty.call(this, i)) {
                 var val = this[i];
-                if (callback.call(thisArg, val, i, this)) res[res.length] = val;
+                if (callback.call(thisArg, val, i, this)) {
+                    res.push(val);
+                }
             }
         }
         return res;
     };
-};
+}
 
 /**
  * Finds the first element in the array that satisfies the provided testing function.
@@ -213,16 +208,15 @@ if (!Array.prototype.filter) {
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
  */
 if (!Array.prototype.find) {
-    Array.prototype.find = function (callback /*, thisArg*/) {
-        if (typeof callback !== "function") throw new TypeError();
-        var thisArg = arguments[1] || undefined;
+    Array.prototype.find = function (callback, thisArg) {
+        if (typeof callback !== "function") throw new TypeError("Callback must be a function");
 
         for (var i = 0; i < this.length; i++) {
             if (callback.call(thisArg, this[i], i, this)) return this[i];
         }
         return undefined;
     };
-};
+}
 
 /**
  * Finds the index of the first element in the array that satisfies the provided testing function.
@@ -233,16 +227,18 @@ if (!Array.prototype.find) {
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex
  */
 if (!Array.prototype.findIndex) {
-    Array.prototype.findIndex = function (callback /*, thisArg*/) {
-        if (typeof callback !== "function") throw new TypeError();
-        var thisArg = arguments[1] || undefined;
+    Array.prototype.findIndex = function (callback, thisArg) {
+        if (typeof callback !== 'function') throw new TypeError('Callback must be a function');
 
-        for (var i = 0; i < this.length; i++) {
-            if (callback.call(thisArg, this[i], i, this)) return i;
+        var length = this.length;
+        for (var i = 0; i < length; i++) {
+            if (i in this && callback.call(thisArg, this[i], i, this)) {
+                return i;
+            }
         }
         return -1;
     };
-};
+}
 
 /**
  * Finds the last element that satisfies the provided testing function.
@@ -253,16 +249,17 @@ if (!Array.prototype.findIndex) {
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findLast
  */
 if (!Array.prototype.findLast) {
-    Array.prototype.findLast = function (callback /*, thisArg*/) {
-        if (typeof callback !== "function") throw new TypeError();
-        var thisArg = arguments[1] || undefined;
+    Array.prototype.findLast = function (callback, thisArg) {
+        if (typeof callback !== 'function') throw new TypeError('Callback must be a function');
 
         for (var i = this.length - 1; i >= 0; i--) {
-            if (callback.call(thisArg, this[i], i, this)) return this[i];
+            if (i in this && callback.call(thisArg, this[i], i, this)) {
+                return this[i];
+            }
         }
         return undefined;
     };
-};
+}
 
 /**
  * Find the last index in the array that satisfies the provided testing function.
@@ -273,16 +270,17 @@ if (!Array.prototype.findLast) {
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findLastIndex
  */
 if (!Array.prototype.findLastIndex) {
-    Array.prototype.findLastIndex = function (callback /*, thisArg*/) {
-        if (typeof callback !== "function") throw new TypeError();
-        var thisArg = arguments[1] || undefined;
+    Array.prototype.findLastIndex = function (callback, thisArg) {
+        if (typeof callback !== 'function') throw new TypeError('Callback must be a function');
 
         for (var i = this.length - 1; i >= 0; i--) {
-            if (callback.call(thisArg, this[i], i, this)) return i;
+            if (i in this && callback.call(thisArg, this[i], i, this)) {
+                return i;
+            }
         }
         return -1;
     };
-};
+}
 
 /**
  *  Returns a new array with all sub-array elements concatenated up to the specified depth.
@@ -292,25 +290,25 @@ if (!Array.prototype.findLastIndex) {
  */
 if (!Array.prototype.flat) {
     Array.prototype.flat = function (depth) {
-        depth = typeof depth === "undefined" ? 1 : depth;
+        var flatDepth = isNaN(depth) ? 1 : Math.max(depth, 0);
 
-        function flatten(arr, currentDepth) {
+        var flatten = function (arr, d) {
             var result = [];
             for (var i = 0; i < arr.length; i++) {
                 if (i in arr) {
-                    if (arr[i] instanceof Array && currentDepth > 0) {
-                        result = result.concat(flatten(arr[i], currentDepth - 1));
+                    if (arr[i] instanceof Array && d > 0) {
+                        result = result.concat(flatten(arr[i], d - 1));
                     } else {
                         result.push(arr[i]);
                     }
                 }
             }
             return result;
-        }
+        };
 
-        return flatten(this, depth);
+        return flatten(this, flatDepth);
     };
-};
+}
 
 /**
  * Maps each element to an array using a callback function and then flattens the resulting array.
@@ -321,29 +319,29 @@ if (!Array.prototype.flat) {
  * ! Dependency: flat()
  */
 if (!Array.prototype.flatMap) {
-    Array.prototype.flatMap = function (callback) {
-        callback = callback || function (x) {
-            return x;
-        };
-        return Array.prototype.map.call(this, callback).flat();
+    Array.prototype.flatMap = function (callback, thisArg) {
+        if (typeof callback !== 'function') throw new TypeError('Callback must be a function');
+
+        var mappedArray = Array.prototype.map.call(this, callback, thisArg);
+
+        return mappedArray.flat();
     };
-};
+}
 
 /**
  * @desc Executes a provided function once per array element.
  * @param {Function} callback
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
  */
-if (!Array.prototype.forEach) {
-    Array.prototype.forEach = function (callback /*, thisArg*/) {
-        var len = this.length;
-        if (typeof callback !== "function") throw new TypeError();
-        var thisArg = arguments[1] || undefined;
+Array.prototype.forEach = function (callback, thisArg) {
+    if (typeof callback !== "function") throw new TypeError("Callback must be a function");
 
-        for (var i = 0; i < len; i++) {
-            if (i in this) callback.call(thisArg, this[i], i, this);
-        };
-    };
+    var length = this.length;
+    for (var i = 0; i < length; i++) {
+        if (i in this) {
+            callback.call(thisArg, this[i], i, this);
+        }
+    }
 };
 
 /**
@@ -356,30 +354,23 @@ if (!Array.prototype.forEach) {
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
  */
 if (!Array.from) {
-    Array.from = function (arrayLike /*, mapFunction, thisArg*/) {
+    Array.from = function (arrayLike, mapFunction, thisArg) {
         if (arrayLike == null) {
             throw new TypeError('Array.from requires an array-like object - not null or undefined');
         }
 
-        var result = [];
-        var length = arrayLike.length;
-        if (typeof length !== "number") {
+        if (arrayLike.length >>> 0 !== arrayLike.length) {
             throw new TypeError('Array.from requires an array-like object with a length property');
         }
 
-        var mapFunction = arguments[1];
-        var thisArg = arguments[2];
-        for (var i = 0; i < length; i++) {
+        var result = [];
+        for (var i = 0, length = arrayLike.length; i < length; i++) {
             var element = arrayLike[i];
-            if (mapFunction) {
-                result.push(mapFunction.call(thisArg, element, i));
-            } else {
-                result.push(element);
-            }
+            result.push(mapFunction ? mapFunction.call(thisArg, element, i) : element);
         }
         return result;
     };
-};
+}
 
 /**
  * Checks if the array includes a certain element, returning true or false as appropriate.
@@ -419,16 +410,16 @@ if (!Array.prototype.includes) {
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
  */
 if (!Array.prototype.indexOf) {
-    Array.prototype.indexOf = function (elem /*, from*/) {
-        var from = Math.floor(arguments[1]) || 0;
-        if (Math.abs(from) > this.length) return -1;
-        from = from < 0 ? (from += this.length) : from;
+    Array.prototype.indexOf = function (searchElement, fromIndex) {
+        var from = fromIndex || 0;
+        from = Math.max(from >= 0 ? from : this.length + from, 0);
+
         for (var i = from; i < this.length; i++) {
-            if (this[i] === elem) return i;
+            if (this[i] === searchElement) return i;
         }
         return -1;
     };
-};
+}
 
 /**
  * Checks if the given argument is an array.
@@ -475,28 +466,23 @@ if (!Array.prototype.keys) {
 /**
  * Find the last index of a given element in the array.
  *
- * @param {any} element - The element to search for.
- * @param {number} [from] - The index to start searching from. If not provided, the search starts from the last element.
+ * @param {any} searchElement - The element to search for.
+ * @param {number} [fromIndex] - The index to start searching from. If not provided, the search starts from the last element.
  * @return {number} The index of the last occurrence of the element in the array, or -1 if the element is not found.
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf
  */
 if (!Array.prototype.lastIndexOf) {
-    Array.prototype.lastIndexOf = function (element /*, from*/) {
-        var from = arguments[1];
-        from = from === null ? (from = this.length - 1) : (from = Math.floor(from));
-        from =
-            from < 0
-                ? Math.max(0, from + this.length)
-                : Math.min(this.length - 1, from);
-
+    Array.prototype.lastIndexOf = function (searchElement, fromIndex) {
+        var from = isNaN(fromIndex) ? this.length - 1 : parseInt(fromIndex, 10);
+        from = from >= 0 ? Math.min(from, this.length - 1) : from + this.length;
         for (var i = from; i >= 0; i--) {
-            if (this[i] === element) {
+            if (this[i] === searchElement) {
                 return i;
             }
         }
         return -1;
     };
-};
+}
 
 /**
  * Implements the map function for the Array prototype.
@@ -508,17 +494,18 @@ if (!Array.prototype.lastIndexOf) {
  */
 if (!Array.prototype.map) {
     Array.prototype.map = function (callback, thisArg) {
-        var len = this.length;
-        if (typeof callback !== "function") throw new TypeError();
-        var thisArg = thisArg || undefined;
+        if (typeof callback !== 'function') throw new TypeError('Callback must be a function');
 
-        var res = new Array(len);
-        for (var i = 0; i < len; i++) {
-            if (i in this) res[i] = callback.call(thisArg, this[i], i, this);
+        var length = this.length;
+        var result = new Array(length);
+        for (var i = 0; i < length; i++) {
+            if (i in this) {
+                result[i] = callback.call(thisArg, this[i], i, this);
+            }
         }
-        return res;
+        return result;
     };
-};
+}
 
 /**
  * Creates a new array instance with a variable number of elements.
@@ -527,20 +514,16 @@ if (!Array.prototype.map) {
  * @return {Array} The newly created array instance.
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/of
  */
-if (!Array.of) {
-    Array.of = function () {
-        var constructor = this;
-        var items = [].slice.call(arguments);
-        var arrayLike =
-            typeof constructor === "function"
-                ? Object(new constructor(items.length))
-                : new Array(items.length);
-        for (var index = 0; index < items.length; index++) {
-            arrayLike[index] = items[index];
-        }
-        arrayLike.length = items.length;
-        return arrayLike;
-    };
+Array.of = function () {
+    var items = Array.prototype.slice.call(arguments);
+    // Use 'this' to allow subclass factories
+    var constructor = typeof this === 'function' ? this : Array;
+    var arrayLike = new constructor(items.length);
+    for (var i = 0; i < items.length; i++) {
+        arrayLike[i] = items[i];
+    }
+    arrayLike.length = items.length; // Ensure length is set correctly
+    return arrayLike;
 };
 
 /**
@@ -690,17 +673,13 @@ if (!Array.prototype.toSpliced) {
  * @return {string} The string representation of the array.
  */
 Array.prototype.toString = function () {
-    var arr = this;
-    var result = "";
-    if (arr.length > 0) {
-        for (var i = 0; i < arr.length; i++) {
-            if (result !== "") {
-                result += ", ";
-            };
-            result += (typeof arr[i] === 'string') ? '"' + arr[i] + '"' : arr[i];
-        };
-    };
-    return "[" + result + "]";
+    var elements = new Array(this.length);
+    for (var i = 0; i < this.length; i++) {
+        if (i in this) {
+            elements[i] = (typeof this[i] === 'string') ? '"' + this[i] + '"' : this[i];
+        }
+    }
+    return "[" + elements.join(", ") + "]";
 };
 
 /**

@@ -8,37 +8,22 @@
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill
  */
 if (!Array.prototype.fill) {
-    Array.prototype.fill = function (value /*, start, end*/) {
-        var len = this.length;
+    Array.prototype.fill = function (value, start, end) {
+        // Convert start and end to integers, providing default values if undefined
+        start = start !== undefined ? Math.floor(start) : 0;
+        end = end !== undefined ? Math.floor(end) : this.length;
 
-        // Handle start parameter
-        var start = arguments[1];
-        start = start === undefined ? 0 : Math.floor(start);
-        if (start < 0) {
-            start = Math.max(len + start, 0);
-        } else {
-            start = Math.min(start, len);
-        }
+        // Adjust negative indices relative to the length of the array
+        start = start < 0 ? Math.max(this.length + start, 0) : Math.min(start, this.length);
+        end = end < 0 ? Math.max(this.length + end, 0) : Math.min(end, this.length);
 
-        // Handle end parameter
-        var end = arguments[2];
-        end = end === undefined ? len : Math.floor(end);
-        if (end < 0) {
-            end = Math.max(len + end, 0);
-        } else {
-            end = Math.min(end, len);
-        }
-
-        // If start is greater than or equal to end, do nothing
-        if (start >= end) {
-            return this;
-        }
-
-        // Fill the array
-        for (var i = start; i < end; i++) {
-            this[i] = value;
+        // Fill the array if the start is less than the end
+        if (start < end) {
+            for (var i = start; i < end; i++) {
+                this[i] = value;
+            }
         }
 
         return this;
     };
-};
+}

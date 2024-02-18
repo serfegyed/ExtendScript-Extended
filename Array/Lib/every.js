@@ -7,15 +7,16 @@
  * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/every
  */
 if (!Array.prototype.every) {
-  Array.prototype.every = function (callback /*, thisArg*/) {
+  Array.prototype.every = function (callback, thisArg) {
     var len = this.length;
-    if (typeof callback !== "function") throw new TypeError();
-    var thisArg = arguments[1] || undefined;
+    if (typeof callback !== "function") throw new TypeError("Callback must be a function");
 
     for (var i = 0; i < len; i++) {
-      if (i in this && !callback.call(thisArg, this[i], i, this))
+      // Check if i is an own property of the array to handle sparse arrays
+      if (Object.prototype.hasOwnProperty.call(this, i) && !callback.call(thisArg, this[i], i, this)) {
         return false;
+      }
     }
     return true;
   };
-};
+}

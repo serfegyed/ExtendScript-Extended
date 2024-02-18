@@ -6,19 +6,22 @@
  * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/filter
  */
 if (!Array.prototype.filter) {
-    Array.prototype.filter = function (callback /*, thisArg*/) {
+    Array.prototype.filter = function (callback, thisArg) {
         var len = this.length;
-        if (typeof callback !== "function")
-            throw new TypeError("Callback must be a function");
+        if (typeof callback !== 'function') {
+            throw new TypeError('Callback must be a function');
+        }
 
         var res = [];
-        var thisArg = thisArg || undefined;
+        thisArg = thisArg || undefined;
         for (var i = 0; i < len; i++) {
-            if (i in this) {
+            if (Object.prototype.hasOwnProperty.call(this, i)) {
                 var val = this[i];
-                if (callback.call(thisArg, val, i, this)) res[res.length] = val;
+                if (callback.call(thisArg, val, i, this)) {
+                    res.push(val);
+                }
             }
         }
         return res;
     };
-};
+}

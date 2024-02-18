@@ -6,22 +6,22 @@
  */
 if (!Array.prototype.flat) {
     Array.prototype.flat = function (depth) {
-        depth = typeof depth === "undefined" ? 1 : depth;
+        var flatDepth = isNaN(depth) ? 1 : Math.max(depth, 0);
 
-        function flatten(arr, currentDepth) {
+        var flatten = function (arr, d) {
             var result = [];
             for (var i = 0; i < arr.length; i++) {
                 if (i in arr) {
-                    if (arr[i] instanceof Array && currentDepth > 0) {
-                        result = result.concat(flatten(arr[i], currentDepth - 1));
+                    if (arr[i] instanceof Array && d > 0) {
+                        result = result.concat(flatten(arr[i], d - 1));
                     } else {
                         result.push(arr[i]);
                     }
                 }
             }
             return result;
-        }
+        };
 
-        return flatten(this, depth);
+        return flatten(this, flatDepth);
     };
-};
+}

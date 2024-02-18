@@ -7,13 +7,12 @@
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
  */
 if (!Array.prototype.find) {
-  Array.prototype.find = function (callback /*, thisArg*/) {
-    if (typeof callback !== "function") throw new TypeError();
-    var thisArg = arguments[1] || undefined;
+  Array.prototype.find = function (callback, thisArg) {
+    if (typeof callback !== "function") throw new TypeError("Callback must be a function");
 
     for (var i = 0; i < this.length; i++) {
       if (callback.call(thisArg, this[i], i, this)) return this[i];
     }
     return undefined;
   };
-};
+}

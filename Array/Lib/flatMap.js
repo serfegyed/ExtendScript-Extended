@@ -8,10 +8,11 @@
  */
 #include "./flat.js"
 if (!Array.prototype.flatMap) {
-    Array.prototype.flatMap = function (callback) {
-        callback = callback || function (x) {
-            return x;
-        };
-        return Array.prototype.map.call(this, callback).flat();
+    Array.prototype.flatMap = function (callback, thisArg) {
+        if (typeof callback !== 'function') throw new TypeError('Callback must be a function');
+
+        var mappedArray = Array.prototype.map.call(this, callback, thisArg);
+
+        return mappedArray.flat();
     };
-};
+}

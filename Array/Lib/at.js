@@ -3,21 +3,32 @@
  *
  * @param {number} index - The index of the element to retrieve.
  * @return {*} - The element at the specified index, or undefined if the index is out of range.
+ * !dependency Math.trunc
  */
 if (!Array.prototype.at) {
+    #include "../Math/Lib/Math.trunc.js"
     Array.prototype.at = function (index) {
-        index = Math.floor(index) || 0;
-        // Check if index is a number and not NaN
-        if (typeof index !== 'number' || isNaN(index)) {
-            throw new TypeError('Index must be a valid number');
-        }
-        // Check range
-        if (index < -this.length || index >= this.length) {
+        // Check array length
+        if (this.length === 0) {
             return undefined;
+        };
+
+        // Convert index to an integer
+        index = Math.trunc(index);
+
+        // Adjust index if Infinite or NaN
+        if (isNaN(index)) { index = 0 };
+        if (!isFinite(index)) { return undefined };
+
+        // Adjust for negative indices
+        if (index < 0) {
+            index += this.length;
         }
 
-        // Adjust negative index
-        index = index < 0 ? this.length + index : index;
+        // Check range
+        if (index < 0 || index >= this.length) {
+            return undefined;
+        }
 
         return this[index];
     };

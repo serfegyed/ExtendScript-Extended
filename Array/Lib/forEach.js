@@ -3,14 +3,13 @@
  * @param {Function} callback
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
  */
-if (!Array.prototype.forEach) {
-	Array.prototype.forEach = function (callback /*, thisArg*/) {
-		var len = this.length;
-		if (typeof callback !== "function") throw new TypeError();
-		var thisArg = arguments[1] || undefined;
+Array.prototype.forEach = function (callback, thisArg) {
+	if (typeof callback !== "function") throw new TypeError("Callback must be a function");
 
-		for (var i = 0; i < len; i++) {
-			if (i in this) callback.call(thisArg, this[i], i, this);
-		};
-	};
+	var length = this.length;
+	for (var i = 0; i < length; i++) {
+		if (i in this) {
+			callback.call(thisArg, this[i], i, this);
+		}
+	}
 };

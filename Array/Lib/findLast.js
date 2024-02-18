@@ -7,13 +7,14 @@
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findLast
  */
 if (!Array.prototype.findLast) {
-  Array.prototype.findLast = function (callback /*, thisArg*/) {
-    if (typeof callback !== "function") throw new TypeError();
-    var thisArg = arguments[1] || undefined;
+  Array.prototype.findLast = function (callback, thisArg) {
+    if (typeof callback !== 'function') throw new TypeError('Callback must be a function');
 
     for (var i = this.length - 1; i >= 0; i--) {
-      if (callback.call(thisArg, this[i], i, this)) return this[i];
+      if (i in this && callback.call(thisArg, this[i], i, this)) {
+        return this[i];
+      }
     }
     return undefined;
   };
-};
+}

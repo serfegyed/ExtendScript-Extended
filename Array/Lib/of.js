@@ -5,18 +5,14 @@
  * @return {Array} The newly created array instance.
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/of
  */
-if (!Array.of) {
-    Array.of = function () {
-        var constructor = this;
-        var items = [].slice.call(arguments);
-        var arrayLike =
-            typeof constructor === "function"
-                ? Object(new constructor(items.length))
-                : new Array(items.length);
-        for (var index = 0; index < items.length; index++) {
-            arrayLike[index] = items[index];
-        }
-        arrayLike.length = items.length;
-        return arrayLike;
-    };
+Array.of = function () {
+    var items = Array.prototype.slice.call(arguments);
+    // Use 'this' to allow subclass factories
+    var constructor = typeof this === 'function' ? this : Array;
+    var arrayLike = new constructor(items.length);
+    for (var i = 0; i < items.length; i++) {
+        arrayLike[i] = items[i];
+    }
+    arrayLike.length = items.length; // Ensure length is set correctly
+    return arrayLike;
 };

@@ -7,13 +7,15 @@
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex
  */
 if (!Array.prototype.findIndex) {
-    Array.prototype.findIndex = function (callback /*, thisArg*/) {
-        if (typeof callback !== "function") throw new TypeError();
-        var thisArg = arguments[1] || undefined;
+    Array.prototype.findIndex = function (callback, thisArg) {
+        if (typeof callback !== 'function') throw new TypeError('Callback must be a function');
 
-        for (var i = 0; i < this.length; i++) {
-            if (callback.call(thisArg, this[i], i, this)) return i;
+        var length = this.length;
+        for (var i = 0; i < length; i++) {
+            if (i in this && callback.call(thisArg, this[i], i, this)) {
+                return i;
+            }
         }
         return -1;
     };
-};
+}

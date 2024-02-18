@@ -7,13 +7,13 @@
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
  */
 if (!Array.prototype.indexOf) {
-	Array.prototype.indexOf = function (elem /*, from*/) {
-		var from = Math.floor(arguments[1]) || 0;
-		if (Math.abs(from) > this.length) return -1;
-		from = from < 0 ? (from += this.length) : from;
+	Array.prototype.indexOf = function (searchElement, fromIndex) {
+		var from = fromIndex || 0;
+		from = Math.max(from >= 0 ? from : this.length + from, 0);
+
 		for (var i = from; i < this.length; i++) {
-			if (this[i] === elem) return i;
+			if (this[i] === searchElement) return i;
 		}
 		return -1;
 	};
-};
+}
