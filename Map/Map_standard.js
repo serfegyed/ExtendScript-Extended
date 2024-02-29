@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @description Minimal Map class - ExtendScript (ES3)
  *
  * A minimal version of the Map class. It contains all standard ES6 Map methods.
@@ -10,6 +10,7 @@
  * - clear()    - Clears the map.
  * - entries()  - Returns a new iterator object that contains the key/value pairs in the map.
  * - forEach()  - Iterates through each element of the map and applies a callback function.
+ * - groupBy()  - Groups the elements according to the string values returned by a callback function
  * - keys()     - Returns a new iterator object that contains the keys in the map.
  * - size()     - Returns the number of key-value pairs in the map.
  * - values()   - Returns a new iterator object that contains the values in the map.
