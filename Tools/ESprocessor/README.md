@@ -3,7 +3,7 @@
 ## Overview
 
 ESTK handles include files rather stupidly. If you insert an #include file twice, it will insert the source code twice in the final one. This is almost inevitable if the included files contain additional #include lines.
-The ExtendScript File Processor is a script to automate the process of merging ExtendScript files and their dependencies into a single file. This tool is useful for Adobe ExtendScript developers who want to simplify their workflow by efficiently handling `#include' statements, and thus integrate the contents of referenced files into a single coherent script without unnecessary repetition.
+The ExtendScript File Processor is a script to automate the process of merging ExtendScript files and their dependencies into a single file. This tool is useful for Adobe ExtendScript developers who want to simplify their workflow by efficiently handling `#include` statements, and thus integrate the contents of referenced files into a single coherent script without unnecessary repetition.
 
 ## Features
 
@@ -15,7 +15,7 @@ The ExtendScript File Processor is a script to automate the process of merging E
 - **Enhanced Logging**: Offers configurable logging capabilities, including toggles for general logging, log file creation, and indentation in log files for better readability.
 - **Path Resolution**: 
   - Handles relative paths(`./` and`../`), facilitating the organization of script files and dependencies.  
-  - Accepts `\\` or `/` as path separators.
+  - Accepts `\\` or/and `/` as path separators.
 
 ## Sample
 
