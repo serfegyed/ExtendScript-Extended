@@ -26,7 +26,9 @@ To use these polyfills, simply include this script in your ExtendScript project 
 
 ```javascript
 // Include the polyfills in your script
-#include "path/to/math-polyfills.jsx"
+#include "path/to/Math.cbrt.js"
+#include "path/to/Math.log10.js"
+#include "path/to/Math.trunc.js"
 ```
 Now, you can safely use Math.trunc, Math.log10, and Math.cbrt in your ExtendScript code as if they were natively supported:
 
