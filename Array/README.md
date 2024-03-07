@@ -43,6 +43,7 @@ These are possible implementation of the modern JavaScript built-in Array functi
 
 *(They are mostly methods in some stage of tc39 proposal phase)*
 
+- `apppend()` - Appends thegiven array to the end of the original array optionally flattening it
 - `clear()` - Removes all array elements.
 - `compact()` - Returns a copy of the array with all falsy values removed
 - `first()` - Returns the first item of this array
