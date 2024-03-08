@@ -61,7 +61,9 @@ These are possible implementation of the modern JavaScript built-in Array functi
 - `reject()` - The inverse of `filter`. Returns all elements that DON'T pass the test.
 - `remove()` - Removes element at given index. Returns a new shrinked array.
 - `rotate()` - Rotates an array
+- `shuffle()` - Shuffles an array implementing the Fisher-Yates algorithm
 - `sum()` - The sum of all array values
+- `tuShuffled()` - Creates a shuffled copy of a given array using the Inside-Out algorithm
 - `unique()` - A` function that returns an array with only unique elements.
 
 ## Externals
