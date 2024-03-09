@@ -3,7 +3,7 @@
  *
  * @param {number} index - The index of the element to remove.
  * @return {Array} - A new array with the element removed.
- */
+*/
 if (!Array.prototype.remove) {
     Array.prototype.remove = function (index) {
         // Check if the array is empty
@@ -18,6 +18,8 @@ if (!Array.prototype.remove) {
 
         index = index < 0 ? this.length + index : index;
         if (index < 0 || index >= this.length) throw new RangeError();
-        return this.splice(index, 1)[0];
+        this.splice(index, 1);
+
+        return this
     };
 };
