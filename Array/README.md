@@ -45,10 +45,11 @@ These are possible implementation of the modern JavaScript built-in Array functi
 
 - `apppend()` - Appends thegiven array to the end of the original array optionally flattening it
 - `clear()` - Removes all array elements.
+- `dim()` - Calculates the dimensions of a multidimensional array
 - `compact()` - Returns a copy of the array with all falsy values removed
 - `first()` - Returns the first item of this array
 - `groupBy()` - Groups the elements according to the string values returned by a callback function
-- `indexAfter()` - Does what it says
+- `indexAfter()` - `returns the index of the element that comes after given element`
 - `insert()` - Inserts an element into the array at given index. Returns a new enlarged array
 - `isEmpty()` - Checks is parameter is an empty array
 - `isSorted()` - Checks if the array is sorted
