@@ -50,6 +50,7 @@ These are possible implementation of the modern JavaScript built-in Array functi
 - `first()` - Returns the first item of this array
 - `groupBy()` - Groups the elements according to the string values returned by a callback function
 - `indexAfter()` - Returns the index of the element that comes after given element
+- `info()` - Analyzes the provided array and returns information about its uniformity, depths, type and structure
 - `insert()` - Inserts an element into the array at given index. Returns a new enlarged array
 - `isEmpty()` - Checks is parameter is an empty array
 - `isSorted()` - Checks if the array is sorted
