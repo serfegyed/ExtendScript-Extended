@@ -87,8 +87,9 @@ console.log(Math.trunc(0.123456e3)); // 123
 ### Math.median
 Calculates the median of numbers in a given list of arguments or an array.
 
-Parameters: A comma-separated list of numbers or a single array.
+Parameters: A comma-separated list of numbers or a single array.  
 Returns: The median of the numbers.
+
 ```javascript
 // Example usage
 console.log(Math.median(1, 3, 3, 6, 7, 8, 9)); // Expected output: 6
@@ -104,6 +105,36 @@ console.log(Math.median(NaN)); // Expected output: NaN
 
 console.log(Math.median('string', 'other string')); // Expected output: NaN
 console.log(Math.median('1', '3', '3', '6', '7', '8')); // Expected output: 18 because ('3' + '6') / 2.0 === 18 ;)
+```
+### Math.mean
+Calculate the mean of an array or across a specified dimension.
+
+Parameters: A comma-separated list of numbers or a single array and an optional dimension (0 or 1).  
+Returns: The mean value or an array of mean values.
+
+```javascript
+// Example usage
+console.log('Mean of a list of numbers:', Math.mean(2, 5, 6, 3, 1, 7)); // Should return 4
+console.log(Math.mean(1, 3, 3, 6, 7, 8, 9)); // Expected output: 5.285714285714286
+console.log('Mean of a single array:', Math.mean([2, 5, 6, 3, 1, 7])); // Should return 4
+console.log(Math.mean([1, 3, 3, 6, 7, 8, 9])); // Expected output: 5.285714285714286
+console.log('Mean of a mixed array:', Math.mean([2, "five", 6, "three", 1, 7])); // Should return NaN
+
+console.log('Mean of flattened array:', Math.mean([[2, 5], [6, 3], [1, [7]]])); // Should return 4
+console.log('Mean across dimension 0 (raws):', Math.mean([[2, 5], [6, 3], [1, 7]], 0)); // Should return [3, 5]
+console.log('Mean across dimension 1 (columns):', Math.mean([[2, 5], [6, 3], [1, 7]], 1)); // Should return [3.5, 4.5, 4]
+
+try {
+    console.log('Mean across dimension 1 (columns):', Math.mean([[2, 5], [6, 3], [1, 7, 9]], 1)); // Error (non-uniform array)
+} catch (e) {
+    console.log('Error:', e.message);
+};
+
+try {
+    console.log('Mean across dimension 0 (raws):', Math.mean([[[2, 5], [6, 3], [1, 7]]], 0)); // Error (too many dimensions)
+} catch (e) {
+    console.log('Error:', e.message);
+};
 ```
 
 
