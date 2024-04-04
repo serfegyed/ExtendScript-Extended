@@ -38,6 +38,7 @@ These are possible implementation of the JavaScript built-in Object static metho
 
 * `Object.compact()`          - Compacts an object or an array by removing any falsy values.
 * `Object.deepCopy()`           - Returns a new `deep copy` of an Object, Array, Date or any types
+* `Object.flat()`               - Flattens an object into a single-level object
 * `Object.safeDeepCopy()`       - Implements a safe `deep copy` with handling circular references.
 * `Object.isCyclic()`           - Detects cyclic references in an object.
 * `Object.isEmpty()`            - Tests if a passed object is empty
