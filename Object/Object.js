@@ -427,17 +427,22 @@ if (!Object.fromEntries) {
  * @return {Object} - The target object with the assigned properties.
  */
 if (!Object.assign) {
-	Object.assign = function (targetObj, sourceObj /*, sourceObj2, sourceObjN*/) {
-		if (!targetObj || targetObj.__class__ !== "Object")
+	Object.assign = function (targetObj /*, sourceObj1, sourceObj2, ..., sourceObjN */) {
+		if (!targetObj || typeof targetObj !== 'object') {
 			throw new TypeError("Target is not an Object");
-		for (var i = 1; i < arguments.length; i++) {
-			if (arguments[i].__class__ !== "Object")
-				throw new TypeError(arguments[i].toString() + " is not an object");
 		}
-		for (var j = 1; j < arguments.length; j++) {
-			for (var prop in arguments[j]) {
-				if (arguments[j].hasOwnProperty(prop)) {
-					targetObj[prop] = arguments[j][prop];
+
+		for (var i = 1; i < arguments.length; i++) {
+			var source = arguments[i];
+
+			if (typeof source === 'string') {
+				source = source.split('');
+			}
+			if (!source || typeof source !== 'object') continue;
+
+			for (var prop in source) {
+				if (source.hasOwnProperty(prop)) {
+					targetObj[prop] = source[prop];
 				}
 			}
 		}
