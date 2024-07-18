@@ -16,6 +16,10 @@ This Set class is an implementation of the JavaScript built-in Set object.
 * `size()` - Returns the number of elements in the set.
 * `values()` - Returns a new set iterator object that contains the values for each element in the set.
 
+## Standard property for the Set object
+
+* `size` - Returns the number of elements in the set.
+
 ## Non-standard methods
 *(They are mostly (but not exclusively) Array-like methods mostly in some stage of tc39 proposal phase)*
 
@@ -42,16 +46,14 @@ This Set class is an implementation of the JavaScript built-in Set object.
 * `difference()` - Calculates the difference between the current set and another set.
 * `symmetricDifference()` - Calculates the symmetric difference between this set and another set.
 * `intersection()` - Calculates the intersection of two sets.
-* `isSubset()` - Checks if the current set is a subset of another set
-* `isSuperset()` - Checks if the current set is a superset of another set
-* `isDisjoint()` - Checks if the current set is a disjoint of another set
+* `isSubsetOf()` - Checks if the current set is a subset of another set
+* `isSupersetOf()` - Checks if the current set is a superset of another set
+* `isDisjointFrom()` - Checks if the current set is a disjoint of another set
 * `isEqual()` - Checks if the current set is equal to another set
 
 ## Externals
 
-* `Array.isArray()` - Checks if an argument is an array.
-* `Array.isEmpty()` - Checks if an array is empty.
-* `Array.prototype.toString()` - Returns a string representation of the array.
 * `Object.isEmpty()` - Checks if an object is empty.
 * `sameValueZero()` - Determines if two values are equal using the SameValueZero algorithm.
 * `isPrimitive()` - Check if the given value is a primitive data type or null/undefined.
+* `isArrayLike()` - Checks if a given object is array-like.
