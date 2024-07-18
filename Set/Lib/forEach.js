@@ -6,7 +6,8 @@
  * @param {Object} [thisArg] - Object to use as `this` when executing `callback`.
  */
 Set.prototype.forEach = function (callback, thisArg) {
-    for (var value in this._data) {
-        callback.call(thisArg, this._data[value], value, this);
+    var data = this._data;
+    for (var i = 0; i < data.length; i++) {
+        callback.call(thisArg, data[i], data[i], this);
     }
 };

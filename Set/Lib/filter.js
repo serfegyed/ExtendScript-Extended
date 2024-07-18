@@ -9,14 +9,11 @@ Set.prototype.filter = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Set.filter(): Missing callback function");
     var filteredSet = new Set();
-    var iterator = this.values();
-    var entry = iterator.next();
 
-    while (!entry.done) {
-        if (callback.call(thisArg, entry.value)) {
-            filteredSet.add(entry.value);
-        }
-        entry = iterator.next();
+    for (var i = 0; i < this._data.length; i++) {
+        if (callback.call(thisArg, this._data[i])) {
+            filteredSet.add(this._data[i]);
+        };
     }
 
     return filteredSet;

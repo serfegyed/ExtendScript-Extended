@@ -9,15 +9,15 @@ Set.prototype.isEqual = function (otherSet) {
     if (!Set.isSet(otherSet)) {
         throw new TypeError("Set.isEqual(): wrong parameter type.");
     }
-    if (this.size() !== otherSet.size()) {
+    if (this.size !== otherSet.size) {
         return false;
     }
 
-    for (var value in this._data) {
-        if (!otherSet.has(value)) {
+    for (var i = 0; i < this._data.length; i++) {
+        if (!otherSet.has(this._data[i])) {
             return false;
         }
-    }
+    };
 
     return true;
 };

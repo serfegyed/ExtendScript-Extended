@@ -8,11 +8,13 @@
 Set.prototype.deleteEach = function (callback, thisArg) {
     if (typeof callback !== "function") throw new TypeError("Set.deleteEach(): Missing callback function");
 
-    for (key in this._data) {
-        if (callback.call(thisArg, this._data[key], key, this)) {
-            this.delete(key);
-        };
-    };
-
+    var originalData = this.toArray();
+    // Make a copy to avoid modification during iteration
+    for (var i = 0; i < originalData.length; i++) {
+        var value = originalData[i];
+        if (callback.call(thisArg, value, i, this)) {
+            this.delete(value);
+        }
+    }
     return this;
 };

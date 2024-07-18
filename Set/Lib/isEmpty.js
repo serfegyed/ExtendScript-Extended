@@ -7,5 +7,5 @@
  */
 Set.isEmpty = function (set) {
     if (!set instanceof Set) throw new TypeError(set.toString() + " is not a Set");
-    return set.size() === 0;
+    return set.size === 0;
 };

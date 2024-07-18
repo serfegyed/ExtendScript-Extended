@@ -9,7 +9,7 @@ Set.prototype.union = function (otherSet) {
     if (!Set.isSet(otherSet)) {
         throw new TypeError("Set.union(): wrong parameter type.");
     }
-    var unionSet = new Set(this);
 
-    return unionSet.from(otherSet);
+    var unionSet = new Set();
+    return unionSet.from(this, otherSet);
 };

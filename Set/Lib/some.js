@@ -8,13 +8,10 @@
 Set.prototype.some = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Set.some(): Missing callback function");
-    var iterator = this.values();
-    var currentItem = iterator.next();
-    while (!currentItem.done) {
-        if (callback.call(thisArg, currentItem.value)) {
-            return true;
-        }
-        currentItem = iterator.next();
+
+    for (var i = 0; i < this._data.length; i++) {
+        if (callback.call(thisArg, this._data[i], i, this)) return true;
     }
+
     return false;
 };

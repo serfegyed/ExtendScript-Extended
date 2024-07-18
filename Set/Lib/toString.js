@@ -5,11 +5,11 @@
  */
 Set.prototype.toString = function () {
     var str = "";
-    for (var value in this._data) {
+    for (var i = 0; i < this._data.length; i++) {
         if (str !== "") {
             str += ", ";
         };
-        str += (typeof value === 'string') ? '"' + value + '"' : value;
+        str += (typeof this._data[i] === 'string') ? '"' + this._data[i] + '"' : this._data[i];
     }
 
     return "{" + str + "}";

@@ -8,13 +8,12 @@
 Set.prototype.find = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Set.find(): Missing callback function");
-    var iterator = this.values();
-    var entry = iterator.next();
-    while (!entry.done) {
-        if (callback.call(thisArg, entry.value)) {
-            return entry.value;
-        }
-        entry = iterator.next();
+
+    for (var i = 0; i < this._data.length; i++) {
+        if (callback.call(thisArg, this._data[i])) {
+            return this._data[i];
+        };
     }
+
     return undefined;
 };

@@ -5,11 +5,11 @@
  * @throws {TypeError} If the parameter is not a Set.
  * @return {boolean} True if this set is a superset of the given set, false otherwise.
  */
-Set.prototype.isSuperset = function (otherSet) {
+Set.prototype.isSupersetOf = function (otherSet) {
     if (!Set.isSet(otherSet)) {
-        throw new TypeError("Set.isSubset(): wrong parameter type.");
+        throw new TypeError("Set.isSubsetOf(): wrong parameter type.");
     }
-    if (this.size() < otherSet.size()) {
+    if (this.size < otherSet.size) {
         return false;
     }
     if (Set.isEmpty(otherSet)) {
@@ -17,5 +17,5 @@ Set.prototype.isSuperset = function (otherSet) {
         return true;
     }
 
-    return otherSet.isSubset(this);
+    return otherSet.isSubsetOf(this);
 };

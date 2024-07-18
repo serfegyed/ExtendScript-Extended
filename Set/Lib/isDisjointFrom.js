@@ -4,9 +4,9 @@
  * @param {Set} otherSet - The set to compare with.
  * @return {boolean} Returns true if the sets are disjoint, false otherwise.
  */
-Set.prototype.isDisjoint = function (otherSet) {
+Set.prototype.isDisjointFrom = function (otherSet) {
     if (!Set.isSet(otherSet)) {
-        throw new TypeError("Set.isDisjoint(): wrong parameter type.");
+        throw new TypeError("Set.isDisjointFrom(): wrong parameter type.");
     }
 
     if (Set.isEmpty(this) || Set.isEmpty(otherSet)) {
@@ -14,15 +14,12 @@ Set.prototype.isDisjoint = function (otherSet) {
         return true;
     }
 
-    var iterator = this.values();
-    var entry = iterator.next();
-    while (!entry.done) {
-        if (otherSet.has(entry.value)) {
-            // If any element is found in both sets, they are not disjoint
+    for (var i = 0; i < this._data.length; i++) {
+        if (otherSet.has(this._data[i])) {
+            // If any element isn't found in both sets, 'this' is not a subset
             return false;
         }
-        entry = iterator.next();
-    }
+    };
 
     // If no common elements are found, they are disjoint
     return true;

@@ -10,23 +10,24 @@ Set.prototype.from = function (iterables) {
 
         if (isPrimitive(iterable)) {
             this.add(iterable);
+
         } else if (sameValueZero(iterable, NaN)) {
             this.add(iterable);
-        } else if (iterable instanceof Array) {
+
+        } else if (isArrayLike(iterable)) {
             if (!!iterable.length) {
-                for (var i = 0; i < iterable.length; i++) {
-                    this.add(iterable[i]);
+                for (var j = 0; j < iterable.length; j++) {
+                    this.add(iterable[j]);
                 }
             } else {    // to add empty array
                 this.add(iterable);
             }
+
         } else if (iterable instanceof Set) {
-            var iterator = iterable.values();
-            var result = iterator.next();
-            while (!result.done) {
-                this.add(result.value);
-                result = iterator.next();
-            }
+            for (var k = 0; k < iterable._data.length; k++) {
+                this.add(iterable._data[k])
+            };
+
         } else if (typeof iterable === "object") {
             if (!Object.isEmpty(iterable)) {
                 for (var key in iterable) {
@@ -37,6 +38,7 @@ Set.prototype.from = function (iterables) {
             } else {    // to add empty object
                 this.add(iterable);
             }
+
         } else {
             // For other unsupported types, directly add them to the Set.
             this.add(iterable);

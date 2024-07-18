@@ -8,17 +8,15 @@ Set.prototype.difference = function (otherSet) {
     if (!Set.isSet(otherSet)) {
         throw new TypeError("Set.difference(): wrong parameter type.");
     }
-    var diffSet = new Set(this);
+    var originalData = this.toArray();
+    // Make a copy to avoid modification during iteration
+    var diffSet = new Set(originalData);
 
-    var iterator = diffSet.values();
-    var result = iterator.next();
-
-    while (!result.done) {
-        if (otherSet.has(result.value)) {
-            diffSet.delete(result.value);
+    for (var i = 0; i < originalData.length; i++) {
+        if (otherSet.has(originalData[i])) {
+            diffSet.delete(originalData[i]);
         }
-        result = iterator.next();
-    }
+    };
 
     return diffSet;
 };

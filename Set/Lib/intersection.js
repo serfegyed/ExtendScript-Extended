@@ -10,11 +10,11 @@ Set.prototype.intersection = function (otherSet) {
     }
 
     var intersectionSet = new Set();
-    this.forEach(function (value) {
-        if (otherSet.has(value)) {
-            intersectionSet.add(value);
+    for (var i = 0; i < this._data.length; i++) {
+        if (otherSet.has(this._data[i])) {
+            intersectionSet.add(this._data[i]);
         }
-    });
+    };
 
     return intersectionSet;
 };

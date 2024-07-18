@@ -14,35 +14,20 @@ Set.prototype.reduce = function (callback, initialValue) {
     if (typeof callback !== "function")
         throw new TypeError("Set.reduce(): Callback must be a function");
 
-    if (this.size() === 0 && initialValue === undefined)
+    if (this.size === 0 && initialValue === undefined)
         throw new TypeError("Set.reduce(): Empty Set without an initial value");
 
-    var iterator = this.values();
-    var entry = iterator.next();
-    var accumulator = initialValue;
+    var accumulator = initialValue !== undefined ? initialValue : this._data[0];
 
-    if (!entry.done && !accumulator) {
-        accumulator = entry.value;
-        entry = iterator.next();
-    }
-
-    while (!entry.done) {
-        var currentValue = entry.value;
+    for (var i = 0; i < this._data.length; i++) {
         // Check if the types of the accumulator and currentValue are different
-        if (typeof accumulator !== typeof currentValue) {
+        if (typeof accumulator !== typeof this._data[i]) {
             throw new TypeError(
                 "Set.reduce(): Type mismatch in Set.reduce(). All elements must be of the same type."
             );
         }
-
-        accumulator = callback.call(this, accumulator, currentValue);
-        entry = iterator.next();
-    }
-
-    if (accumulator === undefined)
-        throw new TypeError(
-            "Set.reduce(): Reducer function returns an invalid value"
-        );
+        accumulator = callback.call(this, accumulator, this._data[i]);
+    };
 
     return accumulator;
 };

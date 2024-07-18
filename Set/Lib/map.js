@@ -10,12 +10,9 @@ Set.prototype.map = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Set.map(): Missing callback function");
     var newSet = new Set();
-    var iterator = this.values();
-    var entry = iterator.next();
 
-    while (!entry.done) {
-        newSet.add(callback.call(thisArg, entry.value));
-        entry = iterator.next();
+    for (var i = 0; i < this._data.length; i++) {
+        newSet.add(callback.call(thisArg, this._data[i]));
     }
 
     return newSet;

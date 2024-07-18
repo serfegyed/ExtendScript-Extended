@@ -7,27 +7,15 @@
  * 	'true' once all the values have been exhausted.
  */
 Set.prototype.values = function () {
-    var arr = [];
-    for (var value in this._data) {
-        arr.push(this._data[value]);
-    }
     var index = 0;
-    var length = arr.length;
-
-    var iterator = {
+    var data = this._data;
+    return {
         next: function () {
-            if (index >= length)
-                return {
-                    done: true,
-                    value: undefined,
-                };
-            else
-                return {
-                    done: false,
-                    value: arr[index++],
-                };
-        },
+            if (index < data.length) {
+                return { value: data[index++], done: false };
+            } else {
+                return { done: true };
+            }
+        }
     };
-
-    return iterator;
 };
