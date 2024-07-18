@@ -18,9 +18,11 @@
  *  - forEach() - Iterates through each element of the set and applies a callback function.
  *  - has(value) - Checks if the given value exists in the set object or not.
  *  - keys() - The keys() method is an alias for the values() method.
- *  - size() - The number of elemets in the set
  *  - values() - Returns a new set iterator object that contains the values for each element in the set.
- * 
+ *
+ * Standard property for the Set object:
+ *  - size - The number of elements in the set
+ *
  * Non-standard methods for the Set object:
  * (They are mostly Array-like methods in some stage of tc39 proposal phase)
  *  - addAll() - Adds elements defined as parameters to the set.
@@ -39,18 +41,18 @@
  *  - some() - Checks if any element in the set satisfies the provided callback function
  *  - toArray() - Returns an array representation of the set.
  *  - toString() - Returns a string representation of the set.
- * 
- * Set operations:
+ *
+ * Set composition:
  *  - difference() - Calculates the difference between the current set and another set.
  *  - intersection() - Calculates the intersection of two sets.
- *  - isDisjoint() - Checks if the current set is a disjoint of another set
+ *  - isDisjointFrom() - Checks if the current set is a disjoint of another set
  *  - isEqual() - Checks if the current set is equal to another set
- *  - isSubset() - Checks if the current set is a subset of another set
- *  - isSuperset() - Checks if the current set is a superset of another set
+ *  - isSubsetOf() - Checks if the current set is a subset of another set
+ *  - isSupersetOf() - Checks if the current set is a superset of another set
  *  - symmetricDifference() - Calculates the symmetric difference between this set and another set.
  *  - union() - Returns a new Set with the union of the two sets
  *
- * @external:   Object.isEmpty(), sameValueZero(), isPrimitive()
+ * @external:   Object.isEmpty(), sameValueZero(), isPrimitive(), isArrayLike() from external.js
  */
 /*************************************************************************************/
 /**

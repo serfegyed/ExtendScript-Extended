@@ -14,14 +14,13 @@
  *  * Set composition:
  *  - difference() - Calculates the difference between the current set and another set.
  *  - intersection() - Calculates the intersection of two sets.
- *  - isDisjoint() - Checks if the current set is a disjoint of another set
+ *  - isDisjointFrom() - Checks if the current set is a disjoint of another set
  *  - isEqual() - Checks if the current set is equal to another set
- *  - isSubset() - Checks if the current set is a subset of another set
- *  - isSuperset() - Checks if the current set is a superset of another set
+ *  - isSubsetOf() - Checks if the current set is a subset of another set
+ *  - isSupersetOf() - Checks if the current set is a superset of another set
  *  - symmetricDifference() - Calculates the symmetric difference between this set and another set.
  *  - union() - Returns a new Set with the union of the two sets
- * 
- * @external:   
+ *
  */
 
 /**
@@ -35,9 +34,9 @@ Set.prototype.union = function (otherSet) {
     if (!Set.isSet(otherSet)) {
         throw new TypeError("Set.union(): wrong parameter type.");
     }
-    var unionSet = new Set(this);
 
-    return unionSet.from(otherSet);
+    var unionSet = new Set();
+    return unionSet.from(this, otherSet);
 };
 
 /**
@@ -50,17 +49,15 @@ Set.prototype.difference = function (otherSet) {
     if (!Set.isSet(otherSet)) {
         throw new TypeError("Set.difference(): wrong parameter type.");
     }
-    var diffSet = new Set(this);
+    var originalData = this.toArray();
+    // Make a copy to avoid modification during iteration
+    var diffSet = new Set(originalData);
 
-    var iterator = diffSet.values();
-    var result = iterator.next();
-
-    while (!result.done) {
-        if (otherSet.has(result.value)) {
-            diffSet.delete(result.value);
+    for (var i = 0; i < originalData.length; i++) {
+        if (otherSet.has(originalData[i])) {
+            diffSet.delete(originalData[i]);
         }
-        result = iterator.next();
-    }
+    };
 
     return diffSet;
 };
@@ -94,11 +91,11 @@ Set.prototype.intersection = function (otherSet) {
     }
 
     var intersectionSet = new Set();
-    this.forEach(function (value) {
-        if (otherSet.has(value)) {
-            intersectionSet.add(value);
+    for (var i = 0; i < this._data.length; i++) {
+        if (otherSet.has(this._data[i])) {
+            intersectionSet.add(this._data[i]);
         }
-    });
+    };
 
     return intersectionSet;
 };
@@ -110,11 +107,11 @@ Set.prototype.intersection = function (otherSet) {
  * @throws {TypeError} If the parameter type is not a Set.
  * @return {boolean} Returns true if the current set is a subset of the given set, otherwise false.
  */
-Set.prototype.isSubset = function (otherSet) {
+Set.prototype.isSubsetOf = function (otherSet) {
     if (!Set.isSet(otherSet)) {
-        throw new TypeError("Set.isSubset(): wrong parameter type.");
+        throw new TypeError("Set.isSubsetOf(): wrong parameter type.");
     }
-    if (this.size() > otherSet.size()) {
+    if (this.size > otherSet.size) {
         return false;
     }
     if (Set.isEmpty(this)) {
@@ -122,15 +119,12 @@ Set.prototype.isSubset = function (otherSet) {
         return true;
     }
 
-    var iterator = this.values();
-    var entry = iterator.next();
-    while (!entry.done) {
-        if (!otherSet.has(entry.value)) {
+    for (var i = 0; i < this._data.length; i++) {
+        if (!otherSet.has(this._data[i])) {
             // If any element isn't found in both sets, 'this' is not a subset
             return false;
         }
-        entry = iterator.next();
-    }
+    };
 
     return true;
 };
@@ -142,11 +136,11 @@ Set.prototype.isSubset = function (otherSet) {
  * @throws {TypeError} If the parameter is not a Set.
  * @return {boolean} True if this set is a superset of the given set, false otherwise.
  */
-Set.prototype.isSuperset = function (otherSet) {
+Set.prototype.isSupersetOf = function (otherSet) {
     if (!Set.isSet(otherSet)) {
-        throw new TypeError("Set.isSubset(): wrong parameter type.");
+        throw new TypeError("Set.isSubsetOf(): wrong parameter type.");
     }
-    if (this.size() < otherSet.size()) {
+    if (this.size < otherSet.size) {
         return false;
     }
     if (Set.isEmpty(otherSet)) {
@@ -154,7 +148,7 @@ Set.prototype.isSuperset = function (otherSet) {
         return true;
     }
 
-    return otherSet.isSubset(this);
+    return otherSet.isSubsetOf(this);
 };
 
 /**
@@ -163,9 +157,9 @@ Set.prototype.isSuperset = function (otherSet) {
  * @param {Set} otherSet - The set to compare with.
  * @return {boolean} Returns true if the sets are disjoint, false otherwise.
  */
-Set.prototype.isDisjoint = function (otherSet) {
+Set.prototype.isDisjointFrom = function (otherSet) {
     if (!Set.isSet(otherSet)) {
-        throw new TypeError("Set.isDisjoint(): wrong parameter type.");
+        throw new TypeError("Set.isDisjointFrom(): wrong parameter type.");
     }
 
     if (Set.isEmpty(this) || Set.isEmpty(otherSet)) {
@@ -173,15 +167,12 @@ Set.prototype.isDisjoint = function (otherSet) {
         return true;
     }
 
-    var iterator = this.values();
-    var entry = iterator.next();
-    while (!entry.done) {
-        if (otherSet.has(entry.value)) {
-            // If any element is found in both sets, they are not disjoint
+    for (var i = 0; i < this._data.length; i++) {
+        if (otherSet.has(this._data[i])) {
+            // If any element isn't found in both sets, 'this' is not a subset
             return false;
         }
-        entry = iterator.next();
-    }
+    };
 
     // If no common elements are found, they are disjoint
     return true;
@@ -198,15 +189,15 @@ Set.prototype.isEqual = function (otherSet) {
     if (!Set.isSet(otherSet)) {
         throw new TypeError("Set.isEqual(): wrong parameter type.");
     }
-    if (this.size() !== otherSet.size()) {
+    if (this.size !== otherSet.size) {
         return false;
     }
 
-    for (var value in this._data) {
-        if (!otherSet.has(value)) {
+    for (var i = 0; i < this._data.length; i++) {
+        if (!otherSet.has(this._data[i])) {
             return false;
         }
-    }
+    };
 
     return true;
 };

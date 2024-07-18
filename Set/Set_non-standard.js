@@ -1,5 +1,4 @@
-#include ".\\Set_standard.js";
-#include ".\\external.js";
+#include ".\\Set_standard.js"
 
 /**
  * @title Set class - ExtendScript (ES3)
@@ -30,7 +29,7 @@
  *  - toArray() - Returns an array representation of the set.
  *  - toString() - Returns a string representation of the set.
  *
- * @external:   Object.isEmpty(), sameValueZero(), isPrimitive()
+ * @external:   Object.isEmpty(), sameValueZero(), isPrimitive(), isArrayLike() from Set_standard.js
  */
 
 /**
@@ -52,7 +51,7 @@ Set.isSet = function (obj) {
  */
 Set.isEmpty = function (set) {
     if (!set instanceof Set) throw new TypeError(set.toString() + " is not a Set");
-    return set.size() === 0;
+    return set.size === 0;
 };
 
 /**
@@ -61,11 +60,7 @@ Set.isEmpty = function (set) {
  * @return {Array} An array of all values.
  */
 Set.prototype.toArray = function () {
-    var values = [];
-    for (var value in this._data) {
-        values.push(this._data[value]);
-    }
-    return values;
+    return this._data.slice(); // return a shallow copy of the data array
 };
 
 /**
@@ -75,11 +70,11 @@ Set.prototype.toArray = function () {
  */
 Set.prototype.toString = function () {
     var str = "";
-    for (var value in this._data) {
+    for (var i = 0; i < this._data.length; i++) {
         if (str !== "") {
             str += ", ";
         };
-        str += (typeof value === 'string') ? '"' + value + '"' : value;
+        str += (typeof this._data[i] === 'string') ? '"' + this._data[i] + '"' : this._data[i];
     }
 
     return "{" + str + "}";
@@ -97,23 +92,24 @@ Set.prototype.from = function (iterables) {
 
         if (isPrimitive(iterable)) {
             this.add(iterable);
+
         } else if (sameValueZero(iterable, NaN)) {
             this.add(iterable);
-        } else if (iterable instanceof Array) {
+
+        } else if (isArrayLike(iterable)) {
             if (!!iterable.length) {
-                for (var i = 0; i < iterable.length; i++) {
-                    this.add(iterable[i]);
+                for (var j = 0; j < iterable.length; j++) {
+                    this.add(iterable[j]);
                 }
             } else {    // to add empty array
                 this.add(iterable);
             }
+
         } else if (iterable instanceof Set) {
-            var iterator = iterable.values();
-            var result = iterator.next();
-            while (!result.done) {
-                this.add(result.value);
-                result = iterator.next();
-            }
+            for (var k = 0; k < iterable._data.length; k++) {
+                this.add(iterable._data[k])
+            };
+
         } else if (typeof iterable === "object") {
             if (!Object.isEmpty(iterable)) {
                 for (var key in iterable) {
@@ -124,6 +120,7 @@ Set.prototype.from = function (iterables) {
             } else {    // to add empty object
                 this.add(iterable);
             }
+
         } else {
             // For other unsupported types, directly add them to the Set.
             this.add(iterable);
@@ -143,14 +140,11 @@ Set.prototype.from = function (iterables) {
 Set.prototype.some = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Set.some(): Missing callback function");
-    var iterator = this.values();
-    var currentItem = iterator.next();
-    while (!currentItem.done) {
-        if (callback.call(thisArg, currentItem.value)) {
-            return true;
-        }
-        currentItem = iterator.next();
+
+    for (var i = 0; i < this._data.length; i++) {
+        if (callback.call(thisArg, this._data[i], i, this)) return true;
     }
+
     return false;
 };
 
@@ -164,14 +158,11 @@ Set.prototype.some = function (callback, thisArg) {
 Set.prototype.every = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Set.every(): Missing callback function");
-    var iterator = this.values();
-    var currentItem = iterator.next();
-    while (!currentItem.done) {
-        if (!callback.call(thisArg, currentItem.value)) {
-            return false;
-        }
-        currentItem = iterator.next();
+
+    for (var i = 0; i < this._data.length; i++) {
+        if (!callback.call(thisArg, this._data[i], i, this)) return false;
     }
+
     return true;
 };
 
@@ -186,14 +177,11 @@ Set.prototype.filter = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Set.filter(): Missing callback function");
     var filteredSet = new Set();
-    var iterator = this.values();
-    var entry = iterator.next();
 
-    while (!entry.done) {
-        if (callback.call(thisArg, entry.value)) {
-            filteredSet.add(entry.value);
-        }
-        entry = iterator.next();
+    for (var i = 0; i < this._data.length; i++) {
+        if (callback.call(thisArg, this._data[i])) {
+            filteredSet.add(this._data[i]);
+        };
     }
 
     return filteredSet;
@@ -211,12 +199,9 @@ Set.prototype.map = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Set.map(): Missing callback function");
     var newSet = new Set();
-    var iterator = this.values();
-    var entry = iterator.next();
 
-    while (!entry.done) {
-        newSet.add(callback.call(thisArg, entry.value));
-        entry = iterator.next();
+    for (var i = 0; i < this._data.length; i++) {
+        newSet.add(callback.call(thisArg, this._data[i]));
     }
 
     return newSet;
@@ -232,14 +217,13 @@ Set.prototype.map = function (callback, thisArg) {
 Set.prototype.find = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Set.find(): Missing callback function");
-    var iterator = this.values();
-    var entry = iterator.next();
-    while (!entry.done) {
-        if (callback.call(thisArg, entry.value)) {
-            return entry.value;
-        }
-        entry = iterator.next();
+
+    for (var i = 0; i < this._data.length; i++) {
+        if (callback.call(thisArg, this._data[i])) {
+            return this._data[i];
+        };
     }
+
     return undefined;
 };
 
@@ -259,35 +243,101 @@ Set.prototype.reduce = function (callback, initialValue) {
     if (typeof callback !== "function")
         throw new TypeError("Set.reduce(): Callback must be a function");
 
-    if (this.size() === 0 && initialValue === undefined)
+    if (this.size === 0 && initialValue === undefined)
         throw new TypeError("Set.reduce(): Empty Set without an initial value");
 
-    var iterator = this.values();
-    var entry = iterator.next();
-    var accumulator = initialValue;
+    var accumulator = initialValue !== undefined ? initialValue : this._data[0];
 
-    if (!entry.done && !accumulator) {
-        accumulator = entry.value;
-        entry = iterator.next();
-    }
-
-    while (!entry.done) {
-        var currentValue = entry.value;
+    for (var i = 0; i < this._data.length; i++) {
         // Check if the types of the accumulator and currentValue are different
-        if (typeof accumulator !== typeof currentValue) {
+        if (typeof accumulator !== typeof this._data[i]) {
             throw new TypeError(
                 "Set.reduce(): Type mismatch in Set.reduce(). All elements must be of the same type."
             );
         }
-
-        accumulator = callback.call(this, accumulator, currentValue);
-        entry = iterator.next();
-    }
-
-    if (accumulator === undefined)
-        throw new TypeError(
-            "Set.reduce(): Reducer function returns an invalid value"
-        );
+        accumulator = callback.call(this, accumulator, this._data[i]);
+    };
 
     return accumulator;
+};
+
+/**
+ * Adds all elements from the given array to the set.
+ *
+ * @param {Array} argArr - The array of elements to be added to the set.
+ * @return {Set} - The modified set with the added elements.
+ */
+Set.prototype.addAll = function (argArr) {
+    if (!argArr) throw new TypeError("Set.addAll(): Argument array needed.");
+    for (var i = 0; i < argArr.length; i++) {
+        this.add(argArr[i]);
+    }
+    return this;
+};
+
+/**
+ * Adds each element from the given array to the set, based on the result of the callback function.
+ *
+ * @param {Array} argArr - The array of elements to add to the set.
+ * @param {Function} callback - The callback function that determines whether each element should be added to the set. It should return a boolean value.
+ * @param {Object} thisArg - Optional. The value to use as "this" when executing the callback function.
+ * @throws {TypeError} If the callback is not a function.
+ * @return {Set} The modified set.
+ */
+Set.prototype.addEach = function (argArr, callback, thisArg) { // callback returns boolean
+    if (typeof callback !== "function") throw new TypeError("Set.addEach(): Missing callback function.");
+
+    for (var i = 0; i < argArr.length; i++) {
+        if (callback.call(thisArg, argArr[i], this)) {
+            this.add(argArr[i]);
+        };
+
+    }
+    return this;
+};
+
+/**
+ * Deletes multiple values from the set.
+ *
+ * @param {any} value1 - The first value to be deleted.
+ * @param {...any} valueN - Additional values to be deleted.
+ * @return {Set} - The updated set after deleting the values.
+ */
+Set.prototype.deleteAll = function (value1/*, ..., valueN*/) {
+    for (var i = 0; i < arguments.length; i++) {
+        this.delete(arguments[i]);
+    }
+    return this;
+};
+
+/**
+ * Deletes each element in the Set that satisfies the provided callback function.
+ *
+ * @param {function} callback - The function to test each element. It takes in the value of the element as a parameter.
+ * @param {Object} thisArg - Optional. The value to use as 'this' when executing the callback function.
+ * @return {Set} - The updated Set after removing the elements that satisfy the callback function.
+ */
+Set.prototype.deleteEach = function (callback, thisArg) {
+    if (typeof callback !== "function") throw new TypeError("Set.deleteEach(): Missing callback function");
+
+    var originalData = this.toArray();
+    // Make a copy to avoid modification during iteration
+    for (var i = 0; i < originalData.length; i++) {
+        var value = originalData[i];
+        if (callback.call(thisArg, value, i, this)) {
+            this.delete(value);
+        }
+    }
+    return this;
+};
+
+/**
+ * Join the elements of the Set into a string separated by the specified separator.
+ *
+ * @param {string} separator - The separator to use. If not provided, a comma will be used as the default separator.
+ * @return {string} The joined string.
+ */
+Set.prototype.join = function (separator) {
+    separator = separator !== undefined ? separator : ',';
+    return this.toArray().join(separator);
 };

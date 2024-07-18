@@ -1,3 +1,4 @@
+#include ".\\external.js"
 /**
  * @title Set class - ExtendScript (ES3)
  *
@@ -16,11 +17,80 @@
  *  - forEach() - Iterates through each element of the set and applies a callback function.
  *  - has(value) - Checks if the given value exists in the set object or not.
  *  - keys() - The keys() method is an alias for the values() method.
- *  - size() - The number of elemets in the set
  *  - values() - Returns a new set iterator object that contains the values for each element in the set.
- * 
+ *
+ * Standard property for the Set object:
+ *  - size - The number of elements in the set
+ *
+ * @external:   Object.isEmpty(), sameValueZero(), isPrimitive(), isArrayLike() from external.js
  */
-#include "./Set_basic.js"
+
+/**
+* Initializes a new Set object.
+*
+* @param {Array|Set} elements - The initial values to add to the set (optional).
+* @return {undefined}
+*/
+function Set(elements) {
+    this._data = [];
+    this.size = 0;
+
+    Set.prototype.indexOf = function (value) {
+        for (var i = 0; i < this._data.length; i++) {
+            if (this._data[i] === value || sameValueZero(value, this._data[i])) {
+                return i;
+            }
+        }
+        return -1;
+    };
+
+    // Add initial values if provided during initialization
+    if (elements instanceof Array) {
+        for (var i = 0; i < elements.length; i++) {
+            this.add(elements[i]);
+        }
+    }
+};
+
+/**
+ * Adds a value to the Set.
+ *
+ * @param {any} value - The value to be added to the Set.
+ * @return {Set} - The updated Set with the value added.
+ */
+Set.prototype.add = function (value) {
+    if (this.indexOf(value) === -1) {
+        this._data.push(value);
+        this.size = this._data.length;
+    }
+    return this;
+};
+
+/**
+ * Checks if the given value exists in the set object or not.
+ *
+ * @param {any} value - The value to check for existence in the object.
+ * @return {boolean} A boolean indicating whether the value is in the set or not.
+ */
+Set.prototype.has = function (value) {
+    return this.indexOf(value) !== -1;
+};
+
+/**
+ * Deletes the given value from the set.
+ *
+ * @param {any} value - The value to be deleted from the set.
+ */
+Set.prototype.delete = function (value) {
+    var index = this.indexOf(value);
+    if (index !== -1) {
+        this._data.splice(index, 1);
+        this.size = this._data.length;
+        return true;
+    }
+    return false;
+};
+
 
 /**
  * Clears all element in the set and sets the size to 0.
@@ -29,8 +99,8 @@
  * @return {} None
  */
 Set.prototype.clear = function () {
-    this._data = {};
-    this._size = 0;
+    this._data = [];
+    this.size = this._data.length;
 };
 
 /**
@@ -42,29 +112,17 @@ Set.prototype.clear = function () {
  * 	'true' once all the values have been exhausted.
  */
 Set.prototype.values = function () {
-    var arr = [];
-    for (var value in this._data) {
-        arr.push(this._data[value]);
-    }
     var index = 0;
-    var length = arr.length;
-
-    var iterator = {
+    var data = this._data;
+    return {
         next: function () {
-            if (index >= length)
-                return {
-                    done: true,
-                    value: undefined,
-                };
-            else
-                return {
-                    done: false,
-                    value: arr[index++],
-                };
-        },
+            if (index < data.length) {
+                return { value: data[index++], done: false };
+            } else {
+                return { done: true };
+            }
+        }
     };
-
-    return iterator;
 };
 
 /**
@@ -84,29 +142,18 @@ Set.prototype.keys = Set.prototype.values;
  * all enumerable properties of the calling object.
  */
 Set.prototype.entries = function () {
-    var arr = [];
-    for (var value in this._data) {
-        arr.push([this._data[value], this._data[value]]);
-    }
     var index = 0;
-    var length = arr.length;
-
-    var iterator = {
+    var data = this._data;
+    return {
         next: function () {
-            if (index >= length)
-                return {
-                    done: true,
-                    value: undefined,
-                };
-            else
-                return {
-                    done: false,
-                    value: arr[index++],
-                };
-        },
+            if (index < data.length) {
+                var value = data[index++];
+                return { value: [value, value], done: false };
+            } else {
+                return { done: true };
+            }
+        }
     };
-
-    return iterator;
 };
 
 /**
@@ -117,7 +164,8 @@ Set.prototype.entries = function () {
  * @param {Object} [thisArg] - Object to use as `this` when executing `callback`.
  */
 Set.prototype.forEach = function (callback, thisArg) {
-    for (var value in this._data) {
-        callback.call(thisArg, this._data[value], value, this);
+    var data = this._data;
+    for (var i = 0; i < data.length; i++) {
+        callback.call(thisArg, data[i], data[i], this);
     }
 };

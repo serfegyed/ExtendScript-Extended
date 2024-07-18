@@ -1,49 +1,4 @@
 /**
- * Converts an array to a string representation.
- *
- * @return {string} The string representation of the array.
- */
-Array.prototype.toString = function () {
-    var arr = this;
-    var result = "";
-    if (arr.length > 0) {
-        for (var i = 0; i < arr.length; i++) {
-            if (result !== "") {
-                result += ", ";
-            };
-            result += (typeof arr[i] === 'string') ? '"' + arr[i] + '"' : arr[i];
-        };
-    };
-    return "[" + result + "]";
-};
-
-/**
- * Checks if an array is empty.
- *
- * @param {Array} arr - The array to be checked.
- * @return {boolean} Returns true if the array is empty, false otherwise.
- */
-if (!Array.isEmpty) {
-    Array.isEmpty = function (arr) {
-        if (arr.__class__ !== "Array")
-            throw new TypeError(arr.toString() + " is not an Array");
-        return arr.length === 0 ? true : false;
-    };
-};
-
-/**
- * Checks if the given argument is an array.
- *
- * @param {any} arg - The argument to be checked.
- * @return {boolean} Returns true if the argument is an array, false otherwise.
- */
-if (!Array.isArray) {
-    Array.isArray = function (arg) {
-        return arg === undefined || arg === null ? false : arg.__class__ === "Array";
-    };
-};
-
-/**
  * Checks if an object is empty.
  *
  * @param {Object} obj - The object to check.
@@ -91,5 +46,24 @@ if (typeof isPrimitive === "undefined") {
 
         // Check if the value is a primitive data type (string, number, or boolean)
         return typeof value !== "object";
+    };
+};
+
+/**
+ * Checks if a given object is array-like.
+ * An object is considered array-like if it has a numeric 'length' property
+ * and indexed elements.
+ *
+ * @param {any} obj - The object to check.
+ * @return {boolean} Returns true if the object is array-like, otherwise false.
+ */
+if (typeof isArrayLike === "undefined") {
+    function isArrayLike(obj) {
+        if (!obj && typeof obj !== 'string') return false; // Checks for null or undefined, but allows strings
+        return typeof obj === 'string' || (
+            typeof obj.length === 'number' &&
+            obj.length >= 0 &&
+            (obj.length === 0 || (obj.length - 1) in obj)
+        );
     };
 };
