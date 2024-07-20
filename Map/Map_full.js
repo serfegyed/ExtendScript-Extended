@@ -3,15 +3,15 @@
 /*************************************************************************************/
 /**
  * @description Map class - ExtendScript (ES3)
- * 
- * An extended version of the Map class. 
- * Includes all standard ES6 Map methods, as well as some mostly Array-like methods 
- * from some stage of the tc39 proposal phase. Also two useful methods: toArray() and toSring(). 
- * 
+ *
+ * An extended version of the Map class.
+ * Includes all standard ES6 Map methods, as well as some mostly Array-like methods
+ * from some stage of the tc39 proposal phase. Also two useful methods: toArray() and toSring().
+ *
  * @author Egyed Serf
  * @license MIT
  *
- * Standard ethods for the Map class:
+ * Standard methods for the Map class:
  * - clear()    - Clears the map.
  * - delete()   - Deletes a key-value pair from the map.
  * - entries()  - Returns a new iterator object that contains the key/value pairs in the map.
@@ -21,8 +21,9 @@
  * - has()      - Checks if the given key exists in the map's data.
  * - keys()     - Returns a new iterator object that contains the keys in the map.
  * - set()      - Sets the value of a key in the map.
- * - size()     - Returns the number of key-value pairs in the map.
  * - values()   - Returns a new iterator object that contains the values in the map.
+ * Property for the Map class:
+ * - size       - Returns the number of key-value pairs in the map.
 
  * Non-standardethods:
  * - deleteAll()    - Deletes elements defined by keys as parameters from the map.
@@ -44,9 +45,9 @@
  * - some()         - Executes the provided callback function once for each key-value pair in the Map object.
  * - toArray()      - Returns an array representation of the map.
  * - toString()     - Returns a string representation of the map.
- * 
+ *
  * @external:   sameValueZero()
- * 
+ *
  */
 /*************************************************************************************/
 /**
@@ -59,7 +60,7 @@
  */
 function Map(iterable) {
     this._data = {};
-    this._size = 0;
+    this.size = 0;
 
     if (iterable instanceof Array) {
         for (var i = 0; i < iterable.length; i++) {
@@ -87,7 +88,7 @@ Map.isMap = function (obj) {
  * @return {number} The number of key-value pairs in the map.
  */
 Map.prototype.size = function () {
-    return this._size;
+    return this.size;
 };
 
 /**
@@ -99,7 +100,7 @@ Map.prototype.size = function () {
  */
 Map.isEmpty = function (obj) {
     if (!Map.isMap(obj)) throw new TypeError(obj.toString() + " is not a Map");
-    return obj.size() === 0;
+    return obj.size === 0;
 };
 
 /**
@@ -110,7 +111,7 @@ Map.isEmpty = function (obj) {
  */
 Map.prototype.set = function (key, value) {
     if (!this.has(key)) {
-        this._size++;
+        this.size++;
     }
     this._data[key] = value;
     return this;
@@ -144,7 +145,7 @@ Map.prototype.has = function (key) {
 Map.prototype.delete = function (key) {
     if (this.has(key)) {
         delete this._data[key];
-        this._size--;
+        this.size--;
         return true;
     } else {
         return false;
@@ -321,10 +322,10 @@ Map.prototype.includes = function (searchElement) {
 /**
  * Finds the first element in the map that satisfies the provided testing function.
  *
- * @param {function} callback - The testing function. It is called with three arguments: 
+ * @param {function} callback - The testing function. It is called with three arguments:
  *          the value, the key, and the map itself.
  * @param {any} thisArg - Optional. The object to use as `this` when executing the testing function.
- * @return {any} The first element in the map that satisfies the provided testing function. 
+ * @return {any} The first element in the map that satisfies the provided testing function.
  *              If no element is found, `undefined` is returned.
  * @external Map.prototype.entries
  */
@@ -544,7 +545,7 @@ Map.prototype.reduce = function (callback, initialValue) {
     if (typeof callback !== "function")
         throw new TypeError("Map.reduce(): Callback must be a function");
 
-    if (this.size() === 0 && initialValue === undefined)
+    if (this.size === 0 && initialValue === undefined)
         throw new TypeError("Map.reduce(): Empty Map without an initial value");
 
     var iterator = this.entries();
@@ -632,9 +633,9 @@ Map.prototype.setAll = function (argArr) {
 };
 
 /**
- * Sets each element in the given array as key-value pairs in the Map object, 
+ * Sets each element in the given array as key-value pairs in the Map object,
  * based on the result of the callback function.
- * 
+ *
  * @param {Array} argArr - The array containing the elements to be added to the Map object.
  * @param {Function} callback - The function to execute on each element in the array.
  * @param {Object} thisArg - Optional. The value to use as 'this' when executing the callback function.

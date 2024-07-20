@@ -5,19 +5,20 @@
  *
  * @author Egyed Serf
  * @license MIT
- * 
+ *
  * Methods for the Map class:
  * - delete()   - Deletes a key-value pair from the map.
  * - get()      - Retrieves a value from the map's data using the provided key.
  * - has()      - Checks if the given key exists in the map's data.
  * - set()      - Sets the value of a key in the map.
- * - size()     - Returns the number of key-value pairs in the map.
- * 
+ * Property for the Map class:
+ * - size       - Returns the number of key-value pairs in the map.
+ *
  * @external:   nothing
  */
 function Map(iterable) {
     this._data = {};
-    this._size = 0;
+    this.size = 0;
 
     if (iterable instanceof Array) {
         for (var i = 0; i < iterable.length; i++) {
@@ -30,15 +31,6 @@ function Map(iterable) {
 };
 
 /**
- * Returns the number of key-value pairs in the map.
- *
- * @return {number} The number of key-value pairs in the map.
- */
-Map.prototype.size = function () {
-    return this._size;
-};
-
-/**
  * Sets the value of a key in the data object.
  *
  * @param {string} key - The key to set.
@@ -46,7 +38,7 @@ Map.prototype.size = function () {
  */
 Map.prototype.set = function (key, value) {
     if (!this.has(key)) {
-        this._size++;
+        this.size++;
     }
     this._data[key] = value;
     return this;
@@ -80,7 +72,7 @@ Map.prototype.has = function (key) {
 Map.prototype.delete = function (key) {
     if (this.has(key)) {
         delete this._data[key];
-        this._size--;
+        this.size--;
         return true;
     } else {
         return false;
