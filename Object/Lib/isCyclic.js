@@ -3,6 +3,7 @@
  *
  * @param {Object} obj - The object to check for cyclic references.
  * @return {boolean} True if the object contains cyclic references, false otherwise.
+ * @dependecy isPrimitive()
  */
 if (!Object.isCyclic) {
     Object.isCyclic = function (obj) {
