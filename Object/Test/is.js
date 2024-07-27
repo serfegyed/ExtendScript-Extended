@@ -7,10 +7,8 @@ var testCases = [
     { x: 25, y: 25, expected: true },
     { x: 25, y: "25", expected: false },
     { x: "25", y: 25, expected: false },
-    { x: 0, y: 0, expected: true },
-    { x: -0, y: 0, expected: false },
-    { x: NaN, y: NaN, expected: true },
     { x: NaN, y: 0 / 0, expected: true },
+    { x: NaN, y: NaN, expected: true },
     { x: NaN, y: Number.NaN, expected: true },
     { x: "foo", y: "foo", expected: true },
     { x: "foo", y: "bar", expected: false },
@@ -18,9 +16,16 @@ var testCases = [
     { x: foo, y: bar, expected: false },
     { x: foo, y: sameFoo, expected: true },
     { x: {}, y: {}, expected: false },
+    { x: [], y: [], expected: false },
+    { x: 0, y: 0, expected: true },
+    { x: -0, y: 0, expected: false },
+    { x: 0, y: -0, expected: false },
     { x: null, y: null, expected: true },
     { x: undefined, y: undefined, expected: true },
-    { x: [], y: [], expected: false },
+    { x: true, y: true, expected: true },
+    { x: true, y: false, expected: false },
+    { x: false, y: false, expected: true },
+    { x: "true", y: true, expected: false }
 ];
 
 // Run the tests
