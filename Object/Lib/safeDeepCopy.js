@@ -12,15 +12,10 @@ if (!Object.safeDeepCopy) {
         if (obj === null) return null;
         if (typeof obj !== 'object') return obj; // Primitives
 
-        if (obj instanceof Date) { 	// Handle Date objects
-            new Date(obj);
-        }
+        if (obj instanceof Date) new Date(obj.getTime());
+        if (obj instanceof RegExp) return new RegExp(obj);
 
-        if (obj instanceof RegExp) {	// Handle RegExp objects
-            return new RegExp(obj);
-        }
-
-        // Gotcha Alert: Circular references? We got them covered!
+        // Circular references? Problem solved.
         if (hash.has(obj)) return hash.get(obj);
 
         const clonedObj = Array.isArray(obj) ? [] : {};

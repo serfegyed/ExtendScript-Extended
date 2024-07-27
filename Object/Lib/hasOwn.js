@@ -6,10 +6,7 @@
  * @return {boolean} Returns true if the object has the property, false otherwise.
  */
 if (!Object.hasOwn) {
-    Object.hasOwn = function (obj, key) {
-        for (var k in obj) {
-            if (k === key) return true;
-        }
-        return false;
+    Object.hasOwn = function (obj, prop) {
+        return Object.prototype.hasOwnProperty.call(obj, prop);
     };
 };

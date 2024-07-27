@@ -6,7 +6,7 @@
  */
 if (!Object.isEmpty) {
     Object.isEmpty = function (obj) {
-        if (obj.__class__ !== "Object") throw new TypeError(obj.toString() + " is not an Object");
+        if (!(typeof obj === 'object' && obj !== null)) throw new TypeError(obj.toString() + " is not an Object");
         for (var key in obj) {
             if (obj.hasOwnProperty(key)) return false;
         }

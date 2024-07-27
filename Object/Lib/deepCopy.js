@@ -14,13 +14,8 @@ if (!Object.deepCopy) {
         if (obj === null) return null;
         if (typeof obj !== 'object') return obj; // Primitives
 
-        if (obj instanceof Date) { 	// Handle Date objects
-            new Date(obj);
-        }
-
-        if (obj instanceof RegExp) {	// Handle RegExp objects
-            return new RegExp(obj);
-        }
+        if (obj instanceof Date) new Date(obj.getTime());
+        if (obj instanceof RegExp) return new RegExp(obj);
 
         const clonedObj = Array.isArray(obj) ? [] : {};
 

@@ -24,7 +24,7 @@
 		Object.create()             - Creates a new Object, using an existing object as the prototype.
 		Object.defineProperty()     - Defines or modifies a property directly on an object.
 		Object.defineProperties()   - Defines new or modifies existing properties directly on an object.
-		Object.entries()            - Returns an array of a given object's own string-keyed property key-value pairs			
+		Object.entries()            - Returns an array of a given object's own string-keyed property key-value pairs
 		Object.fromEntries()        - Creates a new Object from an array of key-value pairs.The reverse of Object.entries().
 		Object.getOwnPropertyNames() - Returns an array of a given object's own enumerable string-keyed property names
 		Object.groupBy()            - Groups the items based on the provided callback function.
@@ -44,6 +44,7 @@
 		Object.isEquals()           - Compares two objects for equality.
 		Object.isObject()           - Tests if a passed data is Object
 		Object.prototype.merge()    - Merges two Objects and returns a new Object. Handles nested Objects/Arrays.
+		Object,getPrototypeOf()    - Returns the prototype of an object
 
  * @dependecies: Array.isArray(), isPrimitive(), sameValueZero())
 
@@ -68,7 +69,7 @@ if (!Object.isObject) {
  */
 if (!Object.isEmpty) {
 	Object.isEmpty = function (obj) {
-		if (obj.__class__ !== "Object") throw new TypeError(obj.toString() + " is not an Object");
+		if (!(typeof obj === 'object' && obj !== null)) throw new TypeError(obj.toString() + " is not an Object");
 		for (var key in obj) {
 			if (obj.hasOwnProperty(key)) return false;
 		}
@@ -192,13 +193,8 @@ if (!Object.deepCopy) {
 		if (obj === null) return null;
 		if (typeof obj !== 'object') return obj; // Primitives
 
-		if (obj instanceof Date) { 	// Handle Date objects
-			new Date(obj);
-		}
-
-		if (obj instanceof RegExp) {	// Handle RegExp objects
-			return new RegExp(obj);
-		}
+		if (obj instanceof Date) new Date(obj.getTime());
+		if (obj instanceof RegExp) return new RegExp(obj);
 
 		const clonedObj = Array.isArray(obj) ? [] : {};
 
@@ -226,15 +222,10 @@ if (!Object.safeDeepCopy) {
 		if (obj === null) return null;
 		if (typeof obj !== 'object') return obj; // Primitives
 
-		if (obj instanceof Date) { 	// Handle Date objects
-			new Date(obj);
-		}
+		if (obj instanceof Date) new Date(obj.getTime());
+		if (obj instanceof RegExp) return new RegExp(obj);
 
-		if (obj instanceof RegExp) {	// Handle RegExp objects
-			return new RegExp(obj);
-		}
-
-		// Gotcha Alert: Circular references? We got them covered!
+		// Circular references? Problem solved.
 		if (hash.has(obj)) return hash.get(obj);
 
 		const clonedObj = Array.isArray(obj) ? [] : {};
@@ -259,7 +250,7 @@ if (!Object.safeDeepCopy) {
  */
 if (!Object.prototype.merge) {
 	Object.prototype.merge = function (obj) {
-		if (!obj || obj.__class__ !== "Object")
+		if (!(typeof obj === 'object' && obj !== null))
 			throw new TypeError(obj.toString() + " is not an object");
 		var thisObj = Object.deepCopy(this);
 		var secondObj = Object.deepCopy(obj);
@@ -282,11 +273,8 @@ if (!Object.prototype.merge) {
  * @return {boolean} Returns true if the object has the property, false otherwise.
  */
 if (!Object.hasOwn) {
-	Object.hasOwn = function (obj, key) {
-		for (var k in obj) {
-			if (k === key) return true;
-		}
-		return false;
+	Object.hasOwn = function (obj, prop) {
+		return Object.prototype.hasOwnProperty.call(obj, prop);
 	};
 };
 
@@ -518,38 +506,31 @@ if (!Object.isCyclic) {
  */
 if (!Object.groupBy) {
 	Object.groupBy = function (items, callback) {
-		if (!items) {
-			throw new TypeError("Object.groupBy(): Iterable is not provided.");
-		};
 		if (typeof callback !== "function") {
-			throw new TypeError("Object.groupBy(): You must provide a function.");
+			throw new TypeError("Object.groupBy: callback must be a function.");
 		}
 
-		if (typeof items.length !== 'number' && typeof items.size !== 'number') {
-			throw new TypeError("Object.groupBy(): works on iterables only.");
+		if (!((items != null) && (items.length >= 0 || items.size >= 0))) {
+			throw new TypeError("Object.groupBy: items must be an iterable (Array, String, Map, Set, or Object).");
 		}
 
 		var groups = {};
 		var groupName;
+		var item, key;
 
-		if (typeof items.length === 'number') {	// Array, String or array-like iterable
-			for (var i = 0; i < items.length; i++) {
-				groupName = callback.call(null, items[i], i);
+		// Consolidated iteration logic
+		var iterate = (typeof items.length === 'number') ?
+			function (callback) { for (var i = 0; i < items.length; i++) callback(items[i], i); } :
+			function (callback) { items.forEach(function (value, k) { callback(value, k); }); };
 
-				groups[groupName] = groups[groupName] || [];
-				groups[groupName].push(items[i]);
-			}
+		iterate(function (value, k) {
+			key = (typeof items.length === 'number') ? k : value;
+			item = (typeof items.length === 'number') ? value : [k, value];
+			groupName = callback.call(undefined, item, key);
 
-		} else {	// Set and Map has 'size' instead of 'length'
-			items.forEach(helper);
-
-			function helper(value, key) {
-				groupName = callback.call(null, value, key);
-
-				groups[groupName] = groups[groupName] || [];
-				groups[groupName].push([key, value]);
-			};
-		};
+			groups[groupName] = groups[groupName] || [];
+			groups[groupName].push(item);
+		});
 
 		return groups;
 	};
@@ -603,7 +584,7 @@ Object.isEquals = function (a, b) {	// ES3 version
 };
 
 /**
- * Returns an array of all properties (including non-enumerable properties) 
+ * Returns an array of all properties (including non-enumerable properties)
  * found directly on a given object.
  *
  * @param {object} obj - The object to retrieve the property names from.
@@ -652,4 +633,23 @@ Object.flat = function (obj) {
 	};
 
 	return result;
+};
+
+/**
+ * Returns the prototype of the specified object.
+ *
+ * @param {Object|Function} obj - The object whose prototype is to be returned.
+ * @throws {TypeError} If the object is null or not an object or function.
+ * @return {Object|null} The prototype of the object, or null if it is Object.prototype.
+ */
+if (typeof Object.getPrototypeOf !== 'function') {
+	Object.getPrototypeOf = function (obj) {
+		if (obj === null || typeof obj !== 'object' && typeof obj !== 'function') {
+			throw new TypeError('Object.getPrototypeOf called on non-object');
+		}
+		if (obj === Object.prototype) {
+			return null;
+		}
+		return obj.__proto__ || (obj.constructor ? obj.constructor.prototype : null);
+	};
 };

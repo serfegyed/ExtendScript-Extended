@@ -7,7 +7,7 @@
  */
 if (!Object.prototype.merge) {
     Object.prototype.merge = function (obj) {
-        if (!obj || obj.__class__ !== "Object")
+        if (!(typeof obj === 'object' && obj !== null))
             throw new TypeError(obj.toString() + " is not an object");
         var thisObj = Object.deepCopy(this);
         var secondObj = Object.deepCopy(obj);
