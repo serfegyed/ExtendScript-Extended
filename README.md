@@ -9,13 +9,17 @@ This project was originally made as a learning tool and to solve problems encoun
 
 ## What's Inside
 - **Array Extensions**: A set of methods added to the native Array object, inspired by ES6 features.
+- **JSON Extensions**: JSON.stringify() and JSON.parse() methods, inspired by ES6 features.
+- **Math Extensions**: Additional math functions and constants.
+- **Number Extensions**: Methods like Number.isNaN(), Number.isFinite(), Number.isInteger(), and Number.isSafeInteger() as well as some constants.
 - **String Enhancements**: New methods for the String object to aid in text processing and to bring it closer to the modern JavaScript standard.
 - **Object Utilities**: Enhancements for the Object class, focusing on property management and object introspection.
 - **Map and Set**: Introducing Map and Set objects for more advanced data structures.
+- **TypeTest**: A collection of type testing methods like sameValueZero(), isPrimitive(), and isArrayLike(), etc.
 - **Other Utilities**: Various utilities and functions targeted at specific scripting needs in ExtendScript.
 
 ## How to Use
-Each category (e.g. Array, String, Object) has its own README.md file with a detailed explanation. 
+Each category (e.g. Array, String, Object) has its own README.md file with a detailed explanation.
 Each function has tests in the corresponding 'Test' folder.
 Most methods are in separate files, so it is easy to use them.
 Each category also contains a collection file if you want to use all the functions at once.
