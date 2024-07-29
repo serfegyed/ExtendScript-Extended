@@ -29,10 +29,10 @@
  *
  * @param {number} index - The index of the character to retrieve.
  * @return {string} - The character at the specified index.
- * @example 
+ * @example
  *	> $.writeln("hello world".at(0));
  *     "h"
- * @example 
+ * @example
  *	> $.writeln("hello world".at(-1));
  *     "e"
  */
@@ -67,8 +67,8 @@ if (!String.prototype.codePointAt) {
     String.prototype.codePointAt = function (pos) {
         var str = String(this);
         var size = str.length;
-        var pos = arguments[0];
-        if (isNaN(pos) || pos < 0 || pos >= size) {
+
+        if (typeof pos !== 'number' || isNaN(pos) || pos < 0 || pos >= size) {
             return undefined;
         }
 
@@ -86,7 +86,7 @@ if (!String.prototype.codePointAt) {
 
 /**
  * Determines whether the string ends with the specified substring.
- *  
+ *
  * @param {String} substring
  * @returns {Bool} True or false.
  */

@@ -3,10 +3,10 @@
  *
  * @param {number} index - The index of the character to retrieve.
  * @return {string} - The character at the specified index.
- * @example 
+ * @example
  *	> $.writeln("hello world".at(0));
  *     "h"
- * @example 
+ * @example
  *	> $.writeln("hello world".at(-1));
  *     "e"
  */

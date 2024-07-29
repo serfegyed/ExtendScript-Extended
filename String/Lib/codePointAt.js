@@ -11,8 +11,8 @@ if (!String.prototype.codePointAt) {
     String.prototype.codePointAt = function (pos) {
         var str = String(this);
         var size = str.length;
-        var pos = arguments[0];
-        if (isNaN(pos) || pos < 0 || pos >= size) {
+
+        if (typeof pos !== 'number' || isNaN(pos) || pos < 0 || pos >= size) {
             return undefined;
         }
 
