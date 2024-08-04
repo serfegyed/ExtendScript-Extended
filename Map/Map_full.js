@@ -25,7 +25,7 @@
  * Property for the Map class:
  * - size       - Returns the number of key-value pairs in the map.
 
- * Non-standardethods:
+ * Non-standard methods:
  * - deleteAll()    - Deletes elements defined by keys as parameters from the map.
  * - deleteEach()   - Deletes elements defined by a callback function from the map.
  * - every()        - Iterates over all key-value pairs in the map and applies the given function to each pair.
@@ -42,6 +42,7 @@
  * - merge()        - Merges two or more maps into a new map.
  * - reduce()       - Reduce the Map to a single value by applying a callback function to each key-value pair.
  * - setAll()       - Adds elements defined as parameters to the map.
+ * - setEach()      - Adds elements defined by a callback function to the map.
  * - some()         - Executes the provided callback function once for each key-value pair in the Map object.
  * - toArray()      - Returns an array representation of the map.
  * - toString()     - Returns a string representation of the map.
@@ -59,18 +60,36 @@
  * @license MIT
  */
 function Map(iterable) {
-    this._data = {};
+    this._entries = []; // Store entries as an array of [key, value] arrays
     this.size = 0;
+
+    Map.prototype._findEntry = function (key) {
+        for (var i = 0; i < this._entries.length; i++) {
+            if (sameValueZero(this._entries[i][0], key)) {
+                return i;
+            }
+        }
+        return -1; // Return -1 if no entry is found
+    };
+
+    Map.prototype._findIndex = function (value) {
+        for (var i = 0; i < this._entries.length; i++) {
+            if (sameValueZero(this._entries[i][1], value)) {
+                return i;
+            }
+        }
+        return -1; // Return -1 if no entry is found
+    };
 
     if (iterable instanceof Array) {
         for (var i = 0; i < iterable.length; i++) {
             var entry = iterable[i];
-            if (entry instanceof Array) {
+            if (entry instanceof Array && entry.length === 2) {
                 this.set(entry[0], entry[1]);
-            };
-        };
-    };
-};
+            }
+        }
+    }
+}
 
 /**
  * Checks if an object is a Map.
@@ -80,15 +99,6 @@ function Map(iterable) {
  */
 Map.isMap = function (obj) {
     return obj instanceof Map;
-};
-
-/**
- * Returns the number of key-value pairs in the map.
- *
- * @return {number} The number of key-value pairs in the map.
- */
-Map.prototype.size = function () {
-    return this.size;
 };
 
 /**
@@ -110,10 +120,13 @@ Map.isEmpty = function (obj) {
  * @param {*} value - The value to set for the key.
  */
 Map.prototype.set = function (key, value) {
-    if (!this.has(key)) {
-        this.size++;
+    var index = this._findEntry(key);
+    if (index === -1) {
+        this._entries.push([key, value]);
+        this.size = this._entries.length;
+    } else {
+        this._entries[index][1] = value;
     }
-    this._data[key] = value;
     return this;
 };
 
@@ -124,7 +137,8 @@ Map.prototype.set = function (key, value) {
  * @return {*} The value associated with the provided key.
  */
 Map.prototype.get = function (key) {
-    return this._data[key];
+    var index = this._findEntry(key);
+    return index !== -1 ? this._entries[index][1] : undefined;
 };
 
 /**
@@ -134,7 +148,7 @@ Map.prototype.get = function (key) {
  * @return {boolean} True if the object's data contains the given key, false otherwise.
  */
 Map.prototype.has = function (key) {
-    return this._data.hasOwnProperty(key);
+    return this._findEntry(key) !== -1;
 };
 
 /**
@@ -143,13 +157,13 @@ Map.prototype.has = function (key) {
  * @param {string} key - the key to delete
  */
 Map.prototype.delete = function (key) {
-    if (this.has(key)) {
-        delete this._data[key];
-        this.size--;
+    var index = this._findEntry(key);
+    if (index !== -1) {
+        this._entries.splice(index, 1);
+        this.size = this._entries.length;
         return true;
-    } else {
-        return false;
     }
+    return false;
 };
 
 /**
@@ -157,7 +171,7 @@ Map.prototype.delete = function (key) {
  *
  */
 Map.prototype.clear = function () {
-    this._data = {};
+    this._entries = [];
     this.size = 0;
 };
 
@@ -168,8 +182,8 @@ Map.prototype.clear = function () {
  */
 Map.prototype.keys = function () {
     var keys = [];
-    for (var key in this._data) {
-        keys.push(key);
+    for (var i = 0; i < this._entries.length; i++) {
+        keys.push(this._entries[i][0]);
     }
 
     var index = 0;
@@ -199,8 +213,8 @@ Map.prototype.keys = function () {
  */
 Map.prototype.values = function () {
     var values = [];
-    for (var key in this._data) {
-        values.push(this._data[key]);
+    for (var i = 0; i < this._entries.length; i++) {
+        values.push(this._entries[i][1]);
     }
     var index = 0;
     var length = values.length;
@@ -228,13 +242,13 @@ Map.prototype.values = function () {
  * @returns {Object}
  */
 Map.prototype.entries = function () {
-    var arr = [];
-    for (var key in this._data) {
-        arr.push([key, this._data[key]]);
+    var entries = [];
+    for (var i = 0; i < this._entries.length; i++) {
+        entries.push([this._entries[i][0], this._entries[i][1]]);
     }
 
     var index = 0;
-    var length = arr.length;
+    var length = entries.length;
 
     var iterator = {
         next: function () {
@@ -246,7 +260,7 @@ Map.prototype.entries = function () {
             else
                 return {
                     done: false,
-                    value: [arr[index][0], arr[index++][1]],
+                    value: entries[index++],
                 };
         },
     };
@@ -259,11 +273,11 @@ Map.prototype.entries = function () {
  * @return {Array} The resulting array containing the elements of the Map object.
  */
 Map.prototype.toArray = function () {
-    var array = [];
-    for (var key in this._data) {
-        array.push([key, this._data[key]])
+    var entries = [];
+    for (var i = 0; i < this._entries.length; i++) {
+        entries.push([this._entries[i][0], this._entries[i][1]]);
     }
-    return array;
+    return entries; // Returns an array of [key, value] pairs
 };
 
 /**
@@ -274,16 +288,14 @@ Map.prototype.toArray = function () {
 Map.prototype.toString = function () {
     var isFirst = true;
     var string = "";
-    for (var key in this._data) {
-        if (this._data.hasOwnProperty(key)) {
-            if (!isFirst) {
-                string += ", ";
-            }
-            string += "{" + key + "=>" + (typeof this._data[key] === "string" ? '"' + this._data[key] + '"' : this._data[key]) + "}";
-            isFirst = false;
+    for (var i = 0; i < this._entries.length; i++) {
+        if (!isFirst) {
+            string += ", ";
         }
+        string += "[" + this._entries[i][0] + ": " + (typeof this._entries[i][1] === "string" ? '"' + this._entries[i][1] + '"' : this._entries[i][1]) + "]";
+        isFirst = false;
     }
-    return "{" + string + "}";
+    return "Map: <" + string + ">";
 };
 
 /**
@@ -293,8 +305,9 @@ Map.prototype.toString = function () {
  * @param {object} [thisArg=this] - object to use as 'this' when executing callback
  */
 Map.prototype.forEach = function (callback, thisArg) {
-    for (var key in this._data) {
-        callback.call(thisArg, this._data[key], key, this);
+    for (var i = 0; i < this._entries.length; i++) {
+        var entry = this._entries[i];
+        callback.call(thisArg, entry[1], entry[0], this);
     }
 };
 
@@ -307,16 +320,8 @@ Map.prototype.forEach = function (callback, thisArg) {
  */
 Map.prototype.includes = function (searchElement) {
     if (!arguments.length) throw new TypeError('Map.includes(): Missing search element')
-    var iterator = this.values();
-    var currentItem = iterator.next();
 
-    while (!currentItem.done) {
-        if (sameValueZero(currentItem.value, searchElement)) {
-            return true;
-        }
-        currentItem = iterator.next();
-    };
-    return false;
+    return this._findIndex(searchElement) !== -1;
 };
 
 /**
@@ -332,16 +337,13 @@ Map.prototype.includes = function (searchElement) {
 Map.prototype.find = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Map.find(): Missing callback function");
-    var iterator = this.entries();
-    var entry = iterator.next();
-    while (!entry.done) {
-        var key = entry.value[0];
-        var value = entry.value[1];
-        if (callback.call(thisArg, value, key, this)) {
-            return value;
+
+    for (var i = 0; i < this._entries.length; i++) {
+        if (callback.call(thisArg, this._entries[i][1], this._entries[i][0], this)) {
+            return this._entries[i][1];
         }
-        entry = iterator.next();
     }
+
     return undefined;
 };
 
@@ -353,17 +355,16 @@ Map.prototype.find = function (callback, thisArg) {
  * @return {any} The key that satisfies the condition, or undefined if no key is found.
  * @external Map.prototype.entries
  */
-Map.prototype.findKey = function (fn, thisArg) {
-    var iterator = this.entries();
-    var entry = iterator.next();
-    while (!entry.done) {
-        var key = entry.value[0];
-        var value = entry.value[1];
-        if (fn.call(thisArg, value, key, this)) {
-            return key;
+Map.prototype.findKey = function (callback, thisArg) {
+    if (typeof callback !== "function")
+        throw new TypeError("Map.findKey(): Missing callback function");
+
+    for (var i = 0; i < this._entries.length; i++) {
+        if (callback.call(thisArg, this._entries[i][1], this._entries[i][0], this)) {
+            return this._entries[i][0];
         }
-        entry = iterator.next();
-    }
+    };
+
     return undefined;
 };
 
@@ -375,18 +376,10 @@ Map.prototype.findKey = function (fn, thisArg) {
  * @external Map.prototype.entries, sameValueZero()
  */
 Map.prototype.keyOf = function (searchElement) {
-    var iterator = this.entries();
-    var entry = iterator.next();
+    if (!arguments.length) throw new TypeError('Map.keyOf(): Missing search element')
+    index = this._findIndex(searchElement);
 
-    while (!entry.done) {
-        var key = entry.value[0];
-        var value = entry.value[1];
-        if (sameValueZero(value, searchElement)) {
-            return key;
-        }
-        entry = iterator.next();
-    }
-    return undefined;
+    return index === -1 ? undefined : this._entries[index][0];
 };
 
 /**
@@ -401,17 +394,12 @@ Map.prototype.some = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Map.some(): Missing callback function");
 
-    var iterator = this.entries();
-    var entry = iterator.next();
-
-    while (!entry.done) {
-        var key = entry.value[0];
-        var value = entry.value[1];
-        if (callback.call(thisArg, value, key, this)) {
+    for (var i = 0; i < this._entries.length; i++) {
+        if (callback.call(thisArg, this._entries[i][1], this._entries[i][0], this)) {
             return true;
         }
-        entry = iterator.next();
-    }
+    };
+
     return false;
 };
 
@@ -430,18 +418,11 @@ Map.prototype.every = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Map.every(): Missing callback function");
 
-    var iterator = this.entries();
-    var entry = iterator.next();
-
-    while (!entry.done) {
-        var key = entry.value[0];
-        var value = entry.value[1];
-
-        if (!callback.call(thisArg, value, key, this)) {
+    for (var i = 0; i < this._entries.length; i++) {
+        if (!callback.call(thisArg, this._entries[i][1], this._entries[i][0], this)) {
             return false;
         }
-        entry = iterator.next();
-    }
+    };
 
     return true;
 };
@@ -460,18 +441,12 @@ Map.prototype.filter = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Map.filter(): Missing callback function");
     var filteredMap = new Map();
-    var iterator = this.entries();
-    var entry = iterator.next();
 
-    while (!entry.done) {
-        var key = entry.value[0];
-        var value = entry.value[1];
-
-        if (callback.call(thisArg, value, key, this)) {
-            filteredMap.set(key, value);
+    for (var i = 0; i < this._entries.length; i++) {
+        if (callback.call(thisArg, this._entries[i][1], this._entries[i][0], this)) {
+            filteredMap.set(this._entries[i][0], this._entries[i][1]);
         }
-        entry = iterator.next();
-    }
+    };
 
     return filteredMap;
 };
@@ -489,15 +464,10 @@ Map.prototype.mapValues = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Map.mapValues(): Missing callback function");
     var newMap = new Map();
-    var iterator = this.entries();
-    var entry = iterator.next();
 
-    while (!entry.done) {
-        var key = entry.value[0];
-        var value = entry.value[1];
-        newMap.set(key, callback.call(thisArg, value, key, this));
-        entry = iterator.next();
-    }
+    for (var i = 0; i < this._entries.length; i++) {
+        newMap.set(this._entries[i][0], callback.call(thisArg, this._entries[i][1], this._entries[i][0], this));
+    };
 
     return newMap;
 };
@@ -514,15 +484,10 @@ Map.prototype.mapKeys = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Map.mapKeys(): Missing callback function");
     var newMap = new Map();
-    var iterator = this.entries();
-    var entry = iterator.next();
 
-    while (!entry.done) {
-        var key = entry.value[0];
-        var value = entry.value[1];
-        newMap.set(callback.call(thisArg, key, value, this), value);
-        entry = iterator.next();
-    }
+    for (var i = 0; i < this._entries.length; i++) {
+        newMap.set(callback.call(thisArg, this._entries[i][0], this._entries[i][1], this), this._entries[i][1]);
+    };
 
     return newMap;
 };
@@ -548,21 +513,18 @@ Map.prototype.reduce = function (callback, initialValue) {
     if (this.size === 0 && initialValue === undefined)
         throw new TypeError("Map.reduce(): Empty Map without an initial value");
 
-    var iterator = this.entries();
-    var entry = iterator.next();
     var accumulator = initialValue || undefined;
 
-    if (!entry.done || !accumulator) {
-        accumulator = entry.value[1];
-        entry = iterator.next();
-    }
+    if (this.size !== 0 && !accumulator) {
+        accumulator = this._entries[0][1];
+        startindex = 1;
+    } else {
+        startindex = 0;
+    };
 
-    while (!entry.done) {
-        var key = entry.value[0];
-        var value = entry.value[1];
-        accumulator = callback.call(this, accumulator, value, key, this);
-        entry = iterator.next();
-    }
+    for (var i = startindex; i < this._entries.length; i++) {
+        accumulator = callback.call(null, accumulator, this._entries[i][1], this._entries[i][0], this);
+    };
 
     if (accumulator === undefined)
         throw new TypeError("Map.reduce(): Reducer function returns an invalid value");
@@ -580,31 +542,40 @@ Map.prototype.reduce = function (callback, initialValue) {
  */
 Map.from = function (iterable, mapFunc, thisArg) {
     if (!iterable || typeof iterable !== 'object') {
-        throw new TypeError(iterable + " is not an object.");
+        throw new TypeError("Expected an object for 'iterable' but received: " + (typeof iterable));
     }
 
-    mapFunc = mapFunc || function (item) { return item; };
+    // Default identity function if no mapFunc is provided.
+    mapFunc = mapFunc || function (value, key) { return [key, value]; };
 
     var result = new Map();
-    var processEntry = function (entry) {
-        var elem = mapFunc.call(thisArg, entry);
-        result.set(elem[0], elem[1]);
-    };
+
+    function processEntry(value, key) {
+        var transformed = mapFunc.call(thisArg, value, key);
+        if (!Array.isArray(transformed) || transformed.length !== 2) {
+            throw new TypeError(iterable + " is not an object.");
+        }
+        result.set(transformed[0], transformed[1]);
+    }
 
     if (iterable instanceof Array) {
-        iterable.forEach(function (item, index) {
-            if (item instanceof Array) {
-                processEntry(item);
+        for (var i = 0; i < iterable.length; i++) {
+            if (Array.isArray(iterable[i]) && iterable[i].length === 2) {
+                processEntry(iterable[i][1], iterable[i][0]);
             }
-        });
+        }
     } else if (iterable instanceof Map) {
-        iterable.forEach(function (value, key) {
-            processEntry([key, value]);
-        });
+        for (var j = 0; j < iterable._entries.length; j++) {
+            processEntry(iterable._entries[j][1], iterable._entries[j][0]);
+        }
+    } else if (typeof iterable.length === 'number') { // Handling for array-like objects
+        for (var k = 0; k < iterable.length; k++) {
+            processEntry(iterable[k], k);
+        }
     } else {
         for (var key in iterable) {
             if (iterable.hasOwnProperty(key)) {
-                processEntry([key, iterable[key]]);
+                processEntry(iterable[key], key);
             }
         }
     }
@@ -687,9 +658,9 @@ Map.prototype.deleteEach = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Map.deleteEach(): Missing callback function");
 
-    for (key in this._data) {
-        if (callback.call(thisArg, this._data[key], key, this)) {
-            this.delete(key);
+    for (i = 0; i < this._entries.length; i++) {
+        if (callback.call(thisArg, this._entries[i][1], this._entries[i][0], this)) {
+            this.delete(this._entries[i][0]);
         };
     };
 
@@ -707,13 +678,9 @@ Map.prototype.merge = function (otherMap) { //
     if (!(otherMap instanceof Map)) {
         throw new TypeError(otherMap + " is not a Map instance.");
     };
-
-    var iterator = otherMap.entries();
-    var entry = iterator.next();
-    while (!entry.done) {
-        this.set(entry.value[0], entry.value[1]);
-        entry = iterator.next();
-    }
+    for (var i = 0; i < otherMap._entries.length; i++) {
+        this.set(otherMap._entries[i][0], otherMap._entries[i][1])
+    };
 
     return this;
 };
@@ -725,37 +692,36 @@ Map.prototype.merge = function (otherMap) { //
  * @param {Function} callback - The function that produces the grouping key.
  * @return {Map} A Map object with the grouped elements.
  */
-if (!Map.groupBy) {
-    Map.groupBy = function (iterable, callback) {
-        if (typeof callback !== 'function') {
-            throw new TypeError('Second argument must be a function');
-        }
 
-        var groups = new Map();
+Map.groupBy = function (iterable, callback) {
+    if (typeof callback !== 'function') {
+        throw new TypeError('Second argument must be a function');
+    }
 
-        if (iterable instanceof Map) {
-            iterable.forEach(function (value, key) {
+    var groups = new Map();
+
+    if (iterable instanceof Map) {
+        iterable.forEach(function (value, key) {
+            var groupName = callback(value, key, iterable);
+            if (!groups.has(groupName)) {
+                groups.set(groupName, []);
+            }
+            groups.get(groupName).push(value);
+        });
+    } else if (iterable instanceof Array || typeof iterable === 'object') {
+        for (var key in iterable) {
+            if (iterable.hasOwnProperty(key)) {
+                var value = iterable[key];
                 var groupName = callback(value, key, iterable);
                 if (!groups.has(groupName)) {
                     groups.set(groupName, []);
                 }
                 groups.get(groupName).push(value);
-            });
-        } else if (iterable instanceof Array || typeof iterable === 'object') {
-            for (var key in iterable) {
-                if (iterable.hasOwnProperty(key)) {
-                    var value = iterable[key];
-                    var groupName = callback(value, key, iterable);
-                    if (!groups.has(groupName)) {
-                        groups.set(groupName, []);
-                    }
-                    groups.get(groupName).push(value);
-                }
             }
-        } else {
-            throw new TypeError('First argument must be an iterable (Map, Array, or Object)');
         }
+    } else {
+        throw new TypeError('First argument must be an iterable (Map, Array, or Object)');
+    }
 
-        return groups;
-    };
-}
+    return groups;
+};

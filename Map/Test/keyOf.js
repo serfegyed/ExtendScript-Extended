@@ -1,5 +1,5 @@
 // Test cases for keyOf
-$.writeln("\nTests for Map.prototype.keyOf")
+console.log("\nTests for Map.prototype.keyOf")
 var map = new Map();
 map.set(1, 'one');
 map.set(2, 'two');
@@ -9,14 +9,14 @@ map.set(5, NaN);
 map.set(6, Infinity);
 map.set(7, 'one');
 
-$.writeln(map.keyOf('one')); // Output: 1
-$.writeln(map.keyOf('two')); // Output: 2
-$.writeln(map.keyOf('four')); // Output: undefined
+console.log(map.keyOf('one')); // Output: 1
+console.log(map.keyOf('two')); // Output: 2
+console.log(map.keyOf('four')); // Output: undefined
 
 // Edge cases
-$.writeln(map.keyOf(undefined)); // Output: undefined
-$.writeln(map.keyOf(null)); // Output: 4
-$.writeln(map.keyOf(NaN)); // Output: 5
-$.writeln(map.keyOf(Infinity)); // Output: 6
-$.writeln(map.keyOf(0)); // Output: undefined
-$.writeln(map.keyOf(1)); // Output: undefined (value is 'one', not 1)
+console.log(map.keyOf(undefined)); // Output: undefined
+console.log(map.keyOf(null)); // Output: 4
+console.log(map.keyOf(NaN)); // Output: 5
+console.log(map.keyOf(Infinity)); // Output: 6
+console.log(map.keyOf(0)); // Output: undefined
+console.log(map.keyOf('1')); // Output: undefined (value is '1', not 1)

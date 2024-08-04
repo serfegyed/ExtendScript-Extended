@@ -16,24 +16,21 @@ Map.prototype.reduce = function (callback, initialValue) {
     if (typeof callback !== "function")
         throw new TypeError("Map.reduce(): Callback must be a function");
 
-    if (this.size() === 0 && initialValue === undefined)
+    if (this.size === 0 && initialValue === undefined)
         throw new TypeError("Map.reduce(): Empty Map without an initial value");
 
-    var iterator = this.entries();
-    var entry = iterator.next();
     var accumulator = initialValue || undefined;
 
-    if (!entry.done || !accumulator) {
-        accumulator = entry.value[1];
-        entry = iterator.next();
-    }
+    if (this.size !== 0 && !accumulator) {
+        accumulator = this._entries[0][1];
+        startindex = 1;
+    } else {
+        startindex = 0;
+    };
 
-    while (!entry.done) {
-        var key = entry.value[0];
-        var value = entry.value[1];
-        accumulator = callback.call(this, accumulator, value, key, this);
-        entry = iterator.next();
-    }
+    for (var i = startindex; i < this._entries.length; i++) {
+        accumulator = callback.call(null, accumulator, this._entries[i][1], this._entries[i][0], this);
+    };
 
     if (accumulator === undefined)
         throw new TypeError("Map.reduce(): Reducer function returns an invalid value");

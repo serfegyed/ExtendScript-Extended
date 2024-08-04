@@ -9,13 +9,9 @@ Map.prototype.merge = function (otherMap) { //
     if (!(otherMap instanceof Map)) {
         throw new TypeError(otherMap + " is not a Map instance.");
     };
-
-    var iterator = otherMap.entries();
-    var entry = iterator.next();
-    while (!entry.done) {
-        this.set(entry.value[0], entry.value[1]);
-        entry = iterator.next();
-    }
+    for (var i = 0; i < otherMap._entries.length; i++) {
+        this.set(otherMap._entries[i][0], otherMap._entries[i][1])
+    };
 
     return this;
 };

@@ -22,7 +22,7 @@
  *
  */
 Map.prototype.clear = function () {
-    this._data = {};
+    this._entries = [];
     this.size = 0;
 };
 
@@ -33,8 +33,9 @@ Map.prototype.clear = function () {
  * @param {object} [thisArg=this] - object to use as 'this' when executing callback
  */
 Map.prototype.forEach = function (callback, thisArg) {
-    for (var key in this._data) {
-        callback.call(thisArg, this._data[key], key, this);
+    for (var i = 0; i < this._entries.length; i++) {
+        var entry = this._entries[i];
+        callback.call(thisArg, entry[1], entry[0], this);
     }
 };
 
@@ -45,8 +46,8 @@ Map.prototype.forEach = function (callback, thisArg) {
  */
 Map.prototype.keys = function () {
     var keys = [];
-    for (var key in this._data) {
-        keys.push(key);
+    for (var i = 0; i < this._entries.length; i++) {
+        keys.push(this._entries[i][0]);
     }
 
     var index = 0;
@@ -76,8 +77,8 @@ Map.prototype.keys = function () {
  */
 Map.prototype.values = function () {
     var values = [];
-    for (var key in this._data) {
-        values.push(this._data[key]);
+    for (var i = 0; i < this._entries.length; i++) {
+        values.push(this._entries[i][1]);
     }
     var index = 0;
     var length = values.length;
@@ -105,13 +106,13 @@ Map.prototype.values = function () {
  * @returns {Object}
  */
 Map.prototype.entries = function () {
-    var arr = [];
-    for (var key in this._data) {
-        arr.push([key, this._data[key]]);
+    var entries = [];
+    for (var i = 0; i < this._entries.length; i++) {
+        entries.push([this._entries[i][0], this._entries[i][1]]);
     }
 
     var index = 0;
-    var length = arr.length;
+    var length = entries.length;
 
     var iterator = {
         next: function () {
@@ -123,7 +124,7 @@ Map.prototype.entries = function () {
             else
                 return {
                     done: false,
-                    value: [arr[index][0], arr[index++][1]],
+                    value: entries[index++],
                 };
         },
     };
@@ -137,37 +138,35 @@ Map.prototype.entries = function () {
  * @param {Function} callback - The function that produces the grouping key.
  * @return {Map} A Map object with the grouped elements.
  */
-if (!Map.groupBy) {
-    Map.groupBy = function (iterable, callback) {
-        if (typeof callback !== 'function') {
-            throw new TypeError('Second argument must be a function');
-        }
+Map.groupBy = function (iterable, callback) {
+    if (typeof callback !== 'function') {
+        throw new TypeError('Second argument must be a function');
+    }
 
-        var groups = new Map();
+    var groups = new Map();
 
-        if (iterable instanceof Map) {
-            iterable.forEach(function (value, key) {
+    if (iterable instanceof Map) {
+        iterable.forEach(function (value, key) {
+            var groupName = callback(value, key, iterable);
+            if (!groups.has(groupName)) {
+                groups.set(groupName, []);
+            }
+            groups.get(groupName).push(value);
+        });
+    } else if (iterable instanceof Array || typeof iterable === 'object') {
+        for (var key in iterable) {
+            if (iterable.hasOwnProperty(key)) {
+                var value = iterable[key];
                 var groupName = callback(value, key, iterable);
                 if (!groups.has(groupName)) {
                     groups.set(groupName, []);
                 }
                 groups.get(groupName).push(value);
-            });
-        } else if (iterable instanceof Array || typeof iterable === 'object') {
-            for (var key in iterable) {
-                if (iterable.hasOwnProperty(key)) {
-                    var value = iterable[key];
-                    var groupName = callback(value, key, iterable);
-                    if (!groups.has(groupName)) {
-                        groups.set(groupName, []);
-                    }
-                    groups.get(groupName).push(value);
-                }
             }
-        } else {
-            throw new TypeError('First argument must be an iterable (Map, Array, or Object)');
         }
+    } else {
+        throw new TypeError('First argument must be an iterable (Map, Array, or Object)');
+    }
 
-        return groups;
-    };
-}
+    return groups;
+};

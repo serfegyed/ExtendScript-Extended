@@ -9,9 +9,9 @@ Map.prototype.deleteEach = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Map.deleteEach(): Missing callback function");
 
-    for (key in this._data) {
-        if (callback.call(thisArg, this._data[key], key, this)) {
-            this.delete(key);
+    for (i = 0; i < this._entries.length; i++) {
+        if (callback.call(thisArg, this._entries[i][1], this._entries[i][0], this)) {
+            this.delete(this._entries[i][0]);
         };
     };
 

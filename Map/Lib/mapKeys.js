@@ -10,15 +10,10 @@ Map.prototype.mapKeys = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Map.mapKeys(): Missing callback function");
     var newMap = new Map();
-    var iterator = this.entries();
-    var entry = iterator.next();
 
-    while (!entry.done) {
-        var key = entry.value[0];
-        var value = entry.value[1];
-        newMap.set(callback.call(thisArg, key, value, this), value);
-        entry = iterator.next();
-    }
+    for (var i = 0; i < this._entries.length; i++) {
+        newMap.set(callback.call(thisArg, this._entries[i][0], this._entries[i][1], this), this._entries[i][1]);
+    };
 
     return newMap;
 };

@@ -5,8 +5,8 @@
  */
 Map.prototype.values = function () {
     var values = [];
-    for (var key in this._data) {
-        values.push(this._data[key]);
+    for (var i = 0; i < this._entries.length; i++) {
+        values.push(this._entries[i][1]);
     }
     var index = 0;
     var length = values.length;

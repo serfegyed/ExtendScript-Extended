@@ -5,7 +5,8 @@
  * @param {object} [thisArg=this] - object to use as 'this' when executing callback
  */
 Map.prototype.forEach = function (callback, thisArg) {
-    for (var key in this._data) {
-        callback.call(thisArg, this._data[key], key, this);
+    for (var i = 0; i < this._entries.length; i++) {
+        var entry = this._entries[i];
+        callback.call(thisArg, entry[1], entry[0], this);
     }
 };

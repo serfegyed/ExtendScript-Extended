@@ -1,5 +1,5 @@
 // Tests for Map.prototype.filter
-$.writeln("\nTests for Map.prototype.filter")
+console.log("\nTests for Map.prototype.filter")
 
 var map = new Map();
 map.set('a', 1);
@@ -10,28 +10,28 @@ var filteredMap = map.filter(function (value, key) {
     return value > 1;
 });
 
-$.writeln("\n" + filteredMap.toString()); // {{b=>2}, {c=>3}}
-$.writeln(filteredMap.size()); // 2
-$.writeln(filteredMap.get('a')); // undefined
-$.writeln(filteredMap.get('b')); // 2
-$.writeln(filteredMap.get('c')); // 3
+console.log("\n" + filteredMap.toString()); // Map: <[b: 2], [c: 3]>
+console.log(filteredMap.size); // 2
+console.log(filteredMap.get('a')); // undefined
+console.log(filteredMap.get('b')); // 2
+console.log(filteredMap.get('c')); // 3
 
 filteredMap = map.filter(function (value, key) {
     return key === 'a';
 });
 
-$.writeln("\n" + filteredMap.toString()); // {{a=>1}}
-$.writeln(filteredMap.size()); // 1
-$.writeln(filteredMap.get('a')); // 1
-$.writeln(filteredMap.get('b')); // undefined
-$.writeln(filteredMap.get('c')); // undefined
+console.log("\n" + filteredMap.toString()); // Map: <[a: 1]>
+console.log(filteredMap.size); // 1
+console.log(filteredMap.get('a')); // 1
+console.log(filteredMap.get('b')); // undefined
+console.log(filteredMap.get('c')); // undefined
 
 filteredMap = map.filter(function (value, key) {
-    return ['a', 'c'].indexOf(key) !== -1;
-});
+    return this.indexOf(key) !== -1;
+}, ['a', 'c']);
 
-$.writeln("\n" + filteredMap.toString()); // {{a=>1}, {c=>3}}
-$.writeln(filteredMap.size()); // 2
-$.writeln(filteredMap.get('a')); // 1
-$.writeln(filteredMap.get('b')); // undefined
-$.writeln(filteredMap.get('c')); // 3
+console.log("\n" + filteredMap.toString()); // Map: <[a: 1], [c: 3]>
+console.log(filteredMap.size); // 2
+console.log(filteredMap.get('a')); // 1
+console.log(filteredMap.get('b')); // undefined
+console.log(filteredMap.get('c')); // 3

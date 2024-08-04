@@ -6,16 +6,8 @@
  * @external Map.prototype.entries, sameValueZero()
  */
 Map.prototype.keyOf = function (searchElement) {
-    var iterator = this.entries();
-    var entry = iterator.next();
+    if (!arguments.length) throw new TypeError('Map.keyOf(): Missing search element')
+    index = this._findIndex(searchElement);
 
-    while (!entry.done) {
-        var key = entry.value[0];
-        var value = entry.value[1];
-        if (sameValueZero(value, searchElement)) {
-            return key;
-        }
-        entry = iterator.next();
-    }
-    return undefined;
+    return index === -1 ? undefined : this._entries[index][0];
 };

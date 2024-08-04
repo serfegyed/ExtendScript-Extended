@@ -5,8 +5,8 @@
  */
 Map.prototype.keys = function () {
     var keys = [];
-    for (var key in this._data) {
-        keys.push(key);
+    for (var i = 0; i < this._entries.length; i++) {
+        keys.push(this._entries[i][0]);
     }
 
     var index = 0;

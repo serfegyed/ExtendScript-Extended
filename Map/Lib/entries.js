@@ -4,13 +4,13 @@
  * @returns {Object}
  */
 Map.prototype.entries = function () {
-    var arr = [];
-    for (var key in this._data) {
-        arr.push([key, this._data[key]]);
+    var entries = [];
+    for (var i = 0; i < this._entries.length; i++) {
+        entries.push([this._entries[i][0], this._entries[i][1]]);
     }
 
     var index = 0;
-    var length = arr.length;
+    var length = entries.length;
 
     var iterator = {
         next: function () {
@@ -22,7 +22,7 @@ Map.prototype.entries = function () {
             else
                 return {
                     done: false,
-                    value: [arr[index][0], arr[index++][1]],
+                    value: entries[index++],
                 };
         },
     };

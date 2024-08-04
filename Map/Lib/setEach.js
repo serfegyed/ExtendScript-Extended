@@ -1,7 +1,7 @@
 /**
- * Sets each element in the given array as key-value pairs in the Map object, 
+ * Sets each element in the given array as key-value pairs in the Map object,
  * based on the result of the callback function.
- * 
+ *
  * @param {Array} argArr - The array containing the elements to be added to the Map object.
  * @param {Function} callback - The function to execute on each element in the array.
  * @param {Object} thisArg - Optional. The value to use as 'this' when executing the callback function.

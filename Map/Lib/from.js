@@ -8,31 +8,40 @@
  */
 Map.from = function (iterable, mapFunc, thisArg) {
     if (!iterable || typeof iterable !== 'object') {
-        throw new TypeError(iterable + " is not an object.");
+        throw new TypeError("Expected an object for 'iterable' but received: " + (typeof iterable));
     }
 
-    mapFunc = mapFunc || function (item) { return item; };
+    // Default identity function if no mapFunc is provided.
+    mapFunc = mapFunc || function (value, key) { return [key, value]; };
 
     var result = new Map();
-    var processEntry = function (entry) {
-        var elem = mapFunc.call(thisArg, entry);
-        result.set(elem[0], elem[1]);
-    };
+
+    function processEntry(value, key) {
+        var transformed = mapFunc.call(thisArg, value, key);
+        if (!Array.isArray(transformed) || transformed.length !== 2) {
+            throw new TypeError(iterable + " is not an object.");
+        }
+        result.set(transformed[0], transformed[1]);
+    }
 
     if (iterable instanceof Array) {
-        iterable.forEach(function (item, index) {
-            if (item instanceof Array) {
-                processEntry(item);
+        for (var i = 0; i < iterable.length; i++) {
+            if (Array.isArray(iterable[i]) && iterable[i].length === 2) {
+                processEntry(iterable[i][1], iterable[i][0]);
             }
-        });
+        }
     } else if (iterable instanceof Map) {
-        iterable.forEach(function (value, key) {
-            processEntry([key, value]);
-        });
+        for (var j = 0; j < iterable._entries.length; j++) {
+            processEntry(iterable._entries[j][1], iterable._entries[j][0]);
+        }
+    } else if (typeof iterable.length === 'number') { // Handling for array-like objects
+        for (var k = 0; k < iterable.length; k++) {
+            processEntry(iterable[k], k);
+        }
     } else {
         for (var key in iterable) {
             if (iterable.hasOwnProperty(key)) {
-                processEntry([key, iterable[key]]);
+                processEntry(iterable[key], key);
             }
         }
     }

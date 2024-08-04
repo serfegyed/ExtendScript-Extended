@@ -6,16 +6,15 @@
  * @return {any} The key that satisfies the condition, or undefined if no key is found.
  * @external Map.prototype.entries
  */
-Map.prototype.findKey = function (fn, thisArg) {
-    var iterator = this.entries();
-    var entry = iterator.next();
-    while (!entry.done) {
-        var key = entry.value[0];
-        var value = entry.value[1];
-        if (fn.call(thisArg, value, key, this)) {
-            return key;
+Map.prototype.findKey = function (callback, thisArg) {
+    if (typeof callback !== "function")
+        throw new TypeError("Map.findKey(): Missing callback function");
+
+    for (var i = 0; i < this._entries.length; i++) {
+        if (callback.call(thisArg, this._entries[i][1], this._entries[i][0], this)) {
+            return this._entries[i][0];
         }
-        entry = iterator.next();
-    }
+    };
+
     return undefined;
 };

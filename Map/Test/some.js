@@ -1,5 +1,5 @@
 // Tests for Map.prototype.some
-$.writeln("\nTests for Map.prototype.some")
+console.log("\nTests for Map.prototype.some")
 // Test case 1: Callback returns true for at least one value
 var map1 = new Map();
 map1.set(1, "apple");
@@ -10,7 +10,7 @@ var result1 = map1.some(function (value) {
     return value.length > 5;
 });
 
-$.writeln(result1); // Output: true
+console.log(result1); // Output: true
 
 // Test case 2: Callback returns false for all values
 var map2 = new Map();
@@ -19,9 +19,13 @@ map2.set(2, "banana");
 map2.set(3, "cherry");
 
 var result2 = map2.some(function (value) {
-    return value[0] === ("X");
+    return value === "banana";
 });
-$.writeln(result2); // Output: false
+console.log(result2); // Output: true
+var result2 = map2.some(function (value) {
+    return value === "mango";
+});
+console.log(result2); // Output: false
 
 // Test case 3: Callback throws an error
 var map3 = new Map();
@@ -32,5 +36,5 @@ map3.set(3, "cherry");
 try {
     map3.some("not a function");
 } catch (error) {
-    $.writeln(error.message); // Output: Missing callback function
+    console.log(error.message); // Output: Missing callback function
 }

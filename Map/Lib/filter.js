@@ -12,18 +12,12 @@ Map.prototype.filter = function (callback, thisArg) {
     if (typeof callback !== "function")
         throw new TypeError("Map.filter(): Missing callback function");
     var filteredMap = new Map();
-    var iterator = this.entries();
-    var entry = iterator.next();
 
-    while (!entry.done) {
-        var key = entry.value[0];
-        var value = entry.value[1];
-
-        if (callback.call(thisArg, value, key, this)) {
-            filteredMap.set(key, value);
+    for (var i = 0; i < this._entries.length; i++) {
+        if (callback.call(thisArg, this._entries[i][1], this._entries[i][0], this)) {
+            filteredMap.set(this._entries[i][0], this._entries[i][1]);
         }
-        entry = iterator.next();
-    }
+    };
 
     return filteredMap;
 };

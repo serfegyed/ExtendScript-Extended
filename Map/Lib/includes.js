@@ -7,14 +7,6 @@
  */
 Map.prototype.includes = function (searchElement) {
     if (!arguments.length) throw new TypeError('Map.includes(): Missing search element')
-    var iterator = this.values();
-    var currentItem = iterator.next();
 
-    while (!currentItem.done) {
-        if (sameValueZero(currentItem.value, searchElement)) {
-            return true;
-        }
-        currentItem = iterator.next();
-    };
-    return false;
+    return this._findIndex(searchElement) !== -1;
 };
