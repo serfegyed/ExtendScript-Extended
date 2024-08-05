@@ -20,7 +20,7 @@
  * - groupBy()  - Groups the elements of an iterable by the result of a callback function.
  * - has()      - Checks if the given key exists in the map's data.
  * - keys()     - Returns a new iterator object that contains the keys in the map.
- * - set()      - Sets the value of a key in the map.
+ * - set()      - Adds or overwrites an element of a key in the map.
  * - values()   - Returns a new iterator object that contains the values in the map.
  * Property for the Map class:
  * - size       - Returns the number of key-value pairs in the map.
@@ -28,6 +28,7 @@
  * Non-standard methods:
  * - deleteAll()    - Deletes elements defined by keys as parameters from the map.
  * - deleteEach()   - Deletes elements defined by a callback function from the map.
+ * - emplace()      - Inserts or updates a key-value pair in the map.
  * - every()        - Iterates over all key-value pairs in the map and applies the given function to each pair.
  * - filter()       - Filters the elements of a Map object based on a provided callback function.
  * - find()         - Finds the first element in the map that satisfies the provided testing function.
@@ -724,4 +725,39 @@ Map.groupBy = function (iterable, callback) {
     }
 
     return groups;
+};
+
+/**
+ * Inserts or updates a key-value pair in the map.
+ *
+ * @param {any} key - The key to be inserted or updated.
+ * @param {Object} handlers - An object containing the insert and update functions.
+ * @param {function} handlers.insert - The function to be called if the key does not exist in the map.
+ * @param {function} [handlers.update] - The function to be called if the key exists in the map.
+ * @throws {TypeError} Throws an error if the handlers object is invalid or does not contain an insert function.
+ * @return {any} Returns the new value associated with the key if it was inserted or updated, otherwise returns the current value.
+ */
+Map.prototype.emplace = function (key, handlers) {
+    // Check if the handlers object is valid and contains at least an insert function
+    if (!handlers || typeof handlers.insert !== 'function') {
+        throw new TypeError('handlers must be an object with at least an insert function');
+    }
+
+    // Check if the key exists in the map
+    if (this.has(key)) {
+        var currentValue = this.get(key);
+        // Key exists, update the value using the update function
+        if (typeof handlers.update === 'function') {
+            var newValue = handlers.update(currentValue, key, this);
+            this.set(key, newValue);
+            return newValue;
+        }
+        // If no update function is provided, do nothing and return the current value
+        return currentValue;
+    } else {
+        // Key does not exist, insert the value using the insert function
+        var insertedValue = handlers.insert(key, this);
+        this.set(key, insertedValue);
+        return insertedValue;
+    }
 };

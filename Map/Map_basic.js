@@ -10,7 +10,7 @@
  * - delete()   - Deletes a key-value pair from the map.
  * - get()      - Retrieves a value from the map's data using the provided key.
  * - has()      - Checks if the given key exists in the map's data.
- * - set()      - Sets the value of a key in the map.
+ * - set()      - Adds or overwrites an element of a key in the map.
  * Property for the Map class:
  * - size       - Returns the number of key-value pairs in the map.
  *

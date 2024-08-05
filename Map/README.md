@@ -15,7 +15,7 @@ This Map class is an implementation of the JavaScript built-in Map object.
 * `groupBy()`  Groups the elements of an iterable by the result of a callback function.
 * `has()`      Checks if the given key exists in the map's data.
 * `keys()`     Returns a new iterator object that contains the keys in the map.
-* `set()`      Sets the value of a key in the map.
+* `set()`      Adds or overwrites an element of a key in the map.
 * `size()`     Returns the number of key-value pairs in the map.
 * `values()`   Returns a new iterator object that contains the values in the map.
 
@@ -42,8 +42,8 @@ This Map class is an implementation of the JavaScript built-in Map object.
 * `some()`       Executes the provided callback function once for each key-value pair in the Map object.
 * `toArray()`    Returns an array representation of the map.
 * `toString()`   Returns a string representation of the map.
- 
-## Externals   
+
+## Externals
 
 * `sameValueZero()` - Determines if two values are equal using the SameValueZero algorithm.
 
