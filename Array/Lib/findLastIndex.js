@@ -9,8 +9,8 @@
 if (!Array.prototype.findLastIndex) {
     Array.prototype.findLastIndex = function (callback, thisArg) {
         if (typeof callback !== 'function') throw new TypeError('Callback must be a function');
-
-        for (var i = this.length - 1; i >= 0; i--) {
+        var length = this.length;
+        for (var i = length - 1; i >= 0; i--) {
             if (i in this && callback.call(thisArg, this[i], i, this)) {
                 return i;
             }

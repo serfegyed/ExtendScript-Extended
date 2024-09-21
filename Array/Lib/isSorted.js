@@ -20,7 +20,7 @@ if (!Array.isSorted) {
             };
         }
 
-        for (var i = 0; i < array.length - 1; i++) {
+        for (var i = 0, length = array.length; i < length - 1; i++) {
             if (compareFunction(array[i], array[i + 1]) > 0) {
                 return false; // The array is not sorted
             }

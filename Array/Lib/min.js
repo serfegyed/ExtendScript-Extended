@@ -18,7 +18,7 @@ if (!Array.prototype.min) {
         }
 
         var minValue = this[0];
-        for (var i = 1; i < this.length; i++) {
+        for (var i = 1, length = this.length; i < length; i++) {
             if (mapper(this[i]) < mapper(minValue)) {
                 minValue = this[i];
             }

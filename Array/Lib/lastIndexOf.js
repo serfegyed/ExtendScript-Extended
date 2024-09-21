@@ -8,8 +8,9 @@
  */
 if (!Array.prototype.lastIndexOf) {
 	Array.prototype.lastIndexOf = function (searchElement, fromIndex) {
-		var from = isNaN(fromIndex) ? this.length - 1 : parseInt(fromIndex, 10);
-		from = from >= 0 ? Math.min(from, this.length - 1) : from + this.length;
+		var length = this.length;
+		var from = isNaN(fromIndex) ? length - 1 : parseInt(fromIndex, 10);
+		from = from >= 0 ? Math.min(from, length - 1) : from + length;
 		for (var i = from; i >= 0; i--) {
 			if (this[i] === searchElement) {
 				return i;

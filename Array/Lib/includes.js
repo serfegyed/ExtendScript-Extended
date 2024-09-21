@@ -9,13 +9,14 @@
 if (!Array.prototype.includes) {
 	Array.prototype.includes = function (element /*, from*/) {
 		var from = Math.floor(arguments[1]) || 0;
-		from = from < 0 ? from + this.length : from;
+		var length = this.length;
+		from = from < 0 ? from + length : from;
 		from = from < 0 ? 0 : from;
-		if (from >= this.length) return false;
+		if (from >= length) return false;
 
 		// Handle NaN separately
 		if (typeof element === "number" && isNaN(element)) {
-			for (var i = from; i < this.length; i++) {
+			for (var i = from; i < length; i++) {
 				if (isNaN(this[i])) {
 					return true;
 				}

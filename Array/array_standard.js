@@ -1,7 +1,7 @@
 /**
- *  
+ *
  * ExtendScript-Array - Standard methods
- * 
+ *
  */
 
 /**
@@ -211,7 +211,7 @@ if (!Array.prototype.find) {
     Array.prototype.find = function (callback, thisArg) {
         if (typeof callback !== "function") throw new TypeError("Callback must be a function");
 
-        for (var i = 0; i < this.length; i++) {
+        for (var i = 0, length = this.length; i < length; i++) {
             if (callback.call(thisArg, this[i], i, this)) return this[i];
         }
         return undefined;
@@ -252,7 +252,8 @@ if (!Array.prototype.findLast) {
     Array.prototype.findLast = function (callback, thisArg) {
         if (typeof callback !== 'function') throw new TypeError('Callback must be a function');
 
-        for (var i = this.length - 1; i >= 0; i--) {
+        var length = this.length;
+        for (var i = length - 1; i >= 0; i--) {
             if (i in this && callback.call(thisArg, this[i], i, this)) {
                 return this[i];
             }
@@ -272,8 +273,8 @@ if (!Array.prototype.findLast) {
 if (!Array.prototype.findLastIndex) {
     Array.prototype.findLastIndex = function (callback, thisArg) {
         if (typeof callback !== 'function') throw new TypeError('Callback must be a function');
-
-        for (var i = this.length - 1; i >= 0; i--) {
+        var length = this.length;
+        for (var i = length - 1; i >= 0; i--) {
             if (i in this && callback.call(thisArg, this[i], i, this)) {
                 return i;
             }
@@ -294,7 +295,7 @@ if (!Array.prototype.flat) {
 
         var flatten = function (arr, d) {
             var result = [];
-            for (var i = 0; i < arr.length; i++) {
+            for (var i = 0, len = arr.length; i < len; i++) {
                 if (i in arr) {
                     if (arr[i] instanceof Array && d > 0) {
                         result = result.concat(flatten(arr[i], d - 1));
@@ -383,13 +384,14 @@ if (!Array.from) {
 if (!Array.prototype.includes) {
     Array.prototype.includes = function (element /*, from*/) {
         var from = Math.floor(arguments[1]) || 0;
-        from = from < 0 ? from + this.length : from;
+        var length = this.length;
+        from = from < 0 ? from + length : from;
         from = from < 0 ? 0 : from;
-        if (from >= this.length) return false;
+        if (from >= length) return false;
 
         // Handle NaN separately
         if (typeof element === "number" && isNaN(element)) {
-            for (var i = from; i < this.length; i++) {
+            for (var i = from; i < length; i++) {
                 if (isNaN(this[i])) {
                     return true;
                 }
@@ -412,9 +414,10 @@ if (!Array.prototype.includes) {
 if (!Array.prototype.indexOf) {
     Array.prototype.indexOf = function (searchElement, fromIndex) {
         var from = fromIndex || 0;
-        from = Math.max(from >= 0 ? from : this.length + from, 0);
+        var length = this.length;
+        from = Math.max(from >= 0 ? from : length + from, 0);
 
-        for (var i = from; i < this.length; i++) {
+        for (var i = from; i < length; i++) {
             if (this[i] === searchElement) return i;
         }
         return -1;
@@ -473,8 +476,9 @@ if (!Array.prototype.keys) {
  */
 if (!Array.prototype.lastIndexOf) {
     Array.prototype.lastIndexOf = function (searchElement, fromIndex) {
-        var from = isNaN(fromIndex) ? this.length - 1 : parseInt(fromIndex, 10);
-        from = from >= 0 ? Math.min(from, this.length - 1) : from + this.length;
+        var length = this.length;
+        var from = isNaN(fromIndex) ? length - 1 : parseInt(fromIndex, 10);
+        from = from >= 0 ? Math.min(from, length - 1) : from + length;
         for (var i = from; i >= 0; i--) {
             if (this[i] === searchElement) {
                 return i;
@@ -519,10 +523,10 @@ Array.of = function () {
     // Use 'this' to allow subclass factories
     var constructor = typeof this === 'function' ? this : Array;
     var arrayLike = new constructor(items.length);
-    for (var i = 0; i < items.length; i++) {
+    for (var i = 0, length = items.length; i < length; i++) {
         arrayLike[i] = items[i];
     }
-    arrayLike.length = items.length; // Ensure length is set correctly
+    arrayLike.length = length; // Ensure length is set correctly
     return arrayLike;
 };
 
@@ -673,8 +677,9 @@ if (!Array.prototype.toSpliced) {
  * @return {string} The string representation of the array.
  */
 Array.prototype.toString = function () {
-    var elements = new Array(this.length);
-    for (var i = 0; i < this.length; i++) {
+    var length = this.length;
+    var elements = new Array(length);
+    for (var i = 0; i < length; i++) {
         if (i in this) {
             elements[i] = (typeof this[i] === 'string') ? '"' + this[i] + '"' : this[i];
         }

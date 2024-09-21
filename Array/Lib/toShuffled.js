@@ -9,7 +9,7 @@ if (!Array.prototype.toShuffled) {
     Array.prototype.toShuffled = function () {
         var i, j, temp;
         var arrCopy = new Array(this.length);
-        for (i = 0; i < this.length; i++) {
+        for (i = 0, length = this.length; i < length; i++) {
             j = Math.floor(Math.random() * (i + 1));
             if (i !== j) {
                 arrCopy[i] = arrCopy[j];

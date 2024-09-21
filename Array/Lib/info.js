@@ -36,7 +36,7 @@ if (!Array.info) {
             // Add the length of the current array to the lengths array for this depth
             uniformityInfo.lengthsAtDepth[depth].push(array.length);
 
-            for (var i = 0; i < array.length; i++) {
+            for (var i = 0, len = array.length; i < len; i++) {
                 var item = array[i];
                 if (Array.isArray(item)) {
                     // Recurse for sub-arrays

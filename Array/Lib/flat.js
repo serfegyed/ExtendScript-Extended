@@ -10,7 +10,7 @@ if (!Array.prototype.flat) {
 
         var flatten = function (arr, d) {
             var result = [];
-            for (var i = 0; i < arr.length; i++) {
+            for (var i = 0, len = arr.length; i < len; i++) {
                 if (i in arr) {
                     if (arr[i] instanceof Array && d > 0) {
                         result = result.concat(flatten(arr[i], d - 1));

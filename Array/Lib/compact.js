@@ -7,7 +7,7 @@ if (!Array.prototype.compact) {
     Array.prototype.compact = function () {
         var elements = [];
         var elementsIndex = 0;
-        for (var i = 0; i < this.length; i++) {
+        for (var i = 0, len = this.length; i < len; i++) {
             if (this[i]) {
                 elements[elementsIndex++] = this[i];
             }

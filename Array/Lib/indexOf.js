@@ -9,9 +9,10 @@
 if (!Array.prototype.indexOf) {
 	Array.prototype.indexOf = function (searchElement, fromIndex) {
 		var from = fromIndex || 0;
-		from = Math.max(from >= 0 ? from : this.length + from, 0);
+		var length = this.length;
+		from = Math.max(from >= 0 ? from : length + from, 0);
 
-		for (var i = from; i < this.length; i++) {
+		for (var i = from; i < length; i++) {
 			if (this[i] === searchElement) return i;
 		}
 		return -1;

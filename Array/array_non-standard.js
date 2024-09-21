@@ -45,7 +45,7 @@ if (!Array.prototype.compact) {
     Array.prototype.compact = function () {
         var elements = [];
         var elementsIndex = 0;
-        for (var i = 0; i < this.length; i++) {
+        for (var i = 0, len = this.length; i < len; i++) {
             if (this[i]) {
                 elements[elementsIndex++] = this[i];
             }
@@ -150,7 +150,7 @@ if (!Array.isSorted) {
             };
         }
 
-        for (var i = 0; i < array.length - 1; i++) {
+        for (var i = 0, length = array.length; i < length - 1; i++) {
             if (compareFunction(array[i], array[i + 1]) > 0) {
                 return false; // The array is not sorted
             }
@@ -195,7 +195,7 @@ if (!Array.prototype.max) {
         }
 
         var maxValue = this[0];
-        for (var i = 1; i < this.length; i++) {
+        for (var i = 1, length = this.length; i < length; i++) {
             if (mapper(this[i]) > mapper(maxValue)) {
                 maxValue = this[i];
             }
@@ -272,7 +272,7 @@ if (!Array.prototype.min) {
         }
 
         var minValue = this[0];
-        for (var i = 1; i < this.length; i++) {
+        for (var i = 1, length = this.length; i < length; i++) {
             if (mapper(this[i]) < mapper(minValue)) {
                 minValue = this[i];
             }

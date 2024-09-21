@@ -10,9 +10,9 @@ Array.of = function () {
     // Use 'this' to allow subclass factories
     var constructor = typeof this === 'function' ? this : Array;
     var arrayLike = new constructor(items.length);
-    for (var i = 0; i < items.length; i++) {
+    for (var i = 0, length = items.length; i < length; i++) {
         arrayLike[i] = items[i];
     }
-    arrayLike.length = items.length; // Ensure length is set correctly
+    arrayLike.length = length; // Ensure length is set correctly
     return arrayLike;
 };

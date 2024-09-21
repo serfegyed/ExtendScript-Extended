@@ -22,7 +22,7 @@ if (!Array.prototype.max) {
         }
 
         var maxValue = this[0];
-        for (var i = 1; i < this.length; i++) {
+        for (var i = 1, length = this.length; i < length; i++) {
             if (mapper(this[i]) > mapper(maxValue)) {
                 maxValue = this[i];
             }
