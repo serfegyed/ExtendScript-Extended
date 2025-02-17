@@ -9,7 +9,7 @@
  * element, or -1 if the element is not found.
  * !dependencies: indexOf()
  */
-#include ".\\indexOf.js"
+#include "./indexOf.js"
 if (!Array.prototype.indexAfter) {
 	Array.prototype.indexAfter = function (element/*, fromIndex*/) {
 		// Check if fromIndex is out of bounds

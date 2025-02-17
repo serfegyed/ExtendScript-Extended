@@ -16,7 +16,7 @@
  * !dependency map()
  */
 if (!Array.prototype.pluck) {
-    #include ".\\map.js"
+    #include "./map.js"
     Array.prototype.pluck = function (name) {
         return this.map(function (item) {
             return item[name];

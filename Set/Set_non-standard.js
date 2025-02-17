@@ -1,4 +1,4 @@
-#include ".\\Set_standard.js"
+#include "./Set_standard.js"
 
 /**
  * @title Set class - ExtendScript (ES3)
