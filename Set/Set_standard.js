@@ -1,4 +1,4 @@
-#include ".\\external.js"
+#include "./external.js"
 /**
  * @title Set class - ExtendScript (ES3)
  *

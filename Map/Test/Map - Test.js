@@ -1,4 +1,4 @@
-#include "..\\Map_full.js";
+#include "../Map_full.js";
 /*******************************************************************/
 
 // Create a new Map object

@@ -7,7 +7,7 @@
  * @return {Array} - A new array with the spliced elements.
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced
  */
-#include "..\\..\\Object\\Lib\\deepCopy.js"
+#include "../../Object/Lib/deepCopy.js"
 if (!Array.prototype.toSpliced) {
     Array.prototype.toSpliced = function (index /*, deleteCount, item1, item2, itemN*/) {
         var copy = Object.deepCopy(this);

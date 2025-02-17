@@ -6,7 +6,7 @@
  * @throws {TypeError} Throws a TypeError if the provided value is not an array or if the compare function is not a function.
  * @returns {Array} The original array with the merged result.
  */
-#include ".\\isArray.js"
+#include "./isArray.js"
 if (!Array.prototype.merge) {
     Array.prototype.merge = function (arrayToMerge, compareFunc) {
         if (!Array.isArray(arrayToMerge)) {

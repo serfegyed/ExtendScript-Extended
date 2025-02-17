@@ -1,5 +1,5 @@
-#include ".\\Set_standard.js";
-#include ".\\Set_non-standard.js";
+#include "./Set_standard.js";
+#include "./Set_non-standard.js";
 
 /**
  * @title Set class - ExtendScript (ES3)

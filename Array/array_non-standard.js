@@ -12,8 +12,8 @@
  * @return {Array} - the original array with the appended elements
  */
 if (!Array.prototype.append) {
-    //@include ".\\isArray.js"
-    //@include ".\\Array-flat.js"
+    //@include "./isArray.js"
+    //@include "./Array-flat.js"
     Array.prototype.append = function (arrayToAppend, depth) {
         if (!Array.isArray(arrayToAppend)) {
             throw new TypeError("Can't append non-array values")
@@ -76,7 +76,7 @@ if (!Array.prototype.first) {
  * element, or -1 if the element is not found.
  * !dependencies: indexOf()
  */
-#include ".\\indexOf.js"
+#include "./indexOf.js"
 if (!Array.prototype.indexAfter) {
     Array.prototype.indexAfter = function (element/*, fromIndex*/) {
         // Check if fromIndex is out of bounds
@@ -212,7 +212,7 @@ if (!Array.prototype.max) {
  * @throws {TypeError} Throws a TypeError if the provided value is not an array or if the compare function is not a function.
  * @returns {Array} The original array with the merged result.
  */
-#include ".\\isArray.js"
+#include "./isArray.js"
 if (!Array.prototype.merge) {
     Array.prototype.merge = function (arrayToMerge, compareFunc) {
         if (!Array.isArray(arrayToMerge)) {
@@ -299,7 +299,7 @@ if (!Array.prototype.min) {
  *     78
  * !dependency map()
  */
-#include ".\\map.js"
+#include "./map.js"
 if (!Array.prototype.pluck) {
     Array.prototype.pluck = function (name) {
         return this.map(function (item) {
@@ -403,8 +403,8 @@ if (!Array.prototype.rotate) {
  *     8
  *! dependency map(), reduce()
  */
-#include ".\\map.js"
-#include ".\\reduce.js"
+#include "./map.js"
+#include "./reduce.js"
 if (!Array.prototype.sum) {
     Array.prototype.sum = function (salient) {
         if (salient && typeof salient === "string") {

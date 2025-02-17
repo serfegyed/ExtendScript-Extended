@@ -6,8 +6,8 @@
  * @return {Array} - the original array with the appended elements
  */
 if (!Array.prototype.append) {
-    //@include ".\\isArray.js"
-    //@include ".\\Array-flat.js"
+    //@include "./isArray.js"
+    //@include "./Array-flat.js"
     Array.prototype.append = function (arrayToAppend, depth) {
         if (!Array.isArray(arrayToAppend)) {
             throw new TypeError("Can't append non-array values")
