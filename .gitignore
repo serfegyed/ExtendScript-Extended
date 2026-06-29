@@ -1,2 +1,14 @@
 *.code-workspace
 Array/.DS_Store
+
+# Temporal development-history folders are kept only in the private working tree.
+/Temporal/Duration/
+/Temporal/Instant/
+/Temporal/LocaleDate/
+/Temporal/Now/
+/Temporal/PlainDate/
+/Temporal/PlainDateTime/
+/Temporal/PlainMonthDay/
+/Temporal/PlainTime/
+/Temporal/PlainYearMonth/
+/Temporal/Temporal-core/

@@ -31,7 +31,7 @@ var date = new Date(0);
 console.log(date.toISOString());
 
 var date = new Date();
-console.log(date.toISOString());
+console.log(date.toISOString());Initial release
 
 var date = new Date(-1,11,30,13,45,19,321);
 console.log(date.toISOString());

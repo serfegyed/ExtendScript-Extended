@@ -15,6 +15,7 @@ This project was originally made as a learning tool and to solve problems encoun
 - **String Enhancements**: New methods for the String object to aid in text processing and to bring it closer to the modern JavaScript standard.
 - **Object Utilities**: Enhancements for the Object class, focusing on property management and object introspection.
 - **Map and Set**: Introducing Map and Set objects for more advanced data structures.
+- **Temporal Subset**: ISO/Gregorian date, time, duration, Instant, and host-local formatting support designed for ExtendScript's millisecond precision.
 - **TypeTest**: A collection of type testing methods like sameValueZero(), isPrimitive(), and isArrayLike(), etc.
 - **Other Utilities**: Various utilities and functions targeted at specific scripting needs in ExtendScript.
 
@@ -24,6 +25,8 @@ Each function has tests in the corresponding 'Test' folder.
 Most methods are in separate files, so it is easy to use them.
 Each category also contains a collection file if you want to use all the functions at once.
 Some methods use external functions. They must include with  the #include preprocessor directive.
+
+The Temporal subset is documented in [`Temporal/README.md`](Temporal/README.md). Include `Temporal/Temporal.js` for the complete ordered module set, or select individual runtime files from `Temporal/Lib/`.
 
 ## Contributions
 This project is somewhat open to contributions. Suggestions, improvements or any form of participation are always welcome. But you must understand that this is a side project for which I have very few resources.
