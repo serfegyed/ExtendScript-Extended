@@ -32,7 +32,7 @@ var Temporal = Temporal || {};
         var daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
         // Adjust February for leap years
-        if (Temporal.isLeapYear(year)) {
+        if (Temporal.__isLeapYear__(year)) {
             daysInMonth[1] = 29;
         }
 
@@ -53,7 +53,7 @@ var Temporal = Temporal || {};
         var daysInMonthArray = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
         // Adjust February for leap years
-        if (month === 2 && Temporal.isLeapYear(year)) {
+        if (month === 2 && Temporal.__isLeapYear__(year)) {
             return 29;
         }
 
@@ -381,48 +381,6 @@ var Temporal = Temporal || {};
 		};
 	}
 
-	function validateParams(validParams, paramObject) {
-		if (typeof validParams !== 'object' || validParams === null) {
-			throw typeError("Invalid argument: 'validParams' must be an object.");
-		}
-		if (typeof paramObject !== 'object' || paramObject === null) {
-			throw typeError("Invalid argument: 'paramObject' must be an object.");
-		}
-
-		var validatedParams = {};
-
-		for (var key in paramObject) {
-			if (paramObject.hasOwnProperty(key)) {
-				// Check if the key is valid
-				if (!validParams.hasOwnProperty(key)) {
-					throw typeError("Invalid key: '" + key + "' is not allowed.");
-				}
-
-				var value = paramObject[key];
-				var validator = validParams[key];
-
-				// Handle validation based on the type of validator
-				if (typeof validator === 'object') {
-					// If it's a nested object, check for discrete valid values
-					if (!validator.hasOwnProperty(value)) {
-						throw typeError("Invalid value: '" + value + "' is not valid for key '" + key + "'.");
-					}
-				} else if (typeof validator === 'function') {
-					// If it's a function, use it for custom validation
-					if (!validator(value)) {
-						throw typeError("Invalid value: '" + value + "' is not valid for key '" + key + "'.");
-					}
-				} else {
-					throw typeError("Invalid validator for key '" + key + "'.");
-				}
-
-				validatedParams[key] = value;
-			}
-		}
-
-		return validatedParams;
-	};
-
 	function copyFields(thisObject) {
 		if (typeof thisObject !== 'object' || thisObject === null) {
 			return {};
@@ -475,7 +433,7 @@ var Temporal = Temporal || {};
 
 	  // Balance days by moving forward if day exceeds the month's length
 	  var daysInMonth;
-	  while (day > (daysInMonth = Temporal.computeDaysInMonth(year, month))) {
+	  while (day > (daysInMonth = Temporal.__computeDaysInMonth__(year, month))) {
 		day -= daysInMonth;
 		month++;
 		if (month > 12) {
@@ -491,7 +449,7 @@ var Temporal = Temporal || {};
 		  month = 12;
 		  year--;
 		}
-		day += Temporal.computeDaysInMonth(year, month);
+		day += Temporal.__computeDaysInMonth__(year, month);
 	  }
 
 	  return { year: year, month: month, day: day };
@@ -902,31 +860,26 @@ var Temporal = Temporal || {};
 	Temporal.__MIN_INSTANT_EPOCH_MILLISECONDS__ = MIN_INSTANT_EPOCH_MILLISECONDS;
 	Temporal.__MAX_INSTANT_EPOCH_MILLISECONDS__ = MAX_INSTANT_EPOCH_MILLISECONDS;
  
-	// Parameter check
-	Temporal.validateParams = validateParams;
-	
 	// Date utilities
-    Temporal.isLeapYear = isLeapYear;
-	Temporal.validateDate = validateDate;
-    Temporal.computeDayOfWeek = computeDayOfWeek;
-    Temporal.computeDayOfYear = computeDayOfYear;
-    Temporal.computeDaysInMonth = computeDaysInMonth;
+    Temporal.__isLeapYear__ = isLeapYear;
+	Temporal.__validateDate__ = validateDate;
+    Temporal.__computeDayOfWeek__ = computeDayOfWeek;
+    Temporal.__computeDayOfYear__ = computeDayOfYear;
+    Temporal.__computeDaysInMonth__ = computeDaysInMonth;
 	
 	// ISO date/time string parsing functions
-	Temporal.parseISOTimeString = parseISOTimeString;
-	Temporal.parseISODateString = parseISODateString;
-	Temporal.parseISOString = parseISOString;
+	Temporal.__parseISOString__ = parseISOString;
 	
 	// Comparing functions
-	Temporal.compareISODate = compareISODate;
-	Temporal.compareTimeRecord = compareTimeRecord;
+	Temporal.__compareISODate__ = compareISODate;
+	Temporal.__compareTimeRecord__ = compareTimeRecord;
 	
 	// Balancing functions
-	Temporal.balanceDateUnits = balanceDateUnits;
-	Temporal.balanceTimeUnits = balanceTimeUnits;
+	Temporal.__balanceDateUnits__ = balanceDateUnits;
+	Temporal.__balanceTimeUnits__ = balanceTimeUnits;
 	
 	// Other functions
-	Temporal.isBetween = isBetween;
+	Temporal.__isBetween__ = isBetween;
 	Temporal.__dateToDaySerial__ = dateToDaySerial;
 	Temporal.__daySerialToDate__ = daySerialToDate;
 	Temporal.__validateInstantEpochMilliseconds__ = validateInstantEpochMilliseconds;

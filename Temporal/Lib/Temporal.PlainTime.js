@@ -27,7 +27,7 @@
 
     function normalizeField(value, maximum, overflow) {
         var integer = Temporal.__toInteger__(value);
-        return Temporal.isBetween(integer, 0, maximum, overflow);
+        return Temporal.__isBetween__(integer, 0, maximum, overflow);
     }
 
     function createTime(hour, minute, second, millisecond, overflow) {
@@ -50,7 +50,7 @@
         }
 
         if (match[1] !== undefined) {
-            Temporal.validateDate(Number(match[1]), Number(match[2]), Number(match[3]), "reject");
+            Temporal.__validateDate__(Number(match[1]), Number(match[2]), Number(match[3]), "reject");
         }
 
         var fraction = match[7] || "";
@@ -62,7 +62,7 @@
     }
 
     function millisecondsToTime(milliseconds) {
-        var balanced = Temporal.balanceTimeUnits(0, 0, 0, milliseconds);
+        var balanced = Temporal.__balanceTimeUnits__(0, 0, 0, milliseconds);
         return new Temporal.PlainTime(balanced.hour, balanced.minute, balanced.second, balanced.millisecond);
     }
 
@@ -220,7 +220,7 @@
     };
 
     Temporal.PlainTime.compare = function (one, two) {
-        return Temporal.compareTimeRecord(Temporal.PlainTime.from(one), Temporal.PlainTime.from(two));
+        return Temporal.__compareTimeRecord__(Temporal.PlainTime.from(one), Temporal.PlainTime.from(two));
     };
 
     Temporal.PlainTime.prototype.toString = function (options) {

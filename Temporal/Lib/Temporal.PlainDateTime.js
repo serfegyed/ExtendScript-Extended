@@ -43,23 +43,23 @@
         // Basic validation
         const overflow = 'reject'; // Default of new PlainDateTime object generation
 
-        var checkedDate = Temporal.validateDate(year, month, day, overflow);
+        var checkedDate = Temporal.__validateDate__(year, month, day, overflow);
 
         this.year = checkedDate.year;
         this.month = checkedDate.month;
         this.monthCode = Temporal.__formatISOMonthCode__(this.month);
         this.calendarId = "iso8601";
         this.day = checkedDate.day;
-        this.hour = Temporal.isBetween(hour, 0, 23, overflow);
-        this.minute = minute ? Temporal.isBetween(minute, 0, 59, overflow) : 0;
-        this.second = second ? Temporal.isBetween(second, 0, 59, overflow) : 0;
-        this.millisecond = millisecond ? Temporal.isBetween(millisecond, 0, 999, overflow) : 0;
+        this.hour = Temporal.__isBetween__(hour, 0, 23, overflow);
+        this.minute = minute ? Temporal.__isBetween__(minute, 0, 59, overflow) : 0;
+        this.second = second ? Temporal.__isBetween__(second, 0, 59, overflow) : 0;
+        this.millisecond = millisecond ? Temporal.__isBetween__(millisecond, 0, 999, overflow) : 0;
 
         // Additional properties
-        this.dayOfWeek = Temporal.computeDayOfWeek(this.year, this.month, this.day);
-        this.dayOfYear = Temporal.computeDayOfYear(this.year, this.month, this.day);
-        this.inLeapYear = Temporal.isLeapYear(this.year);
-        this.daysInMonth = Temporal.computeDaysInMonth(this.year, this.month);
+        this.dayOfWeek = Temporal.__computeDayOfWeek__(this.year, this.month, this.day);
+        this.dayOfYear = Temporal.__computeDayOfYear__(this.year, this.month, this.day);
+        this.inLeapYear = Temporal.__isLeapYear__(this.year);
+        this.daysInMonth = Temporal.__computeDaysInMonth__(this.year, this.month);
         this.daysInYear = this.inLeapYear ? 366 : 365;
 
         return this;
@@ -102,12 +102,12 @@
             }
 
             try {
-                var parts = Temporal.parseISOString(thing);
+                var parts = Temporal.__parseISOString__(thing);
             } catch (error) {
                 throw Temporal.__rangeError__(error.message);
             }
 
-            var checkedDate = Temporal.validateDate(
+            var checkedDate = Temporal.__validateDate__(
                 parseInt(parts.year, 10),
                 parseInt(parts.month, 10),
                 parseInt(parts.day, 10),
@@ -117,10 +117,10 @@
                 checkedDate.year,
                 checkedDate.month,
                 checkedDate.day,
-                Temporal.isBetween(parseInt(parts.hour, 10), 0, 23, overflow),
-                parts.minute ? Temporal.isBetween(parseInt(parts.minute, 10), 0, 59, overflow) : 0,
-                parts.second ? Temporal.isBetween(parseInt(parts.second, 10), 0, 59, overflow) : 0,
-                parts.millisecond ? Temporal.isBetween(parts.millisecond, 0, 999, overflow) : 0
+                Temporal.__isBetween__(parseInt(parts.hour, 10), 0, 23, overflow),
+                parts.minute ? Temporal.__isBetween__(parseInt(parts.minute, 10), 0, 59, overflow) : 0,
+                parts.second ? Temporal.__isBetween__(parseInt(parts.second, 10), 0, 59, overflow) : 0,
+                parts.millisecond ? Temporal.__isBetween__(parts.millisecond, 0, 999, overflow) : 0
             );
         } else if (typeof thing === "object" && thing !== null) {
             // Check for required fields
@@ -129,7 +129,7 @@
                 thing.day === undefined) {
                 throw Temporal.__typeError__("Invalid PlainDateTime object: missing required fields");
             }
-            var checkedDate = Temporal.validateDate(
+            var checkedDate = Temporal.__validateDate__(
                 parseInt(thing.year, 10),
                 Temporal.__resolveISOMonth__(thing),
                 parseInt(thing.day, 10),
@@ -139,10 +139,10 @@
                 checkedDate.year,
                 checkedDate.month,
                 checkedDate.day,
-                Temporal.isBetween(parseInt(thing.hour, 10), 0, 23, overflow),
-                thing.minute ? Temporal.isBetween(parseInt(thing.minute, 10), 0, 59, overflow) : 0,
-                thing.second ? Temporal.isBetween(parseInt(thing.second, 10), 0, 59, overflow) : 0,
-                thing.millisecond ? Temporal.isBetween(thing.millisecond, 0, 999, overflow) : 0
+                Temporal.__isBetween__(parseInt(thing.hour, 10), 0, 23, overflow),
+                thing.minute ? Temporal.__isBetween__(parseInt(thing.minute, 10), 0, 59, overflow) : 0,
+                thing.second ? Temporal.__isBetween__(parseInt(thing.second, 10), 0, 59, overflow) : 0,
+                thing.millisecond ? Temporal.__isBetween__(thing.millisecond, 0, 999, overflow) : 0
             );
         } else {
             throw Temporal.__typeError__('Invalid type for Temporal.PlainDateTime.from');
@@ -157,9 +157,9 @@
         one = Temporal.PlainDateTime.from(one);
         two = Temporal.PlainDateTime.from(two);
 
-        const dateResult = Temporal.compareISODate(one, two);
+        const dateResult = Temporal.__compareISODate__(one, two);
         if (dateResult !== 0) return dateResult;
-        return Temporal.compareTimeRecord(one, two);
+        return Temporal.__compareTimeRecord__(one, two);
     };
 
     Temporal.PlainDateTime.prototype.with = function (dateTimeLike, params) {
@@ -194,14 +194,14 @@
         var hasField = false;
 
 		if (dateTimeLike.month !== undefined || dateTimeLike.monthCode !== undefined) {
-			validated.month = Temporal.isBetween(Temporal.__resolveISOMonth__(dateTimeLike), 1, 12, overflow);
+			validated.month = Temporal.__isBetween__(Temporal.__resolveISOMonth__(dateTimeLike), 1, 12, overflow);
 			hasField = true;
 		}
 
         for (var key in validDateTimeField) {
             if (validDateTimeField.hasOwnProperty(key) && dateTimeLike.hasOwnProperty(key) && dateTimeLike[key] !== undefined) {
                 var field = validDateTimeField[key];
-                validated[key] = Temporal.isBetween(Number(dateTimeLike[key]), field.low, field.high, overflow);
+                validated[key] = Temporal.__isBetween__(Number(dateTimeLike[key]), field.low, field.high, overflow);
                 hasField = true;
             }
         }
@@ -219,7 +219,7 @@
         };
 
         // Check if new date valid
-        const checked = Temporal.validateDate(copied.year, copied.month, copied.day, overflow);
+        const checked = Temporal.__validateDate__(copied.year, copied.month, copied.day, overflow);
         copied.year = checked.year;
         copied.month = checked.month;
         copied.day = checked.day;
@@ -275,20 +275,20 @@
         addedDate.month = copied.month + toAdd.months;
         addedDate.day = 1;
 
-        addedDate = Temporal.balanceDateUnits(addedDate.year, addedDate.month, addedDate.day);
+        addedDate = Temporal.__balanceDateUnits__(addedDate.year, addedDate.month, addedDate.day);
 
         // Normalize day
-        const maxDay = Temporal.computeDaysInMonth(addedDate.year, addedDate.month);
-        addedDate.day = Temporal.isBetween(copied.day, 1, maxDay, overflow);
+        const maxDay = Temporal.__computeDaysInMonth__(addedDate.year, addedDate.month);
+        addedDate.day = Temporal.__isBetween__(copied.day, 1, maxDay, overflow);
 
         // Add time part
-        const addedTime = Temporal.balanceTimeUnits(copied.hour + toAdd.hours,
+        const addedTime = Temporal.__balanceTimeUnits__(copied.hour + toAdd.hours,
             copied.minute + toAdd.minutes,
             copied.second + toAdd.seconds,
             copied.millisecond + toAdd.milliseconds);
         // Add extra days to date part and balance again
         addedDate.day = addedDate.day + (toAdd.weeks * 7) + toAdd.days + addedTime.extraDays;
-        addedDate = Temporal.balanceDateUnits(addedDate.year, addedDate.month, addedDate.day)
+        addedDate = Temporal.__balanceDateUnits__(addedDate.year, addedDate.month, addedDate.day)
 
         return Temporal.PlainDateTime.from({
             year: addedDate.year, month: addedDate.month, day: addedDate.day,
@@ -555,8 +555,8 @@
 
         var totalMilliseconds = Temporal.__timeToMilliseconds__(this);
         var roundedMilliseconds = Temporal.__roundField__(totalMilliseconds, smallestUnitMilliseconds * roundingIncrement, roundingMode);
-        var balancedTime = Temporal.balanceTimeUnits(0, 0, 0, roundedMilliseconds);
-        var balancedDate = Temporal.balanceDateUnits(this.year, this.month, this.day + balancedTime.extraDays);
+        var balancedTime = Temporal.__balanceTimeUnits__(0, 0, 0, roundedMilliseconds);
+        var balancedDate = Temporal.__balanceDateUnits__(this.year, this.month, this.day + balancedTime.extraDays);
 
         return Temporal.PlainDateTime.from({
             year: balancedDate.year,

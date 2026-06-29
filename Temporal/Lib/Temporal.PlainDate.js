@@ -77,7 +77,7 @@ var Temporal = Temporal || {};
     }
 
     function createDate(year, month, day, overflow) {
-        var checked = Temporal.validateDate(Number(year), Number(month), Number(day), overflow);
+        var checked = Temporal.__validateDate__(Number(year), Number(month), Number(day), overflow);
         if (!checked) {
             throw Temporal.__rangeError__("Invalid PlainDate");
         }
@@ -104,8 +104,8 @@ var Temporal = Temporal || {};
         var yearOfWeek = date.year;
 
         function weeksInISOYear(year) {
-            var firstDay = Temporal.computeDayOfWeek(year, 1, 1);
-            return firstDay === 4 || (firstDay === 3 && Temporal.isLeapYear(year)) ? 53 : 52;
+            var firstDay = Temporal.__computeDayOfWeek__(year, 1, 1);
+            return firstDay === 4 || (firstDay === 3 && Temporal.__isLeapYear__(year)) ? 53 : 52;
         }
 
         if (weekOfYear < 1) {
@@ -156,12 +156,12 @@ var Temporal = Temporal || {};
 
     function addDateDuration(date, duration, overflow) {
         var toAdd = getDateDuration(duration);
-        var addedDate = Temporal.balanceDateUnits(date.year + toAdd.years, date.month + toAdd.months, 1);
-        var maxDay = Temporal.computeDaysInMonth(addedDate.year, addedDate.month);
+        var addedDate = Temporal.__balanceDateUnits__(date.year + toAdd.years, date.month + toAdd.months, 1);
+        var maxDay = Temporal.__computeDaysInMonth__(addedDate.year, addedDate.month);
 
-        addedDate.day = Temporal.isBetween(date.day, 1, maxDay, overflow);
+        addedDate.day = Temporal.__isBetween__(date.day, 1, maxDay, overflow);
         addedDate.day = addedDate.day + (toAdd.weeks * 7) + toAdd.days;
-        addedDate = Temporal.balanceDateUnits(addedDate.year, addedDate.month, addedDate.day);
+        addedDate = Temporal.__balanceDateUnits__(addedDate.year, addedDate.month, addedDate.day);
 
         return new Temporal.PlainDate(addedDate.year, addedDate.month, addedDate.day);
     }
@@ -337,7 +337,7 @@ var Temporal = Temporal || {};
             throw Temporal.__typeError__("Temporal.PlainDate constructor must be called with new");
         }
 
-        var checkedDate = Temporal.validateDate(Number(year), Number(month), Number(day), "reject");
+        var checkedDate = Temporal.__validateDate__(Number(year), Number(month), Number(day), "reject");
         if (!checkedDate) {
             throw Temporal.__rangeError__("Invalid PlainDate");
         }
@@ -349,12 +349,12 @@ var Temporal = Temporal || {};
         this.monthCode = Temporal.__formatISOMonthCode__(this.month);
         this.calendarId = "iso8601";
         this.day = checkedDate.day;
-        this.dayOfWeek = Temporal.computeDayOfWeek(this.year, this.month, this.day);
-        this.dayOfYear = Temporal.computeDayOfYear(this.year, this.month, this.day);
+        this.dayOfWeek = Temporal.__computeDayOfWeek__(this.year, this.month, this.day);
+        this.dayOfYear = Temporal.__computeDayOfYear__(this.year, this.month, this.day);
         this.daysInWeek = 7;
         this.monthsInYear = 12;
-        this.inLeapYear = Temporal.isLeapYear(this.year);
-        this.daysInMonth = Temporal.computeDaysInMonth(this.year, this.month);
+        this.inLeapYear = Temporal.__isLeapYear__(this.year);
+        this.daysInMonth = Temporal.__computeDaysInMonth__(this.year, this.month);
         this.daysInYear = this.inLeapYear ? 366 : 365;
         isoWeek = computeISOWeek(this);
         this.weekOfYear = isoWeek.weekOfYear;
@@ -399,7 +399,7 @@ var Temporal = Temporal || {};
     Temporal.PlainDate.compare = function (one, two) {
         one = Temporal.PlainDate.from(one);
         two = Temporal.PlainDate.from(two);
-        return Temporal.compareISODate(one, two);
+        return Temporal.__compareISODate__(one, two);
     };
 
     Temporal.PlainDate.prototype.toString = function () {

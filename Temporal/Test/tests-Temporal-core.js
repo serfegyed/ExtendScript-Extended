@@ -1,4 +1,4 @@
-//@include "D:/OneDrive/Extendscript/Github Public/ExtendScript-Extended/Tools/Console/console.js"
+//@include "../../Tools/Console/console.js"
 //@include "../Lib/Temporal-core.js"
 
 if (typeof require === "function" && typeof process !== "undefined") {
@@ -92,6 +92,17 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assert(typeof Temporal.__daySerialToDate__ === "function", "Temporal.__daySerialToDate__ should exist");
         assert(typeof Temporal.__millisecondsToTimeDurationFields__ === "function", "Temporal.__millisecondsToTimeDurationFields__ should exist");
         assert(typeof Temporal.__validateTimeRoundingIncrement__ === "function", "Temporal.__validateTimeRoundingIncrement__ should exist");
+        assert(typeof Temporal.__isLeapYear__ === "function", "Temporal.__isLeapYear__ should exist");
+        assert(typeof Temporal.__validateDate__ === "function", "Temporal.__validateDate__ should exist");
+        assert(typeof Temporal.__computeDayOfWeek__ === "function", "Temporal.__computeDayOfWeek__ should exist");
+        assert(typeof Temporal.__computeDayOfYear__ === "function", "Temporal.__computeDayOfYear__ should exist");
+        assert(typeof Temporal.__computeDaysInMonth__ === "function", "Temporal.__computeDaysInMonth__ should exist");
+        assert(typeof Temporal.__parseISOString__ === "function", "Temporal.__parseISOString__ should exist");
+        assert(typeof Temporal.__compareISODate__ === "function", "Temporal.__compareISODate__ should exist");
+        assert(typeof Temporal.__compareTimeRecord__ === "function", "Temporal.__compareTimeRecord__ should exist");
+        assert(typeof Temporal.__balanceDateUnits__ === "function", "Temporal.__balanceDateUnits__ should exist");
+        assert(typeof Temporal.__balanceTimeUnits__ === "function", "Temporal.__balanceTimeUnits__ should exist");
+        assert(typeof Temporal.__isBetween__ === "function", "Temporal.__isBetween__ should exist");
         assertEquals(Temporal.__MILLISECONDS_PER_SECOND__, 1000, "milliseconds per second");
         assertEquals(Temporal.__MILLISECONDS_PER_MINUTE__, 60000, "milliseconds per minute");
         assertEquals(Temporal.__MILLISECONDS_PER_HOUR__, 3600000, "milliseconds per hour");
@@ -177,18 +188,82 @@ if (typeof require === "function" && typeof process !== "undefined") {
         );
     });
 
+    test("Core-only ISO parsers are not exposed on Temporal", function () {
+        var parsed = Temporal.__parseISOString__("2024-02-29T12:34:56.789");
+
+        assertEquals(typeof Temporal.parseISODateString, "undefined", "date parser stays private");
+        assertEquals(typeof Temporal.parseISOTimeString, "undefined", "time parser stays private");
+        assertEquals(typeof Temporal.parseISOString, "undefined", "public-looking combined parser is absent");
+        assertEquals(parsed.year, 2024, "combined parser year");
+        assertEquals(parsed.month, 2, "combined parser month");
+        assertEquals(parsed.day, 29, "combined parser day");
+        assertEquals(parsed.hour, 12, "combined parser hour");
+        assertEquals(parsed.millisecond, 789, "combined parser millisecond");
+    });
+
     test("Calendar math helpers cover leap-day basics", function () {
-        assertEquals(Temporal.isLeapYear(2024), true, "2024 is leap year");
-        assertEquals(Temporal.computeDaysInMonth(2024, 2), 29, "February 2024 days");
-        assertEquals(Temporal.computeDayOfWeek(0, 1, 1), 6, "year zero starts on Saturday");
-        assertEquals(Temporal.computeDayOfWeek(-1, 1, 1), 5, "year minus one starts on Friday");
-        assertEquals(Temporal.validateDate(-271821, 4, 19, "reject").day, 19, "minimum ISO date");
-        assertEquals(Temporal.validateDate(275760, 9, 13, "reject").day, 13, "maximum ISO date");
+        assertEquals(typeof Temporal.isLeapYear, "undefined", "public-looking isLeapYear is absent");
+        assertEquals(typeof Temporal.validateDate, "undefined", "public-looking validateDate is absent");
+        assertEquals(typeof Temporal.computeDayOfWeek, "undefined", "public-looking computeDayOfWeek is absent");
+        assertEquals(typeof Temporal.computeDayOfYear, "undefined", "public-looking computeDayOfYear is absent");
+        assertEquals(typeof Temporal.computeDaysInMonth, "undefined", "public-looking computeDaysInMonth is absent");
+        assertEquals(Temporal.__isLeapYear__(2024), true, "2024 is leap year");
+        assertEquals(Temporal.__computeDaysInMonth__(2024, 2), 29, "February 2024 days");
+        assertEquals(Temporal.__computeDayOfWeek__(0, 1, 1), 6, "year zero starts on Saturday");
+        assertEquals(Temporal.__computeDayOfWeek__(-1, 1, 1), 5, "year minus one starts on Friday");
+        assertEquals(Temporal.__validateDate__(-271821, 4, 19, "reject").day, 19, "minimum ISO date");
+        assertEquals(Temporal.__validateDate__(275760, 9, 13, "reject").day, 13, "maximum ISO date");
         assertEquals(
             Temporal.__daysBetweenDates__({ year: 2024, month: 2, day: 28 }, { year: 2024, month: 3, day: 1 }),
             2,
             "days between leap day boundary"
         );
+    });
+
+    test("Comparison helpers stay internal", function () {
+        assertEquals(typeof Temporal.compareISODate, "undefined", "public-looking date comparator is absent");
+        assertEquals(typeof Temporal.compareTimeRecord, "undefined", "public-looking time comparator is absent");
+        assertEquals(
+            Temporal.__compareISODate__(
+                { year: 2024, month: 2, day: 28 },
+                { year: 2024, month: 2, day: 29 }
+            ),
+            -1,
+            "internal date comparator"
+        );
+        assertEquals(
+            Temporal.__compareTimeRecord__(
+                { hour: 12, minute: 0, second: 0, millisecond: 0 },
+                { hour: 11, minute: 59, second: 59, millisecond: 999 }
+            ),
+            1,
+            "internal time comparator"
+        );
+    });
+
+    test("Balancing helpers stay internal", function () {
+        var date = Temporal.__balanceDateUnits__(2024, 13, 0);
+        var time = Temporal.__balanceTimeUnits__(25, 61, 61, 1001);
+
+        assertEquals(typeof Temporal.balanceDateUnits, "undefined", "public-looking date balancer is absent");
+        assertEquals(typeof Temporal.balanceTimeUnits, "undefined", "public-looking time balancer is absent");
+        assertEquals(date.year, 2024, "balanced date year");
+        assertEquals(date.month, 12, "balanced date month");
+        assertEquals(date.day, 31, "balanced date day");
+        assertEquals(time.extraDays, 1, "balanced time extra days");
+        assertEquals(time.hour, 2, "balanced time hour");
+        assertEquals(time.minute, 2, "balanced time minute");
+        assertEquals(time.second, 2, "balanced time second");
+        assertEquals(time.millisecond, 1, "balanced time millisecond");
+    });
+
+    test("Range helper stays internal", function () {
+        assertEquals(typeof Temporal.isBetween, "undefined", "public-looking range helper is absent");
+        assertEquals(Temporal.__isBetween__(15, 1, 12, "constrain"), 12, "range helper constrains high value");
+        assertEquals(Temporal.__isBetween__(-1, 0, 23, "constrain"), 0, "range helper constrains low value");
+        assertThrowsWith(function () {
+            Temporal.__isBetween__(13, 1, 12, "reject");
+        }, "RangeError", "range helper rejects high value");
     });
 
     test("Shared fixed-time helpers support Instant without duplicate implementations", function () {

@@ -1,4 +1,4 @@
-//@include "D:/OneDrive/Extendscript/Github Public/ExtendScript-Extended/Tools/Console/console.js"
+//@include "../../Tools/Console/console.js"
 
 var nativeDateToISOString = Date.prototype.toISOString;
 var nativeDateToJSON = Date.prototype.toJSON;

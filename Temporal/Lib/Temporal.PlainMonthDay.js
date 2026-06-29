@@ -19,7 +19,7 @@ var Temporal = Temporal || {};
     }
 
     function validateMonthDay(month, day, overflow, referenceYear) {
-        var checked = Temporal.validateDate(
+        var checked = Temporal.__validateDate__(
             referenceYear === undefined ? REFERENCE_ISO_YEAR : referenceYear,
             month,
             day,
@@ -82,7 +82,7 @@ var Temporal = Temporal || {};
             throw Temporal.__rangeError__("Invalid time in ISO PlainMonthDay string");
         }
 
-        Temporal.validateDate(year, month, day, "reject");
+        Temporal.__validateDate__(year, month, day, "reject");
         return createMonthDay(month, day, "reject");
     }
 
@@ -183,7 +183,7 @@ var Temporal = Temporal || {};
             throw Temporal.__typeError__("PlainMonthDay.toPlainDate requires a year field");
         }
 
-        checked = Temporal.validateDate(item.year, this.month, this.day, "constrain");
+        checked = Temporal.__validateDate__(item.year, this.month, this.day, "constrain");
         return new Temporal.PlainDate(checked.year, checked.month, checked.day);
     };
 }());

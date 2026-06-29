@@ -1,4 +1,4 @@
-//@include "D:/OneDrive/Extendscript/Github Public/ExtendScript-Extended/Tools/Console/console.js"
+//@include "../../Tools/Console/console.js"
 //@include "../Lib/Temporal-core.js"
 //@include "../Lib/Temporal.Duration.js"
 //@include "../Lib/Temporal.PlainYearMonth.js"

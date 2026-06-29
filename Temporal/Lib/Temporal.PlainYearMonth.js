@@ -68,7 +68,7 @@ var Temporal = Temporal || {};
                 throw Temporal.__rangeError__("Invalid time in ISO PlainYearMonth string");
             }
 
-            Temporal.validateDate(year, month, Number(match[3]), "reject");
+            Temporal.__validateDate__(year, month, Number(match[3]), "reject");
         }
 
         return createYearMonth(year, month, "reject");
@@ -263,8 +263,8 @@ var Temporal = Temporal || {};
 
         this.year = checked.year;
         this.month = checked.month;
-        this.daysInMonth = Temporal.computeDaysInMonth(this.year, this.month);
-        this.inLeapYear = Temporal.isLeapYear(this.year);
+        this.daysInMonth = Temporal.__computeDaysInMonth__(this.year, this.month);
+        this.inLeapYear = Temporal.__isLeapYear__(this.year);
         this.daysInYear = this.inLeapYear ? 366 : 365;
         this.monthsInYear = 12;
 

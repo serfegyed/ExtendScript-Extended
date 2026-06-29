@@ -325,8 +325,8 @@
 
 		if (dt.years !== 0 || dt.months !== 0) {
 			var targetMonth = relativeTo.month + dt.months;
-			var targetDate = Temporal.balanceDateUnits(relativeTo.year + dt.years, targetMonth, 1);
-			var targetDay = Math.min(relativeTo.day, Temporal.computeDaysInMonth(targetDate.year, targetDate.month));
+			var targetDate = Temporal.__balanceDateUnits__(relativeTo.year + dt.years, targetMonth, 1);
+			var targetDay = Math.min(relativeTo.day, Temporal.__computeDaysInMonth__(targetDate.year, targetDate.month));
 
 			targetDate.day = targetDay;
 			datePartDays = Temporal.__daysBetweenDates__(relativeTo, targetDate);
@@ -352,8 +352,8 @@
 	 * @returns {Object} Date record with year, month, and day.
 	 */
 	function calendarDateFromRelative(relativeTo, years, months) {
-		var balanced = Temporal.balanceDateUnits(relativeTo.year + years, relativeTo.month + months, 1);
-		balanced.day = Math.min(relativeTo.day, Temporal.computeDaysInMonth(balanced.year, balanced.month));
+		var balanced = Temporal.__balanceDateUnits__(relativeTo.year + years, relativeTo.month + months, 1);
+		balanced.day = Math.min(relativeTo.day, Temporal.__computeDaysInMonth__(balanced.year, balanced.month));
 		return balanced;
 	};
 
