@@ -20,8 +20,8 @@ Date.prototype.toISOString = undefined;
 Date.prototype.toJSON = undefined;
 
 //@include "./JSON.js"
-//@include "../Temporal/Lib/Date.toISOString.js"
-//@include "../Temporal/Lib/Date.toJSON.js"
+//@include "../Date/Lib/Date.toISOString.js"
+//@include "../Date/Lib/Date.toJSON.js"
 //@include "../Temporal/Lib/Temporal-core.js"
 //@include "../Temporal/Lib/Temporal.Duration.js"
 //@include "../Temporal/Lib/Temporal.Instant.js"
@@ -36,6 +36,7 @@ if (isNodeRuntime) {
         const fs = require("fs");
         const vm = require("vm");
         const temporalRoot = __dirname + "/../Temporal/Lib/";
+        const dateRoot = __dirname + "/../Date/Lib/";
 
         function load(filename) {
             const source = fs.readFileSync(filename, "utf8");
@@ -43,8 +44,8 @@ if (isNodeRuntime) {
         }
 
         load(__dirname + "/JSON.js");
-        load(temporalRoot + "Date.toISOString.js");
-        load(temporalRoot + "Date.toJSON.js");
+        load(dateRoot + "Date.toISOString.js");
+        load(dateRoot + "Date.toJSON.js");
         load(temporalRoot + "Temporal-core.js");
         load(temporalRoot + "Temporal.Duration.js");
         load(temporalRoot + "Temporal.Instant.js");

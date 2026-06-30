@@ -142,10 +142,10 @@ try {
 }
 TemporalAllTests.end(temporalAllTestsError);
 
-TemporalAllTests.begin("tests-Date.js");
+TemporalAllTests.begin("Date/Test/tests-Date.js");
 temporalAllTestsError = null;
 try {
-    //@include "Test/tests-Date.js"
+    //@include "../Date/Test/tests-Date.js"
 } catch (error) {
     temporalAllTestsError = error;
 }

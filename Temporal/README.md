@@ -359,10 +359,6 @@ Lib/
   Temporal.PlainYearMonth.js
   Temporal.PlainMonthDay.js
   Temporal.LocaleDate.js
-  Date.js
-  Date.toISOString.js
-  Date.toJSON.js
-  Date.toTemporalInstant.js
 
 Test/
   tests-Temporal-core.js
@@ -381,6 +377,7 @@ Test/
 ```
 
 `Lib/` contains the current public runtime files. Numbered development snapshots are intentionally not published in this repository.
+The Date polyfills used by `Temporal.js` live in the sibling `Date/Lib/` directory as independently includeable files.
 
 ## How to Use
 
