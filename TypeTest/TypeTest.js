@@ -149,13 +149,8 @@ if (typeof sameValueZero === "undefined") {
  */
 if (typeof isPrimitive === "undefined") {
     function isPrimitive(value) {
-        // Check if the value is null or undefined
-        if (value === null || value === undefined) {
-            return true;
-        }
-
-        // Check if the value is a primitive data type (string, number, or boolean)
-        return typeof value !== "object";
+        return value === null ||
+            (typeof value !== "object" && typeof value !== "function");
     };
 };
 
@@ -220,7 +215,9 @@ if (typeof isCallable === "undefined") {
  */
 if (typeof isLetter === "undefined") {
     function isLetter(chr) {
-        return /[a-zA-ZÀ-ÖØ-öø-ž]/.test(chr);
+        return typeof chr === "string" &&
+            chr.length === 1 &&
+            /^[a-zA-ZÀ-ÖØ-öø-ž]$/.test(chr);
     };
 };
 
@@ -232,7 +229,9 @@ if (typeof isLetter === "undefined") {
  */
 if (typeof isDigit === "undefined") {
     function isDigit(chr) {
-        return /[0-9]/.test(chr);
+        return typeof chr === "string" &&
+            chr.length === 1 &&
+            /^[0-9]$/.test(chr);
     };
 };
 

@@ -6,12 +6,7 @@
  */
 if (typeof isPrimitive === "undefined") {
     function isPrimitive(value) {
-        // Check if the value is null or undefined
-        if (value === null || value === undefined) {
-            return true;
-        }
-
-        // Check if the value is a primitive data type (string, number, or boolean)
-        return typeof value !== "object";
+        return value === null ||
+            (typeof value !== "object" && typeof value !== "function");
     };
 };

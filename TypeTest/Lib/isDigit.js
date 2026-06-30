@@ -6,6 +6,8 @@
  */
 if (typeof isDigit === "undefined") {
     function isDigit(chr) {
-        return /[0-9]/.test(chr);
+        return typeof chr === "string" &&
+            chr.length === 1 &&
+            /^[0-9]$/.test(chr);
     };
 };

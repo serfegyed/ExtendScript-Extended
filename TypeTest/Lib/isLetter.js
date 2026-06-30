@@ -6,6 +6,8 @@
  */
 if (typeof isLetter === "undefined") {
     function isLetter(chr) {
-        return /[a-zA-ZÀ-ÖØ-öø-ž]/.test(chr);
+        return typeof chr === "string" &&
+            chr.length === 1 &&
+            /^[a-zA-ZÀ-ÖØ-öø-ž]$/.test(chr);
     };
 };
