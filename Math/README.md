@@ -47,10 +47,10 @@ Returns:
 console.log(Math.sign(3));    // Expected output: 1
 console.log(Math.sign(-3));   // Expected output: -1
 console.log(Math.sign(0));    // Expected output: 0
-console.log(Math.sign(-0));   // Expected output: -0, but in ESTK 0 as it doesn't support -0
+console.log(Math.sign(-0));   // Expected output: -0
 console.log(Math.sign(NaN));  // Expected output: NaN
 console.log(Math.sign("3"));  // Expected output: 1
-console.log(Math.sign("-3")); // Expected output: 1
+console.log(Math.sign("-3")); // Expected output: -1
 ``` 
 ### Math.sum
 Calculates the sum of numbers in a given list of arguments or an array.

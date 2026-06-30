@@ -6,7 +6,8 @@
  */
 if (!Math.cbrt) {
     Math.cbrt = function (x) {
-        if (x === 0) return 0;
+        x = x * 1;
+        if (x === 0) return x;
         var negate = x < 0,
             result;
         if (negate) {

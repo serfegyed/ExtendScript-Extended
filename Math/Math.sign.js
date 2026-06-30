@@ -6,10 +6,11 @@
  */
 if (!Math.sign) {
     Math.sign = function (value) {
-        if (isNaN(value)) {
+        value = value * 1;
+        if (value !== value) {
             return NaN;
         }
-        if (value === 0 || value === -0) {
+        if (value === 0) {
             return value;
         }
         return value > 0 ? 1 : -1;
