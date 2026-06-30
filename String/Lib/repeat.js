@@ -6,33 +6,58 @@
  */
 if (!String.prototype.repeat) {
     String.prototype.repeat = function (count) {
-        if (this == null) {
-            throw new TypeError("can't convert " + this + " to object");
-        }
-        var str = '' + this; // Ensure it's a string
-        count = +count; // Convert to a number
-        if (count !== count) {
-            count = 0; // NaN handling
-        }
-        if (count < 0 || count === Infinity) {
-            throw new RangeError("Invalid count value");
-        }
-        count = Math.floor(count);
-        if (str.length === 0 || count === 0) {
-            return '';
-        }
-        // Ensuring count is a 31-bit integer allows us to heavily optimize the main part.
-        if (str.length * count >= 1 << 28) {
-            throw new RangeError("repeat count must not overflow maximum string size");
+        "use strict";
+
+        function typeError(message) {
+            var error = new TypeError(message);
+
+            error.name = "TypeError";
+            return error;
         }
 
-        var maxCount = str.length * count;
-        count = Math.floor(Math.log(count) / Math.log(2));
-        while (count) {
-            str += str;
-            count--;
+        function rangeError(message) {
+            var error = new RangeError(message);
+
+            error.name = "RangeError";
+            return error;
         }
-        str += str.substring(0, maxCount - str.length);
-        return str;
+
+        var string;
+        var number;
+        var result = "";
+
+        if (this === null || this === undefined ||
+                (typeof $ !== "undefined" && $.global && this === $.global)) {
+            throw typeError("String.prototype.repeat called on null or undefined");
+        }
+
+        string = String(this);
+        number = Number(count);
+        if (number !== number) {
+            number = 0;
+        } else if (number !== 0 && number !== Infinity && number !== -Infinity) {
+            number = number < 0 ? Math.ceil(number) : Math.floor(number);
+        }
+        if (number < 0 || number === Infinity) {
+            throw rangeError("Invalid count value");
+        }
+        if (string.length === 0 || number === 0) {
+            return "";
+        }
+        if (string.length * number >= (1 << 28)) {
+            throw rangeError("repeat count must not overflow maximum string size");
+        }
+
+        while (number > 0) {
+            if (number % 2 === 1) {
+                result += string;
+            }
+            number = Math.floor(number / 2);
+            if (number > 0) {
+                string += string;
+            }
+        }
+
+        return result;
     };
 }

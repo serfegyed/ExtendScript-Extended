@@ -8,22 +8,44 @@
  *     128075
  */
 if (!String.prototype.codePointAt) {
-    String.prototype.codePointAt = function (pos) {
-        var str = String(this);
-        var size = str.length;
+    String.prototype.codePointAt = function (position) {
+        "use strict";
 
-        if (typeof pos !== 'number' || isNaN(pos) || pos < 0 || pos >= size) {
+        var string;
+        var size;
+        var number;
+        var index;
+        var first;
+        var second;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("String.prototype.codePointAt called on null or undefined");
+        }
+
+        string = String(this);
+        size = string.length;
+        number = Number(position);
+        if (number !== number) {
+            number = 0;
+        } else if (number !== 0 && number !== Infinity && number !== -Infinity) {
+            number = number < 0 ? Math.ceil(number) : Math.floor(number);
+        }
+        index = number;
+
+        if (index < 0 || index >= size) {
             return undefined;
         }
 
-        var code = str.charCodeAt(pos);
-        if (code >= 0xd800 && code <= 0xdbff && pos < size - 1) {
-            var hi = code;
-            var lo = str.charCodeAt(pos + 1);
-            if (lo >= 0xdc00 && lo <= 0xdfff) {
-                code = (hi - 0xd800) * 0x400 + (lo - 0xdc00) + 0x10000;
-            }
+        first = string.charCodeAt(index);
+        if (first < 0xd800 || first > 0xdbff || index + 1 === size) {
+            return first;
         }
-        return code;
+
+        second = string.charCodeAt(index + 1);
+        if (second < 0xdc00 || second > 0xdfff) {
+            return first;
+        }
+
+        return (first - 0xd800) * 0x400 + (second - 0xdc00) + 0x10000;
     };
 }

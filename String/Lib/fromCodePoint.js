@@ -11,33 +11,36 @@
 if (!String.fromCodePoint) {
     String.fromCodePoint = function () {
         var MAX_SIZE = 0x10ffff;
+        var CHUNK_SIZE = 0x4000;
         var codeUnits = [];
+        var result = "";
 
         for (var i = 0, len = arguments.length; i < len; i++) {
             var codePoint = Number(arguments[i]);
 
-            // Check if the code point is valid
             if (
-                !isFinite(codePoint) || // Negative, NaN, or Infinity
-                codePoint < 0 || // Less than 0
-                codePoint > MAX_SIZE || // Greater than the maximum value
+                !isFinite(codePoint) ||
+                codePoint < 0 ||
+                codePoint > MAX_SIZE ||
                 Math.floor(codePoint) !== codePoint
             ) {
-                // Not an integer
-                throw new RangeError("Invalid code point " + codePoint); // Throw an error
+                throw new RangeError("Invalid code point " + codePoint);
             }
 
             if (codePoint <= 0xffff) {
-                // BMP code point
                 codeUnits.push(codePoint);
             } else {
-                // Supplementary code point
                 codePoint -= 0x10000;
-                codeUnits.push((codePoint >> 10) + 0xd800); // High surrogate
-                codeUnits.push((codePoint % 0x400) + 0xdc00); // Low surrogate
+                codeUnits.push((codePoint >> 10) + 0xd800);
+                codeUnits.push((codePoint % 0x400) + 0xdc00);
+            }
+
+            if (codeUnits.length >= CHUNK_SIZE) {
+                result += String.fromCharCode.apply(null, codeUnits);
+                codeUnits = [];
             }
         }
 
-        return String.fromCharCode.apply(null, codeUnits);
+        return result + String.fromCharCode.apply(null, codeUnits);
     };
 }

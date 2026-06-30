@@ -38,19 +38,37 @@
  */
 if (!String.prototype.at) {
     String.prototype.at = function (index) {
-        // Check if index is a number and not NaN
-        if (typeof index !== 'number' || isNaN(index)) {
-            throw new TypeError('Index must be a valid number');
+        "use strict";
+
+        function typeError(message) {
+            var error = new TypeError(message);
+
+            error.name = "TypeError";
+            return error;
         }
-        // Check range
-        if (index < -this.length || index >= this.length) {
+
+        if (this === null || this === undefined ||
+                (typeof $ !== "undefined" && $.global && this === $.global)) {
+            throw typeError("String.prototype.at called on null or undefined");
+        }
+
+        var string = String(this);
+        var length = string.length;
+
+        index = Number(index);
+        if (index !== index || index === 0) {
+            index = 0;
+        } else if (index !== Infinity && index !== -Infinity) {
+            index = index < 0 ? Math.ceil(index) : Math.floor(index);
+        }
+
+        if (index < -length || index >= length) {
             return undefined;
         }
 
-        // Adjust negative index
-        index = index < 0 ? this.length + index : index;
+        index = index < 0 ? length + index : index;
 
-        return this.charAt(index);
+        return string.charAt(index);
     };
 }
 
@@ -64,23 +82,45 @@ if (!String.prototype.at) {
  *     128075
  */
 if (!String.prototype.codePointAt) {
-    String.prototype.codePointAt = function (pos) {
-        var str = String(this);
-        var size = str.length;
+    String.prototype.codePointAt = function (position) {
+        "use strict";
 
-        if (typeof pos !== 'number' || isNaN(pos) || pos < 0 || pos >= size) {
+        var string;
+        var size;
+        var number;
+        var index;
+        var first;
+        var second;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("String.prototype.codePointAt called on null or undefined");
+        }
+
+        string = String(this);
+        size = string.length;
+        number = Number(position);
+        if (number !== number) {
+            number = 0;
+        } else if (number !== 0 && number !== Infinity && number !== -Infinity) {
+            number = number < 0 ? Math.ceil(number) : Math.floor(number);
+        }
+        index = number;
+
+        if (index < 0 || index >= size) {
             return undefined;
         }
 
-        var code = str.charCodeAt(pos);
-        if (code >= 0xd800 && code <= 0xdbff && pos < size - 1) {
-            var hi = code;
-            var lo = str.charCodeAt(pos + 1);
-            if (lo >= 0xdc00 && lo <= 0xdfff) {
-                code = (hi - 0xd800) * 0x400 + (lo - 0xdc00) + 0x10000;
-            }
+        first = string.charCodeAt(index);
+        if (first < 0xd800 || first > 0xdbff || index + 1 === size) {
+            return first;
         }
-        return code;
+
+        second = string.charCodeAt(index + 1);
+        if (second < 0xdc00 || second > 0xdfff) {
+            return first;
+        }
+
+        return (first - 0xd800) * 0x400 + (second - 0xdc00) + 0x10000;
     };
 }
 
@@ -91,8 +131,61 @@ if (!String.prototype.codePointAt) {
  * @returns {Bool} True or false.
  */
 if (!String.prototype.endsWith) {
-    String.prototype.endsWith = function (substring) {
-        return this.slice(-substring.length) === substring;
+    String.prototype.endsWith = function (searchString, position) {
+        "use strict";
+
+        function typeError(message) {
+            var error = new TypeError(message);
+
+            error.name = "TypeError";
+            return error;
+        }
+
+        function isRegExp(value) {
+            var matcher;
+
+            if (value === null || value === undefined) {
+                return false;
+            }
+            if (typeof Symbol !== "undefined" && Symbol.match) {
+                matcher = value[Symbol.match];
+                if (matcher !== undefined) {
+                    return Boolean(matcher);
+                }
+            }
+            return Object.prototype.toString.call(value) === "[object RegExp]";
+        }
+
+        var string;
+        var search;
+        var length;
+        var end;
+        var number;
+
+        if (this === null || this === undefined ||
+                (typeof $ !== "undefined" && $.global && this === $.global)) {
+            throw typeError("String.prototype.endsWith called on null or undefined");
+        }
+        string = String(this);
+        if (isRegExp(searchString)) {
+            throw typeError("First argument to String.prototype.endsWith must not be a regular expression");
+        }
+        search = String(searchString);
+        length = string.length;
+
+        if (position === undefined) {
+            end = length;
+        } else {
+            number = Number(position);
+            if (number !== number) {
+                number = 0;
+            } else if (number !== 0 && number !== Infinity && number !== -Infinity) {
+                number = number < 0 ? Math.ceil(number) : Math.floor(number);
+            }
+            end = Math.min(Math.max(number, 0), length);
+        }
+
+        return string.slice(end - search.length, end) === search;
     };
 }
 
@@ -109,34 +202,37 @@ if (!String.prototype.endsWith) {
 if (!String.fromCodePoint) {
     String.fromCodePoint = function () {
         var MAX_SIZE = 0x10ffff;
+        var CHUNK_SIZE = 0x4000;
         var codeUnits = [];
+        var result = "";
 
         for (var i = 0, len = arguments.length; i < len; i++) {
             var codePoint = Number(arguments[i]);
 
-            // Check if the code point is valid
             if (
-                !isFinite(codePoint) || // Negative, NaN, or Infinity
-                codePoint < 0 || // Less than 0
-                codePoint > MAX_SIZE || // Greater than the maximum value
+                !isFinite(codePoint) ||
+                codePoint < 0 ||
+                codePoint > MAX_SIZE ||
                 Math.floor(codePoint) !== codePoint
             ) {
-                // Not an integer
-                throw new RangeError("Invalid code point " + codePoint); // Throw an error
+                throw new RangeError("Invalid code point " + codePoint);
             }
 
             if (codePoint <= 0xffff) {
-                // BMP code point
                 codeUnits.push(codePoint);
             } else {
-                // Supplementary code point
                 codePoint -= 0x10000;
-                codeUnits.push((codePoint >> 10) + 0xd800); // High surrogate
-                codeUnits.push((codePoint % 0x400) + 0xdc00); // Low surrogate
+                codeUnits.push((codePoint >> 10) + 0xd800);
+                codeUnits.push((codePoint % 0x400) + 0xdc00);
+            }
+
+            if (codeUnits.length >= CHUNK_SIZE) {
+                result += String.fromCharCode.apply(null, codeUnits);
+                codeUnits = [];
             }
         }
 
-        return String.fromCharCode.apply(null, codeUnits);
+        return result + String.fromCharCode.apply(null, codeUnits);
     };
 }
 
@@ -148,9 +244,56 @@ if (!String.fromCodePoint) {
  * @return {boolean} Returns true if the substring is found, false otherwise.
  */
 if (!String.prototype.includes) {
-    String.prototype.includes = function (substring, position) {
-        position = position || 0;
-        return this.indexOf(substring, position) !== -1;
+    String.prototype.includes = function (searchString, position) {
+        "use strict";
+
+        function typeError(message) {
+            var error = new TypeError(message);
+
+            error.name = "TypeError";
+            return error;
+        }
+
+        function isRegExp(value) {
+            var matcher;
+
+            if (value === null || value === undefined) {
+                return false;
+            }
+            if (typeof Symbol !== "undefined" && Symbol.match) {
+                matcher = value[Symbol.match];
+                if (matcher !== undefined) {
+                    return Boolean(matcher);
+                }
+            }
+            return Object.prototype.toString.call(value) === "[object RegExp]";
+        }
+
+        var string;
+        var search;
+        var start;
+        var number;
+
+        if (this === null || this === undefined ||
+                (typeof $ !== "undefined" && $.global && this === $.global)) {
+            throw typeError("String.prototype.includes called on null or undefined");
+        }
+
+        string = String(this);
+        if (isRegExp(searchString)) {
+            throw typeError("First argument to String.prototype.includes must not be a regular expression");
+        }
+
+        search = String(searchString);
+        number = position === undefined ? 0 : Number(position);
+        if (number !== number) {
+            number = 0;
+        } else if (number !== 0 && number !== Infinity && number !== -Infinity) {
+            number = number < 0 ? Math.ceil(number) : Math.floor(number);
+        }
+        start = Math.min(Math.max(number, 0), string.length);
+
+        return string.indexOf(search, start) !== -1;
     };
 }
 
@@ -161,23 +304,34 @@ if (!String.prototype.includes) {
  */
 if (!String.prototype.isWellFormed) {
     String.prototype.isWellFormed = function () {
-        var str = this;
-        for (var i = 0; i < str.length; ++i) {
-            var isSurrogate = (str.charCodeAt(i) & 0xf800) === 0xd800;
-            if (!isSurrogate) {
-                continue;
-            }
-            var isLeadingSurrogate = str.charCodeAt(i) < 0xdc00;
-            if (!isLeadingSurrogate) {
-                return false; // unpaired trailing surrogate
-            }
-            var isFollowedByTrailingSurrogate =
-                i + 1 < str.length && (str.charCodeAt(i + 1) & 0xfc00) === 0xdc00;
-            if (!isFollowedByTrailingSurrogate) {
-                return false; // unpaired leading surrogate
-            }
-            ++i;
+        "use strict";
+
+        var string;
+        var i;
+        var code;
+        var next;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("String.prototype.isWellFormed called on null or undefined");
         }
+
+        string = String(this);
+        for (i = 0; i < string.length; i++) {
+            code = string.charCodeAt(i);
+            if (code >= 0xd800 && code <= 0xdbff) {
+                if (i + 1 >= string.length) {
+                    return false;
+                }
+                next = string.charCodeAt(i + 1);
+                if (next < 0xdc00 || next > 0xdfff) {
+                    return false;
+                }
+                i++;
+            } else if (code >= 0xdc00 && code <= 0xdfff) {
+                return false;
+            }
+        }
+
         return true;
     };
 }
@@ -192,28 +346,46 @@ if (!String.prototype.isWellFormed) {
  */
 if (!String.prototype.matchAll) {
     String.prototype.matchAll = function (regexp) {
-        if (!(regexp instanceof RegExp)) {
-            throw new TypeError("matchAll(): Argument must be a regular expression");
-        };
+        "use strict";
 
-        if (!regexp.global) {
-            throw new TypeError("matchAll(): Called with a non-global RegExp argument");
-        };
-
+        var string;
+        var matcher;
+        var flags;
         var match;
         var matches = [];
 
-        while ((match = regexp.exec(this)) !== null) {
+        if (this === null || this === undefined) {
+            throw new TypeError("String.prototype.matchAll called on null or undefined");
+        }
+
+        string = String(this);
+
+        if (regexp instanceof RegExp && !regexp.global) {
+            throw new TypeError("matchAll(): Called with a non-global RegExp argument");
+        }
+
+        if (regexp instanceof RegExp) {
+            flags = "g";
+            flags += regexp.ignoreCase ? "i" : "";
+            flags += regexp.multiline ? "m" : "";
+            matcher = new RegExp(regexp.source, flags);
+            matcher.lastIndex = regexp.lastIndex;
+        } else {
+            matcher = new RegExp(regexp, "g");
+        }
+
+        while ((match = matcher.exec(string)) !== null) {
             var matchArray = Array.from(match);
             matchArray.index = match.index;
             matchArray.input = match.input;
             matches.push(matchArray);
 
-            if (match.index === regexp.lastIndex) {
-                regexp.lastIndex++;
+            if (match.index === matcher.lastIndex) {
+                matcher.lastIndex++;
             }
         }
-        return matches.values(); // Using Array.prototype.values
+
+        return matches.values();
     };
 }
 
@@ -226,14 +398,63 @@ if (!String.prototype.matchAll) {
  */
 if (!String.prototype.padEnd) {
     String.prototype.padEnd = function (targetLength, padString) {
-        padString = padString || "\u0020";
-        if (!padString || targetLength <= this.length) return String(this);
-        var repeatCount = Math.ceil(
-            (targetLength - this.length) / padString.length
-        );
-        return (
-            this + padString.repeat(repeatCount).slice(0, targetLength - this.length)
-        );
+        "use strict";
+
+        function typeError(message) {
+            var error = new TypeError(message);
+
+            error.name = "TypeError";
+            return error;
+        }
+
+        function rangeError(message) {
+            var error = new RangeError(message);
+
+            error.name = "RangeError";
+            return error;
+        }
+
+        var string;
+        var length;
+        var number;
+        var filler;
+        var fillLength;
+        var padding = "";
+
+        if (this === null || this === undefined ||
+                (typeof $ !== "undefined" && $.global && this === $.global)) {
+            throw typeError("String.prototype.padEnd called on null or undefined");
+        }
+
+        string = String(this);
+        number = Number(targetLength);
+        if (number !== number || number <= 0) {
+            length = 0;
+        } else if (number === Infinity) {
+            length = 9007199254740991;
+        } else {
+            length = Math.floor(number);
+            length = Math.min(length, 9007199254740991);
+        }
+
+        if (length <= string.length) {
+            return string;
+        }
+
+        filler = padString === undefined ? " " : String(padString);
+        if (filler === "") {
+            return string;
+        }
+
+        fillLength = length - string.length;
+        if (fillLength >= (1 << 28)) {
+            throw rangeError("padEnd result exceeds maximum string size");
+        }
+        while (padding.length < fillLength) {
+            padding += filler.slice(0, fillLength - padding.length);
+        }
+
+        return string + padding;
     };
 }
 
@@ -246,20 +467,65 @@ if (!String.prototype.padEnd) {
  */
 if (!String.prototype.padStart) {
     String.prototype.padStart = function (targetLength, padString) {
-        padString = padString || ' ';
-        targetLength = Math.max(targetLength, this.length);  // Target length cannot be less than the string's current length
+        "use strict";
 
-        if (this.length === targetLength) {
-            return String(this);
+        function typeError(message) {
+            var error = new TypeError(message);
+
+            error.name = "TypeError";
+            return error;
         }
 
-        var repeatTimes = Math.ceil((targetLength - this.length) / padString.length);
+        function rangeError(message) {
+            var error = new RangeError(message);
 
-        // Build the padded string and return it
-        var paddedString = padString.repeat(repeatTimes).slice(0, targetLength - this.length) + this;
-        return paddedString;
+            error.name = "RangeError";
+            return error;
+        }
+
+        var string;
+        var length;
+        var number;
+        var filler;
+        var fillLength;
+        var padding = "";
+
+        if (this === null || this === undefined ||
+                (typeof $ !== "undefined" && $.global && this === $.global)) {
+            throw typeError("String.prototype.padStart called on null or undefined");
+        }
+
+        string = String(this);
+        number = Number(targetLength);
+        if (number !== number || number <= 0) {
+            length = 0;
+        } else if (number === Infinity) {
+            length = 9007199254740991;
+        } else {
+            length = Math.floor(number);
+            length = Math.min(length, 9007199254740991);
+        }
+
+        if (length <= string.length) {
+            return string;
+        }
+
+        filler = padString === undefined ? " " : String(padString);
+        if (filler === "") {
+            return string;
+        }
+
+        fillLength = length - string.length;
+        if (fillLength >= (1 << 28)) {
+            throw rangeError("padStart result exceeds maximum string size");
+        }
+        while (padding.length < fillLength) {
+            padding += filler.slice(0, fillLength - padding.length);
+        }
+
+        return padding + string;
     };
-};
+}
 
 /**
  * Repeats the string a specified number of times.
@@ -269,34 +535,59 @@ if (!String.prototype.padStart) {
  */
 if (!String.prototype.repeat) {
     String.prototype.repeat = function (count) {
-        if (this == null) {
-            throw new TypeError("can't convert " + this + " to object");
-        }
-        var str = '' + this; // Ensure it's a string
-        count = +count; // Convert to a number
-        if (count !== count) {
-            count = 0; // NaN handling
-        }
-        if (count < 0 || count === Infinity) {
-            throw new RangeError("Invalid count value");
-        }
-        count = Math.floor(count);
-        if (str.length === 0 || count === 0) {
-            return '';
-        }
-        // Ensuring count is a 31-bit integer allows us to heavily optimize the main part.
-        if (str.length * count >= 1 << 28) {
-            throw new RangeError("repeat count must not overflow maximum string size");
+        "use strict";
+
+        function typeError(message) {
+            var error = new TypeError(message);
+
+            error.name = "TypeError";
+            return error;
         }
 
-        var maxCount = str.length * count;
-        count = Math.floor(Math.log(count) / Math.log(2));
-        while (count) {
-            str += str;
-            count--;
+        function rangeError(message) {
+            var error = new RangeError(message);
+
+            error.name = "RangeError";
+            return error;
         }
-        str += str.substring(0, maxCount - str.length);
-        return str;
+
+        var string;
+        var number;
+        var result = "";
+
+        if (this === null || this === undefined ||
+                (typeof $ !== "undefined" && $.global && this === $.global)) {
+            throw typeError("String.prototype.repeat called on null or undefined");
+        }
+
+        string = String(this);
+        number = Number(count);
+        if (number !== number) {
+            number = 0;
+        } else if (number !== 0 && number !== Infinity && number !== -Infinity) {
+            number = number < 0 ? Math.ceil(number) : Math.floor(number);
+        }
+        if (number < 0 || number === Infinity) {
+            throw rangeError("Invalid count value");
+        }
+        if (string.length === 0 || number === 0) {
+            return "";
+        }
+        if (string.length * number >= (1 << 28)) {
+            throw rangeError("repeat count must not overflow maximum string size");
+        }
+
+        while (number > 0) {
+            if (number % 2 === 1) {
+                result += string;
+            }
+            number = Math.floor(number / 2);
+            if (number > 0) {
+                string += string;
+            }
+        }
+
+        return result;
     };
 }
 
@@ -308,32 +599,89 @@ if (!String.prototype.repeat) {
  * @return {string} The modified target string with all occurrences of the search string replaced with the replacement string.
  */
 if (!String.prototype.replaceAll) {
-    String.prototype.replaceAll = function (search, replacement) {
-        var target = this;
-        if (search instanceof RegExp) {
-            if (!search.global) {
-                throw new TypeError('replaceAll() must be called with a global RegExp');
-            }
-            return target.replace(search, replacement);
-        } else {
-            if (search === '') {  // Handle empty string case
-                return replacement + target.split(search).join(replacement) + replacement;
-            } else {
-                if (typeof replacement === 'function') {
-                    var match;
-                    var result = '';
-                    var index = 0;
-                    while ((match = target.indexOf(search, index)) !== -1) {
-                        result += target.slice(index, match) + replacement.call(undefined, search, match, target);
-                        index = match + search.length;
-                    }
-                    result += target.slice(index);
-                    return result;
-                } else {
-                    return target.split(search).join(replacement);
+    String.prototype.replaceAll = function (searchValue, replaceValue) {
+        "use strict";
+
+        var string;
+        var searchString;
+        var escapedSearch;
+        var replacement;
+        var result;
+        var index;
+        var matchIndex;
+
+        function emptySubstitution(value, position, input) {
+            return String(value).replace(/\$\$|\$&|\$`|\$'/g, function (token) {
+                if (token === "$$") return "$";
+                if (token === "$&") return "";
+                if (token === "$`") return input.slice(0, position);
+                return input.slice(position);
+            });
+        }
+
+        function replaceRegExpWithFunction(input, regexp, replacer) {
+            var output = "";
+            var nextPosition = 0;
+            var current;
+            var args;
+
+            regexp.lastIndex = 0;
+            while ((current = regexp.exec(input)) !== null) {
+                output += input.slice(nextPosition, current.index);
+                args = current.slice(0);
+                args.push(current.index, input);
+                output += String(replacer.apply(undefined, args));
+                nextPosition = current.index + current[0].length;
+                if (current.index === regexp.lastIndex) {
+                    regexp.lastIndex++;
                 }
             }
+            regexp.lastIndex = 0;
+            return output + input.slice(nextPosition);
         }
+
+        if (this === null || this === undefined) {
+            throw new TypeError("String.prototype.replaceAll called on null or undefined");
+        }
+
+        string = String(this);
+        if (searchValue instanceof RegExp) {
+            if (!searchValue.global) {
+                throw new TypeError("replaceAll() must be called with a global RegExp");
+            }
+            if (typeof replaceValue === "function") {
+                return replaceRegExpWithFunction(string, searchValue, replaceValue);
+            }
+            return string.replace(searchValue, replaceValue);
+        }
+
+        searchString = String(searchValue);
+        if (searchString === "") {
+            result = "";
+            for (index = 0; index <= string.length; index++) {
+                replacement = typeof replaceValue === "function" ?
+                    replaceValue.call(undefined, "", index, string) :
+                    emptySubstitution(replaceValue, index, string);
+                result += String(replacement);
+                if (index < string.length) {
+                    result += string.charAt(index);
+                }
+            }
+            return result;
+        }
+        if (typeof replaceValue === "function") {
+            result = "";
+            index = 0;
+            while ((matchIndex = string.indexOf(searchString, index)) !== -1) {
+                result += string.slice(index, matchIndex);
+                result += String(replaceValue.call(undefined, searchString, matchIndex, string));
+                index = matchIndex + searchString.length;
+            }
+            return result + string.slice(index);
+        }
+
+        escapedSearch = searchString.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        return string.replace(new RegExp(escapedSearch, "g"), replaceValue);
     };
 }
 
@@ -344,10 +692,57 @@ if (!String.prototype.replaceAll) {
  * @return {boolean} Returns true if the string starts with the specified substring, otherwise returns false.
  */
 if (!String.prototype.startsWith) {
-    String.prototype.startsWith = function (substring) {
-        return this.substring(0, substring.length) === substring;
+    String.prototype.startsWith = function (searchString, position) {
+        "use strict";
+
+        function typeError(message) {
+            var error = new TypeError(message);
+
+            error.name = "TypeError";
+            return error;
+        }
+
+        function isRegExp(value) {
+            var matcher;
+
+            if (value === null || value === undefined) {
+                return false;
+            }
+            if (typeof Symbol !== "undefined" && Symbol.match) {
+                matcher = value[Symbol.match];
+                if (matcher !== undefined) {
+                    return Boolean(matcher);
+                }
+            }
+            return Object.prototype.toString.call(value) === "[object RegExp]";
+        }
+
+        var string;
+        var search;
+        var start;
+        var number;
+
+        if (this === null || this === undefined ||
+                (typeof $ !== "undefined" && $.global && this === $.global)) {
+            throw typeError("String.prototype.startsWith called on null or undefined");
+        }
+        string = String(this);
+        if (isRegExp(searchString)) {
+            throw typeError("First argument to String.prototype.startsWith must not be a regular expression");
+        }
+        search = String(searchString);
+        number = position === undefined ? 0 : Number(position);
+
+        if (number !== number) {
+            number = 0;
+        } else if (number !== 0 && number !== Infinity && number !== -Infinity) {
+            number = number < 0 ? Math.ceil(number) : Math.floor(number);
+        }
+        start = Math.min(Math.max(number, 0), string.length);
+
+        return string.slice(start, start + search.length) === search;
     };
-};
+}
 
 /**
  * Trims the specified characters from the beginning and end of the string.
@@ -357,16 +752,28 @@ if (!String.prototype.startsWith) {
  * @param {string} chars - The characters to trim from the string
  * @return {string} The trimmed string
  */
-String.prototype.trim = function (chars) {
-    if (!chars) {
-        chars = '\\s';
-    } else {
-        // Create a character class for individual characters to trim
-        chars = '[' + chars.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ']';
-    }
-    var re = new RegExp('^' + chars + '+|' + chars + '+$', 'g');
-    return this.replace(re, '');
-};
+if (!String.prototype.trim) {
+    String.prototype.trim = function (chars) {
+        "use strict";
+
+        var string;
+        var re;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("String.prototype.trim called on null or undefined");
+        }
+
+        string = String(this);
+        if (!chars) {
+            chars = '\\s';
+        } else {
+            // Create a character class for individual characters to trim
+            chars = '[' + chars.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&') + ']';
+        }
+        re = new RegExp('^' + chars + '+|' + chars + '+$', 'g');
+        return string.replace(re, '');
+    };
+}
 
 /**
  * Trims the specified characters from the end of the string.
@@ -376,15 +783,27 @@ String.prototype.trim = function (chars) {
  * @param {string} chars - The characters to trim from the end of the string
  * @return {string} The string with the specified characters trimmed from the end
  */
-String.prototype.trimEnd = function (chars) {
-    if (!chars) {
-        chars = '\\s';
-    } else {
-        chars = '[' + chars.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ']';
-    }
-    var re = new RegExp(chars + '+$', 'g');
-    return this.replace(re, '');
-};
+if (!String.prototype.trimEnd) {
+    String.prototype.trimEnd = function (chars) {
+        "use strict";
+
+        var string;
+        var re;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("String.prototype.trimEnd called on null or undefined");
+        }
+
+        string = String(this);
+        if (!chars) {
+            chars = '\\s';
+        } else {
+            chars = '[' + chars.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&') + ']';
+        }
+        re = new RegExp(chars + '+$', 'g');
+        return string.replace(re, '');
+    };
+}
 
 /**
  * Trims the specified characters from the beginning of the string.
@@ -394,15 +813,27 @@ String.prototype.trimEnd = function (chars) {
  * @param {string} chars - The characters to trim from the beginning of the string.
  * @return {string} The string with the specified characters trimmed from the beginning.
  */
-String.prototype.trimStart = function (chars) {
-    if (!chars) {
-        chars = '\\s';
-    } else {
-        chars = '[' + chars.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ']';
-    }
-    var re = new RegExp('^' + chars + '+', 'g');
-    return this.replace(re, '');
-};
+if (!String.prototype.trimStart) {
+    String.prototype.trimStart = function (chars) {
+        "use strict";
+
+        var string;
+        var re;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("String.prototype.trimStart called on null or undefined");
+        }
+
+        string = String(this);
+        if (!chars) {
+            chars = '\\s';
+        } else {
+            chars = '[' + chars.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&') + ']';
+        }
+        re = new RegExp('^' + chars + '+', 'g');
+        return string.replace(re, '');
+    };
+}
 
 /**
  * Converts a string to a well-formed string.
@@ -411,11 +842,39 @@ String.prototype.trimStart = function (chars) {
  */
 if (!String.prototype.toWellFormed) {
     String.prototype.toWellFormed = function () {
-        if (!this.isWellFormed()) {
-            return this.replace(/[\uD800-\uDFFF]/g, "\uFFFD");
+        "use strict";
+
+        var string;
+        var result = "";
+        var i;
+        var code;
+        var next;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("String.prototype.toWellFormed called on null or undefined");
         }
 
-        return String(this);
+        string = String(this);
+        for (i = 0; i < string.length; i++) {
+            code = string.charCodeAt(i);
+            if (code >= 0xd800 && code <= 0xdbff) {
+                if (i + 1 < string.length) {
+                    next = string.charCodeAt(i + 1);
+                    if (next >= 0xdc00 && next <= 0xdfff) {
+                        result += string.charAt(i) + string.charAt(i + 1);
+                        i++;
+                        continue;
+                    }
+                }
+                result += "\ufffd";
+            } else if (code >= 0xdc00 && code <= 0xdfff) {
+                result += "\ufffd";
+            } else {
+                result += string.charAt(i);
+            }
+        }
+
+        return result;
     };
-};
+}
 

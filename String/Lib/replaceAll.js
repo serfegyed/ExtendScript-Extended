@@ -6,31 +6,88 @@
  * @return {string} The modified target string with all occurrences of the search string replaced with the replacement string.
  */
 if (!String.prototype.replaceAll) {
-    String.prototype.replaceAll = function (search, replacement) {
-        var target = this;
-        if (search instanceof RegExp) {
-            if (!search.global) {
-                throw new TypeError('replaceAll() must be called with a global RegExp');
-            }
-            return target.replace(search, replacement);
-        } else {
-            if (search === '') {  // Handle empty string case
-                return replacement + target.split(search).join(replacement) + replacement;
-            } else {
-                if (typeof replacement === 'function') {
-                    var match;
-                    var result = '';
-                    var index = 0;
-                    while ((match = target.indexOf(search, index)) !== -1) {
-                        result += target.slice(index, match) + replacement.call(undefined, search, match, target);
-                        index = match + search.length;
-                    }
-                    result += target.slice(index);
-                    return result;
-                } else {
-                    return target.split(search).join(replacement);
+    String.prototype.replaceAll = function (searchValue, replaceValue) {
+        "use strict";
+
+        var string;
+        var searchString;
+        var escapedSearch;
+        var replacement;
+        var result;
+        var index;
+        var matchIndex;
+
+        function emptySubstitution(value, position, input) {
+            return String(value).replace(/\$\$|\$&|\$`|\$'/g, function (token) {
+                if (token === "$$") return "$";
+                if (token === "$&") return "";
+                if (token === "$`") return input.slice(0, position);
+                return input.slice(position);
+            });
+        }
+
+        function replaceRegExpWithFunction(input, regexp, replacer) {
+            var output = "";
+            var nextPosition = 0;
+            var current;
+            var args;
+
+            regexp.lastIndex = 0;
+            while ((current = regexp.exec(input)) !== null) {
+                output += input.slice(nextPosition, current.index);
+                args = current.slice(0);
+                args.push(current.index, input);
+                output += String(replacer.apply(undefined, args));
+                nextPosition = current.index + current[0].length;
+                if (current.index === regexp.lastIndex) {
+                    regexp.lastIndex++;
                 }
             }
+            regexp.lastIndex = 0;
+            return output + input.slice(nextPosition);
         }
+
+        if (this === null || this === undefined) {
+            throw new TypeError("String.prototype.replaceAll called on null or undefined");
+        }
+
+        string = String(this);
+        if (searchValue instanceof RegExp) {
+            if (!searchValue.global) {
+                throw new TypeError("replaceAll() must be called with a global RegExp");
+            }
+            if (typeof replaceValue === "function") {
+                return replaceRegExpWithFunction(string, searchValue, replaceValue);
+            }
+            return string.replace(searchValue, replaceValue);
+        }
+
+        searchString = String(searchValue);
+        if (searchString === "") {
+            result = "";
+            for (index = 0; index <= string.length; index++) {
+                replacement = typeof replaceValue === "function" ?
+                    replaceValue.call(undefined, "", index, string) :
+                    emptySubstitution(replaceValue, index, string);
+                result += String(replacement);
+                if (index < string.length) {
+                    result += string.charAt(index);
+                }
+            }
+            return result;
+        }
+        if (typeof replaceValue === "function") {
+            result = "";
+            index = 0;
+            while ((matchIndex = string.indexOf(searchString, index)) !== -1) {
+                result += string.slice(index, matchIndex);
+                result += String(replaceValue.call(undefined, searchString, matchIndex, string));
+                index = matchIndex + searchString.length;
+            }
+            return result + string.slice(index);
+        }
+
+        escapedSearch = searchString.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        return string.replace(new RegExp(escapedSearch, "g"), replaceValue);
     };
 }

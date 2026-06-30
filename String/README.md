@@ -33,3 +33,11 @@ These are possible implementation of the JavaScript built-in String methods.
 - `insert()`	    :	Inserts the specified element at the specified index in the string.
 - `isEmpty()`		:	Checks if a string is empty.
 - `reverse()`		:	Reverses the order of the characters in the string
+
+## Dependencies
+
+`String.prototype.matchAll()` requires these Array polyfills to be included
+first:
+
+1. `Array/Lib/from.js`
+2. `Array/Lib/values.js`

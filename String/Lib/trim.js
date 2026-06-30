@@ -6,13 +6,25 @@
  * @param {string} chars - The characters to trim from the string
  * @return {string} The trimmed string
  */
-String.prototype.trim = function (chars) {
-    if (!chars) {
-        chars = '\\s';
-    } else {
-        // Create a character class for individual characters to trim
-        chars = '[' + chars.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ']';
-    }
-    var re = new RegExp('^' + chars + '+|' + chars + '+$', 'g');
-    return this.replace(re, '');
-};
+if (!String.prototype.trim) {
+    String.prototype.trim = function (chars) {
+        "use strict";
+
+        var string;
+        var re;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("String.prototype.trim called on null or undefined");
+        }
+
+        string = String(this);
+        if (!chars) {
+            chars = '\\s';
+        } else {
+            // Create a character class for individual characters to trim
+            chars = '[' + chars.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&') + ']';
+        }
+        re = new RegExp('^' + chars + '+|' + chars + '+$', 'g');
+        return string.replace(re, '');
+    };
+}

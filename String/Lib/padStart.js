@@ -7,17 +7,62 @@
  */
 if (!String.prototype.padStart) {
     String.prototype.padStart = function (targetLength, padString) {
-        padString = padString || ' ';
-        targetLength = Math.max(targetLength, this.length);  // Target length cannot be less than the string's current length
+        "use strict";
 
-        if (this.length === targetLength) {
-            return String(this);
+        function typeError(message) {
+            var error = new TypeError(message);
+
+            error.name = "TypeError";
+            return error;
         }
 
-        var repeatTimes = Math.ceil((targetLength - this.length) / padString.length);
+        function rangeError(message) {
+            var error = new RangeError(message);
 
-        // Build the padded string and return it
-        var paddedString = padString.repeat(repeatTimes).slice(0, targetLength - this.length) + this;
-        return paddedString;
+            error.name = "RangeError";
+            return error;
+        }
+
+        var string;
+        var length;
+        var number;
+        var filler;
+        var fillLength;
+        var padding = "";
+
+        if (this === null || this === undefined ||
+                (typeof $ !== "undefined" && $.global && this === $.global)) {
+            throw typeError("String.prototype.padStart called on null or undefined");
+        }
+
+        string = String(this);
+        number = Number(targetLength);
+        if (number !== number || number <= 0) {
+            length = 0;
+        } else if (number === Infinity) {
+            length = 9007199254740991;
+        } else {
+            length = Math.floor(number);
+            length = Math.min(length, 9007199254740991);
+        }
+
+        if (length <= string.length) {
+            return string;
+        }
+
+        filler = padString === undefined ? " " : String(padString);
+        if (filler === "") {
+            return string;
+        }
+
+        fillLength = length - string.length;
+        if (fillLength >= (1 << 28)) {
+            throw rangeError("padStart result exceeds maximum string size");
+        }
+        while (padding.length < fillLength) {
+            padding += filler.slice(0, fillLength - padding.length);
+        }
+
+        return padding + string;
     };
-};
+}

@@ -12,18 +12,36 @@
  */
 if (!String.prototype.at) {
     String.prototype.at = function (index) {
-        // Check if index is a number and not NaN
-        if (typeof index !== 'number' || isNaN(index)) {
-            throw new TypeError('Index must be a valid number');
+        "use strict";
+
+        function typeError(message) {
+            var error = new TypeError(message);
+
+            error.name = "TypeError";
+            return error;
         }
-        // Check range
-        if (index < -this.length || index >= this.length) {
+
+        if (this === null || this === undefined ||
+                (typeof $ !== "undefined" && $.global && this === $.global)) {
+            throw typeError("String.prototype.at called on null or undefined");
+        }
+
+        var string = String(this);
+        var length = string.length;
+
+        index = Number(index);
+        if (index !== index || index === 0) {
+            index = 0;
+        } else if (index !== Infinity && index !== -Infinity) {
+            index = index < 0 ? Math.ceil(index) : Math.floor(index);
+        }
+
+        if (index < -length || index >= length) {
             return undefined;
         }
 
-        // Adjust negative index
-        index = index < 0 ? this.length + index : index;
+        index = index < 0 ? length + index : index;
 
-        return this.charAt(index);
+        return string.charAt(index);
     };
 }

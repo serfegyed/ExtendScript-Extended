@@ -5,23 +5,34 @@
  */
 if (!String.prototype.isWellFormed) {
     String.prototype.isWellFormed = function () {
-        var str = this;
-        for (var i = 0; i < str.length; ++i) {
-            var isSurrogate = (str.charCodeAt(i) & 0xf800) === 0xd800;
-            if (!isSurrogate) {
-                continue;
-            }
-            var isLeadingSurrogate = str.charCodeAt(i) < 0xdc00;
-            if (!isLeadingSurrogate) {
-                return false; // unpaired trailing surrogate
-            }
-            var isFollowedByTrailingSurrogate =
-                i + 1 < str.length && (str.charCodeAt(i + 1) & 0xfc00) === 0xdc00;
-            if (!isFollowedByTrailingSurrogate) {
-                return false; // unpaired leading surrogate
-            }
-            ++i;
+        "use strict";
+
+        var string;
+        var i;
+        var code;
+        var next;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("String.prototype.isWellFormed called on null or undefined");
         }
+
+        string = String(this);
+        for (i = 0; i < string.length; i++) {
+            code = string.charCodeAt(i);
+            if (code >= 0xd800 && code <= 0xdbff) {
+                if (i + 1 >= string.length) {
+                    return false;
+                }
+                next = string.charCodeAt(i + 1);
+                if (next < 0xdc00 || next > 0xdfff) {
+                    return false;
+                }
+                i++;
+            } else if (code >= 0xdc00 && code <= 0xdfff) {
+                return false;
+            }
+        }
+
         return true;
     };
 }

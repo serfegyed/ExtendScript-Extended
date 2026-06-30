@@ -6,12 +6,24 @@
  * @param {string} chars - The characters to trim from the beginning of the string.
  * @return {string} The string with the specified characters trimmed from the beginning.
  */
-String.prototype.trimStart = function (chars) {
-    if (!chars) {
-        chars = '\\s';
-    } else {
-        chars = '[' + chars.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ']';
-    }
-    var re = new RegExp('^' + chars + '+', 'g');
-    return this.replace(re, '');
-};
+if (!String.prototype.trimStart) {
+    String.prototype.trimStart = function (chars) {
+        "use strict";
+
+        var string;
+        var re;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("String.prototype.trimStart called on null or undefined");
+        }
+
+        string = String(this);
+        if (!chars) {
+            chars = '\\s';
+        } else {
+            chars = '[' + chars.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&') + ']';
+        }
+        re = new RegExp('^' + chars + '+', 'g');
+        return string.replace(re, '');
+    };
+}

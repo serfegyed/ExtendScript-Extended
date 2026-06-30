@@ -8,27 +8,45 @@
  */
 if (!String.prototype.matchAll) {
     String.prototype.matchAll = function (regexp) {
-        if (!(regexp instanceof RegExp)) {
-            throw new TypeError("matchAll(): Argument must be a regular expression");
-        };
+        "use strict";
 
-        if (!regexp.global) {
-            throw new TypeError("matchAll(): Called with a non-global RegExp argument");
-        };
-
+        var string;
+        var matcher;
+        var flags;
         var match;
         var matches = [];
 
-        while ((match = regexp.exec(this)) !== null) {
+        if (this === null || this === undefined) {
+            throw new TypeError("String.prototype.matchAll called on null or undefined");
+        }
+
+        string = String(this);
+
+        if (regexp instanceof RegExp && !regexp.global) {
+            throw new TypeError("matchAll(): Called with a non-global RegExp argument");
+        }
+
+        if (regexp instanceof RegExp) {
+            flags = "g";
+            flags += regexp.ignoreCase ? "i" : "";
+            flags += regexp.multiline ? "m" : "";
+            matcher = new RegExp(regexp.source, flags);
+            matcher.lastIndex = regexp.lastIndex;
+        } else {
+            matcher = new RegExp(regexp, "g");
+        }
+
+        while ((match = matcher.exec(string)) !== null) {
             var matchArray = Array.from(match);
             matchArray.index = match.index;
             matchArray.input = match.input;
             matches.push(matchArray);
 
-            if (match.index === regexp.lastIndex) {
-                regexp.lastIndex++;
+            if (match.index === matcher.lastIndex) {
+                matcher.lastIndex++;
             }
         }
-        return matches.values(); // Using Array.prototype.values
+
+        return matches.values();
     };
 }

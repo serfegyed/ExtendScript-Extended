@@ -21,7 +21,7 @@
  */
 if (!String.prototype.contains) {
     String.prototype.contains = function (substring) {
-        return this.indexOf(substring) !== -1;
+        return String(this).indexOf(String(substring)) !== -1;
     };
 }
 
@@ -47,22 +47,34 @@ if (!String.prototype.contains) {
  */
 if (!String.prototype.format) {
     String.prototype.format = function () {
-        var str = this;
+        var string = String(this);
         var isNamed = typeof arguments[0] === "object" && arguments[0] !== null;
+        var values;
+        var marker;
+        var index;
+        var key;
+        var i;
 
         if (isNamed) {
-            var dict = arguments[0];
-            for (var key in dict) {
-                if (dict.hasOwnProperty(key)) {
-                    str = str.replace("{" + key + "}", dict[key], "g");
+            values = arguments[0];
+            for (key in values) {
+                if (Object.prototype.hasOwnProperty.call(values, key)) {
+                    marker = "{" + key + "}";
+                    string = string.split(marker).join(String(values[key]));
                 }
             }
         } else {
-            for (var i = 0; i < arguments.length; i++) {
-                str = str.replace('{}', arguments[i]);
+            for (i = 0; i < arguments.length; i++) {
+                index = string.indexOf("{}");
+                if (index === -1) {
+                    break;
+                }
+                string = string.slice(0, index) + String(arguments[i]) +
+                    string.slice(index + 2);
             }
         }
-        return str;
+
+        return string;
     };
 }
 
@@ -74,7 +86,11 @@ if (!String.prototype.format) {
  */
 if (!String.prototype.indexAfter) {
     String.prototype.indexAfter = function (substring) {
-        return (index = this.indexOf(substring)) === -1 ? index : index + substring.length;
+        var string = String(this);
+        var search = String(substring);
+        var index = string.indexOf(search);
+
+        return index === -1 ? -1 : index + search.length;
     };
 }
 
@@ -87,17 +103,17 @@ if (!String.prototype.indexAfter) {
  * @return {string} The modified string with the element inserted.
  */
 if (!String.prototype.insert) {
-    String.prototype.insert = function (elem, index) {
-        elem = String(elem);  // Convert elem to a string
-        if (index < 0 || index > this.length) {
+    String.prototype.insert = function (element, index) {
+        var string = String(this);
+        var insertion = String(element);
+        var position = Number(index);
+
+        if (!isFinite(position) || position < 0 || position > string.length) {
             throw new RangeError("String.insert: index out of range");
         }
 
-        if (elem === '') {
-            return this;
-        }
-
-        return this.slice(0, index) + elem + this.slice(index);
+        position = Math.floor(position);
+        return string.slice(0, position) + insertion + string.slice(position);
     };
 }
 
@@ -108,10 +124,12 @@ if (!String.prototype.insert) {
  * @return {boolean} Returns true if the string is empty, otherwise false.
  */
 if (!String.isEmpty) {
-    String.isEmpty = function (str) {
-        if (typeof str !== "string")
-            throw new TypeError(str + " is not a String");
-        return str.length === 0 ? true : false;
+    String.isEmpty = function (string) {
+        if (typeof string !== "string") {
+            throw new TypeError(string + " is not a String");
+        }
+
+        return string.length === 0;
     };
 }
 
@@ -122,6 +140,9 @@ if (!String.isEmpty) {
  */
 if (!String.prototype.reverse) {
     String.prototype.reverse = function () {
-        return this.split("").reverse().join("");
+        var string = String(this);
+        var characters = string.match(/[\ud800-\udbff][\udc00-\udfff]|[\s\S]/g);
+
+        return characters ? characters.reverse().join("") : "";
     };
 }
