@@ -1,173 +1,124 @@
 # JSON Polyfill for ExtendScript
 
-## Overview
+An ExtendScript-compatible implementation of:
 
-This JSON polyfill provides a way to serialize and deserialize data in ExtendScript, which doesn't natively support the JSON object found in modern JavaScript environments. The polyfill includes two main methods: `JSON.stringify` and `JSON.parse`, closely mimicking the functionality found in ECMAScript 5+. They designed to enable JSON serialization of JavaScript values, including objects, arrays, strings, numbers, and booleans, with support for custom replacer functions. 
+- `JSON.stringify(value, replacer, space)`
+- `JSON.parse(text, reviver)`
 
-## Features
+The parser is a strict recursive-descent parser. It does not use `eval`.
 
-- **JSON Serialization:** Converts JavaScript values to their JSON string representation.
-- **Custom Replacer Function:** Allows for filtering or transforming values and properties during serialization.
-- **Custom Reviver Function:** Allows for filtering or transforming values and properties during deserialization.
-- **Compatibility:** Designed to work in environments lacking native JSON support, specifically targeting Adobe ExtendScript environments.
+## Target
 
-## Usage
+The polyfill targets the ES5 JSON API over values available in ExtendScript and
+produces strict JSON text. The implementation deliberately uses ExtendScript-
+compatible syntax and does not require modern Array or Object methods.
 
-To use this polyfill in your project, include the JavaScript file in your ExtendScript project and call`JSON.stringify` and `JSON.parse` as you would in a standard JavaScript environment.
+If a host already provides either JSON method, that method is left unchanged.
 
-### JSON.stringify
+## Installation
 
 ```javascript
-var myObject = {
-  name: "John Doe",
-  age: 30,
-  isAdmin: true
-};
-
-var jsonString = JSON.stringify(myObject);
-console.log(jsonString);
-// Output: '{"name":"John Doe","age":30,"isAdmin":true}'
+//@include "JSON.js"
 ```
 
-#### Using the Replacer Function
+`JSON.js` is standalone. The Array and Object polyfills from
+ExtendScript-Extended may be loaded, but they are not required.
+
+## Stringification
 
 ```javascript
-// Filtering out properties
-const replacer1 = function (key, value) {
-
-    if (typeof value === "string") {
-        return undefined; // Skip string properties
-    }
-    return value;
+const value = {
+    name: "Ada",
+    active: true,
+    scores: [10, 20, 30]
 };
 
-var test14 = '{ "name": "John", "age": 30, "city": "New York" }';
-
-console.log(JSON.Stringify(test14, replacer1));
-// Output: '{"age":30}'
+const text = JSON.stringify(value);
+// {"name":"Ada","active":true,"scores":[10,20,30]}
 ```
 
-```javascript
-// Formatting Dates
-const replacer2 = function (key, value) {
-    if (value instanceof Date) {
-        // Format the date. Adjust the format as needed.
-        var year = value.getFullYear();
-        var month = value.getMonth() + 1; // getMonth() is zero-based
-        var day = value.getDate();
+Supported behavior includes:
 
-        // Ensure month and day are two digits
-        month = month < 10 ? '0' + month : month;
-        day = day < 10 ? '0' + day : day;
+- Correct escaping of quotation marks, backslashes, control characters, and
+  lone UTF-16 surrogate code units.
+- `NaN`, `Infinity`, and `-Infinity` are serialized as `null`.
+- Unsupported object properties are omitted; unsupported array elements and
+  holes are serialized as `null`.
+- Circular structures throw a `TypeError`.
+- Boxed String, Number, and Boolean values are unwrapped.
+- Replacer functions, replacer property lists, and indentation are supported.
 
-        return year + '. ' + month + '. ' + day + '.';
-    }
-    return value; // Return unmodified value for non-Date types
-};
-var data = {
-    name: "John Doe",
-    birthdate: new Date(1990, 0, 1), // January 1, 1990
-    enrollmentDate: new Date(2020, 8, 15) // September 15, 2020
-};
+### `toJSON()`
 
-var jsonString = JSON.stringify(data, replacer2);
-console.log(jsonString);
-// Output: '{"name":"John Doe","birthdate":"1990. 01. 01.","enrollmentDate":"2020. 09. 15."}'
-```
+Before applying the replacer, `JSON.stringify` calls an object's inherited or
+own `toJSON(key)` method when present.
 
 ```javascript
-// Filtering properties with null values
-function replacer3(key, value) {
-    if (value === null) {
-        return undefined;
-    }
-    return value;
-}
-var myData = {
-    name: "Alice",
-    email: "alice@example.com",
-    profileComplete: null,
-    interests: ["reading", "hiking", "coding"]
-};
-
-var jsonString = JSON.stringify(myData, replacer3);
-console.log(jsonString);
-// Output: '{"name":"Alice","email":"alice@example.com","interests":["reading","hiking","coding"]}'
-```
-
-### JSON.parse()
-To parse a JSON string and convert it back into a JavaScript value, use JSON.parse(jsonString). 
-
-```javascript
-var jsonString = '{"unicode": "\\u00A9"}';
-var myObject = JSON.parse(jsonString);
-console.log(myObject);
-// Output: {unicode: "©"}
-```
-#### Using the Custom Reviver Function
-
-```javascript
-// Handling NaN, Infinity, -Infinity and undefined
-function customReplacer(key, value) {
-    if (typeof value === 'number') {
-        if (isNaN(value)) {
-            return 'NaN';
-        } else if (value === Infinity) {
-            return 'Infinity';
-        } else if (value === -Infinity) {
-            return '-Infinity';
+const value = {
+    created: {
+        year: 2026,
+        month: 6,
+        day: 30,
+        toJSON: function (key) {
+            return this.year + "-06-30";
         }
     }
-    if (typeof value === 'undefined') {
-        return 'undefined';
-    }
-    return value;
-}
-
-function customReviver(key, value) {
-    if (value === 'NaN') {
-        return NaN;
-    } else if (value === 'Infinity') {
-        return Infinity;
-    } else if (value === '-Infinity') {
-        return -Infinity;
-    } else if (value === 'undefined') {
-        return undefined;
-    }
-    return value;
-}
-var data = {
-    regularNumber: 42,
-    bigNumber: Infinity,
-    smallNumber: -Infinity,
-    notANumber: NaN,
-    missingValue: undefined,
 };
 
-// Serialize with custom replacer
-var serialized = JSON.stringify(data, customReplacer);
-console.log(serialized); 
-// '{"regularNumber":42,"bigNumber":"Infinity","smallNumber":"-Infinity","notANumber":"NaN","missingValue":"undefined"}'
-
-// Deserialize with custom reviver
-var parsed = JSON.parse(serialized, customReviver);
-console.log(parsed); 
-// {regularNumber: 42, bigNumber: Infinity, smallNumber: -Infinity, notANumber: NaN, missingValue: undefined}
+JSON.stringify(value);
+// {"created":"2026-06-30"}
 ```
 
-## Implementation Notes
-- The polyfill is designed to be as compatible as possible with ECMAScript 3 standards, making it suitable for use in ExtendScript environments.
-- Special characters in strings are correctly escaped during stringification, and Unicode characters can be properly serialized and deserialized.
-- The parser does not evaluate the JSON string using eval, providing a safer alternative to executing dynamic code.
+The polyfill does not add `Date.prototype.toJSON`. Dates and other custom
+objects use their existing `toJSON()` implementations when available.
 
-## Limitations
+## Parsing
 
-- This polyfill focuses on providing basic JSON serialization capabilities and not fully replicate all features of the native JSON.stringify method found in modern JavaScript environments. 
-- Specifically, it may not handle all edge cases or advanced features such as custom toJSON methods, space argument for pretty-printing, etc.
-- The polyfill does not support undefined, Function, Symbol, Map, Set, WeakMap, WeakSet, or any non-JSON data types. Attempting to serialize these types will result in them being omitted or replaced with null.
-- Circular references in the object to be serialized will cause an error, as JSON does not support them.
-- The performance of this polyfill may be slower than native JSON support in environments that provide it. However, it offers a viable solution for environments without JSON support.
+```javascript
+const value = JSON.parse('{"name":"Ada","scores":[10,20,30]}');
+```
 
-## License
+The parser accepts only JSON whitespace, strings, numbers, booleans, `null`,
+arrays, and objects. It rejects extensions such as comments, single-quoted
+strings, trailing commas, leading-zero numbers, invalid escapes, and trailing
+input.
 
-This project is open-sourced under the MIT License. See the LICENSE file for more details.
+The optional reviver walks child values before their parents. Returning
+`undefined` deletes the corresponding property or array element.
+
+## Known host limitations
+
+- Object property output order follows the enumeration order of the active
+  ExtendScript host and should not be treated as a stable sorting guarantee.
+- Adobe application host objects are outside the guaranteed data model. Plain
+  JavaScript objects and arrays are the intended input.
+- An object containing an own `__proto__` key receives a null prototype on old
+  ExtendScript hosts that cannot define a shadowing data property. This keeps
+  the parsed key as data and prevents prototype injection.
+- Recursion depth is limited by the host JavaScript stack.
+- Modern APIs such as `JSON.rawJSON`, BigInt handling, and reviver context
+  objects are intentionally outside the ExtendScript target.
+
+## Tests
+
+`JSON-test.js` runs in both environments:
+
+- Node.js saves the native JSON implementation as the behavior reference,
+  disables it, loads the polyfill, and checks both results.
+- ExtendScript loads `Console/console.js` and `JSON.js` through include
+  directives and executes the same fixed expectations.
+
+Node.js:
+
+```text
+node JSON-test.js
+```
+
+`JSON-integration-test.js` loads the active Date and Temporal polyfills from
+`../Temporal/Lib` and verifies that `JSON.stringify` uses the real `toJSON()`
+methods of Date, Duration, Instant, PlainDateTime, PlainDate, PlainTime,
+PlainYearMonth, and PlainMonthDay objects.
+
+```text
+node JSON-integration-test.js
+```

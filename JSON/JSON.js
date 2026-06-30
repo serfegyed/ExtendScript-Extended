@@ -1,301 +1,612 @@
-/*****************************************************************************************************************
- *   @name JSON
- *   @desc  These implementations are simplified and do not include all of the features
- *		    and options of the ECMAScript 5 `JSON` object.
- *          It supports all the standard JSON data types including numbers, booleans, null, strings, arrays, and objects.
- *   @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON
- ****************************************************************************************************************/
-if (!JSON) {
-    const JSON = Object;
+/**
+ * ExtendScript-compatible JSON polyfill.
+ *
+ * Implements the ES5 JSON.parse(text, reviver) and
+ * JSON.stringify(value, replacer, space) surface without eval.
+ * The implementation uses only language features available in ExtendScript.
+ * ESTK treats const declarations as function-scoped, so variables declared
+ * repeatedly by loops intentionally use var.
+ */
+if (typeof JSON === "undefined") {
+    JSON = {};
+}
 
-    /**
-     * Converts a JavaScript value to a JSON string representation.
-     *
-     * @param {any} value - The value to be converted to a JSON string.
-     * @return {string} The JSON string representation of the input value.
-     */
-    JSON.stringify = function (value) {
-        if (value === null) {
-            return "null";
-        }
+(function () {
+    const objectToString = Object.prototype.toString;
+    const hasOwnProperty = Object.prototype.hasOwnProperty;
 
-        if (typeof value === 'number' || typeof value === 'boolean') {
-            return value.toString();
-        }
-
-        if (typeof value === 'string') {
-            return '"' + value.replace(/"/g, '\\"') + '"';
-        }
-
-        // If the value is an array, recursively call stringify on each element
-        if (Array.isArray(value)) {
-            const arrayContents = value.map(function (element) { return JSON.stringify(element) }).join(',');
-            return '[' + arrayContents + ']';
-        }
-
-        // If the value is a plain object, recursively call stringify on each value, 
-        // ignore non-serializable values
-        if (typeof value === 'object') {
-            const keys = Object.keys(value);
-            const keyValuePairStrings = keys.map(function (key) {
-                const valString = JSON.stringify(value[key]);
-                if (valString === undefined || typeof value[key] === 'function') {
-                    // Skip undefined and functions since they are not valid JSON
-                    return '';
-                }
-                return '"' + key + '":' + valString;
-            }).filter(Boolean); // Remove any undefined values resulting from non-serializable values
-            return '{' + keyValuePairStrings.join(',') + '}';
-        }
-
-        // For all other types that are not serializable to JSON, such as undefined or functions,
-        // return undefined (which will be filtered out in the object case)
-        return undefined;
+    function createTypeError(message) {
+        const error = (typeof TypeError === "function") ? new TypeError(message) : new Error(message);
+        error.name = "TypeError";
+        return error;
     }
 
-    /**
-     * Converts a JSON string to a JavaScript value.
-     *
-     * @param {string} jsonString - The JSON string to be converted to a JavaScript value.
-     * @return {any} The JavaScript value represented by the input JSON string.
-     */
-    JSON.parse = function (jsonString, reviver) {
+    function createSyntaxError(message) {
+        const error = (typeof SyntaxError === "function") ? new SyntaxError(message) : new Error(message);
+        error.name = "SyntaxError";
+        return error;
+    }
+
+    function isArray(value) {
+        if (typeof Array.isArray === "function") {
+            return Array.isArray(value);
+        }
+        return objectToString.call(value) === "[object Array]";
+    }
+
+    function indexOfIdentity(array, value) {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i] === value) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    function fourHexDigits(code) {
+        const hex = code.toString(16);
+        return "0000".substring(hex.length) + hex;
+    }
+
+    function quoteString(value) {
+        var result = "\"";
+
+        for (var i = 0; i < value.length; i++) {
+            var code = value.charCodeAt(i);
+
+            if (code === 34) {
+                result += "\\\"";
+            } else if (code === 92) {
+                result += "\\\\";
+            } else if (code === 8) {
+                result += "\\b";
+            } else if (code === 9) {
+                result += "\\t";
+            } else if (code === 10) {
+                result += "\\n";
+            } else if (code === 12) {
+                result += "\\f";
+            } else if (code === 13) {
+                result += "\\r";
+            } else if (code < 32) {
+                result += "\\u" + fourHexDigits(code);
+            } else if (code >= 0xD800 && code <= 0xDBFF) {
+                var nextCode = (i + 1 < value.length) ? value.charCodeAt(i + 1) : -1;
+                if (nextCode >= 0xDC00 && nextCode <= 0xDFFF) {
+                    result += value.charAt(i) + value.charAt(i + 1);
+                    i++;
+                } else {
+                    result += "\\u" + fourHexDigits(code);
+                }
+            } else if (code >= 0xDC00 && code <= 0xDFFF) {
+                result += "\\u" + fourHexDigits(code);
+            } else {
+                result += value.charAt(i);
+            }
+        }
+
+        return result + "\"";
+    }
+
+    function makePropertyList(replacer) {
+        if (!isArray(replacer)) {
+            return null;
+        }
+
+        const propertyList = [];
+
+        for (var i = 0; i < replacer.length; i++) {
+            var item = replacer[i];
+            var itemTag = item !== null && typeof item === "object"
+                ? objectToString.call(item)
+                : "";
+            var propertyName;
+
+            if (typeof item === "string" || typeof item === "number") {
+                propertyName = String(item);
+            } else if (itemTag === "[object String]" || itemTag === "[object Number]") {
+                propertyName = String(item.valueOf());
+            }
+
+            if (typeof propertyName !== "undefined" && indexOfIdentity(propertyList, propertyName) === -1) {
+                propertyList.push(propertyName);
+            }
+        }
+
+        return propertyList;
+    }
+
+    function makeGap(space) {
+        const tag = space !== null && typeof space === "object"
+            ? objectToString.call(space)
+            : "";
+
+        if (tag === "[object Number]") {
+            space = Number(space.valueOf());
+        } else if (tag === "[object String]") {
+            space = String(space.valueOf());
+        }
+
+        if (typeof space === "number") {
+            var count = isNaN(space) || space <= 0 ? 0 : Math.min(10, Math.floor(space));
+            var gap = "";
+            while (count > 0) {
+                gap += " ";
+                count--;
+            }
+            return gap;
+        }
+
+        if (typeof space === "string") {
+            return space.substring(0, 10);
+        }
+
+        return "";
+    }
+
+    function stringify(value, replacer, space) {
+        const replacerFunction = typeof replacer === "function" ? replacer : null;
+        const propertyList = makePropertyList(replacer);
+        const gap = makeGap(space);
+        const stack = [];
+        var indent = "";
+
+        function serializeProperty(holder, key) {
+            var current = holder[key];
+
+            if (current !== null &&
+                (typeof current === "object" || typeof current === "function") &&
+                typeof current.toJSON === "function") {
+                current = current.toJSON(key);
+            }
+
+            if (replacerFunction !== null) {
+                current = replacerFunction.call(holder, key, current);
+            }
+
+            if (current !== null && typeof current === "object") {
+                const currentTag = objectToString.call(current);
+                if (currentTag === "[object Number]") {
+                    current = Number(current.valueOf());
+                } else if (currentTag === "[object String]") {
+                    current = String(current.valueOf());
+                } else if (currentTag === "[object Boolean]") {
+                    current = Boolean(current.valueOf());
+                }
+            }
+
+            if (current === null) {
+                return "null";
+            }
+
+            if (typeof current === "string") {
+                return quoteString(current);
+            }
+
+            if (typeof current === "number") {
+                return isFinite(current) ? String(current) : "null";
+            }
+
+            if (typeof current === "boolean") {
+                return current ? "true" : "false";
+            }
+
+            if (typeof current !== "object") {
+                return undefined;
+            }
+
+            if (indexOfIdentity(stack, current) !== -1) {
+                throw createTypeError("Converting circular structure to JSON");
+            }
+
+            stack.push(current);
+            const previousIndent = indent;
+            indent += gap;
+
+            var result;
+            if (isArray(current)) {
+                result = serializeArray(current, previousIndent);
+            } else {
+                result = serializeObject(current, previousIndent);
+            }
+
+            stack.pop();
+            indent = previousIndent;
+            return result;
+        }
+
+        function serializeArray(array, previousIndent) {
+            const partial = [];
+
+            for (var i = 0; i < array.length; i++) {
+                var item = serializeProperty(array, String(i));
+                partial.push(typeof item === "undefined" ? "null" : item);
+            }
+
+            if (partial.length === 0) {
+                return "[]";
+            }
+
+            if (gap === "") {
+                return "[" + partial.join(",") + "]";
+            }
+
+            return "[\n" + indent + partial.join(",\n" + indent) + "\n" + previousIndent + "]";
+        }
+
+        function serializeObject(object, previousIndent) {
+            const partial = [];
+
+            function appendProperty(key) {
+                const propertyValue = serializeProperty(object, key);
+                if (typeof propertyValue !== "undefined") {
+                    partial.push(quoteString(key) + (gap === "" ? ":" : ": ") + propertyValue);
+                }
+            }
+
+            if (propertyList !== null) {
+                for (var i = 0; i < propertyList.length; i++) {
+                    appendProperty(propertyList[i]);
+                }
+            } else {
+                for (var key in object) {
+                    if (hasOwnProperty.call(object, key)) {
+                        appendProperty(key);
+                    }
+                }
+            }
+
+            if (partial.length === 0) {
+                return "{}";
+            }
+
+            if (gap === "") {
+                return "{" + partial.join(",") + "}";
+            }
+
+            return "{\n" + indent + partial.join(",\n" + indent) + "\n" + previousIndent + "}";
+        }
+
+        return serializeProperty({"": value}, "");
+    }
+
+    function parse(text, reviver) {
+        const source = String(text);
+        const length = source.length;
         var index = 0;
 
-        // Skip spaces
-        var skipSpaces = function () {
-            while (
-                index < jsonString.length &&
-                /\s/.test(jsonString.charAt(index))
-            ) {
+        function fail(message) {
+            throw createSyntaxError(message + " at position " + index);
+        }
+
+        function isDigit(character) {
+            return character >= "0" && character <= "9";
+        }
+
+        function isHexDigit(character) {
+            return (character >= "0" && character <= "9") ||
+                (character >= "a" && character <= "f") ||
+                (character >= "A" && character <= "F");
+        }
+
+        function skipWhitespace() {
+            while (index < length) {
+                var code = source.charCodeAt(index);
+                if (code === 0x20 || code === 0x09 || code === 0x0A || code === 0x0D) {
+                    index++;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        function parseString() {
+            var result = "";
+            index++;
+
+            while (index < length) {
+                var character = source.charAt(index);
+                var code = source.charCodeAt(index);
+
+                if (character === "\"") {
+                    index++;
+                    return result;
+                }
+
+                if (character === "\\") {
+                    index++;
+                    if (index >= length) {
+                        fail("Unterminated escape sequence");
+                    }
+
+                    var escape = source.charAt(index);
+                    index++;
+
+                    if (escape === "\"" || escape === "\\" || escape === "/") {
+                        result += escape;
+                    } else if (escape === "b") {
+                        result += "\b";
+                    } else if (escape === "f") {
+                        result += "\f";
+                    } else if (escape === "n") {
+                        result += "\n";
+                    } else if (escape === "r") {
+                        result += "\r";
+                    } else if (escape === "t") {
+                        result += "\t";
+                    } else if (escape === "u") {
+                        if (index + 4 > length) {
+                            fail("Invalid Unicode escape sequence");
+                        }
+
+                        var hex = "";
+                        for (var h = 0; h < 4; h++) {
+                            var hexCharacter = source.charAt(index + h);
+                            if (!isHexDigit(hexCharacter)) {
+                                fail("Invalid Unicode escape sequence");
+                            }
+                            hex += hexCharacter;
+                        }
+
+                        result += String.fromCharCode(parseInt(hex, 16));
+                        index += 4;
+                    } else {
+                        fail("Invalid escape sequence");
+                    }
+                } else {
+                    if (code < 0x20) {
+                        fail("Unescaped control character in string");
+                    }
+                    result += character;
+                    index++;
+                }
+            }
+
+            fail("Unterminated string");
+        }
+
+        function parseNumber() {
+            const start = index;
+
+            if (source.charAt(index) === "-") {
                 index++;
             }
-        };
 
-        // Parse a JSON value recursively
-        var parseValue = function () {
-            skipSpaces();
+            if (source.charAt(index) === "0") {
+                index++;
+                if (isDigit(source.charAt(index))) {
+                    fail("Leading zero in number");
+                }
+            } else {
+                if (source.charAt(index) < "1" || source.charAt(index) > "9") {
+                    fail("Invalid number");
+                }
+                while (isDigit(source.charAt(index))) {
+                    index++;
+                }
+            }
 
-            var ch = jsonString.charAt(index);
-            var value;
+            if (source.charAt(index) === ".") {
+                index++;
+                if (!isDigit(source.charAt(index))) {
+                    fail("Missing digits after decimal point");
+                }
+                while (isDigit(source.charAt(index))) {
+                    index++;
+                }
+            }
 
-            // Handle strings
-            if (ch === '"') {
+            if (source.charAt(index) === "e" || source.charAt(index) === "E") {
+                index++;
+                if (source.charAt(index) === "+" || source.charAt(index) === "-") {
+                    index++;
+                }
+                if (!isDigit(source.charAt(index))) {
+                    fail("Missing exponent digits");
+                }
+                while (isDigit(source.charAt(index))) {
+                    index++;
+                }
+            }
+
+            return Number(source.substring(start, index));
+        }
+
+        function parseLiteral(literal, value) {
+            if (source.substring(index, index + literal.length) !== literal) {
+                fail("Unexpected token");
+            }
+            index += literal.length;
+            return value;
+        }
+
+        function parseArray() {
+            const result = [];
+            index++;
+            skipWhitespace();
+
+            if (source.charAt(index) === "]") {
+                index++;
+                return result;
+            }
+
+            while (true) {
+                result.push(parseValue());
+                skipWhitespace();
+
+                if (source.charAt(index) === "]") {
+                    index++;
+                    return result;
+                }
+
+                if (source.charAt(index) !== ",") {
+                    fail("Expected ',' or ']'");
+                }
+
+                index++;
+                skipWhitespace();
+                if (source.charAt(index) === "]") {
+                    fail("Trailing comma in array");
+                }
+            }
+        }
+
+        function defineParsedProperty(object, key, value) {
+            if (key === "__proto__" && typeof Object.defineProperty === "function") {
+                try {
+                    Object.defineProperty(object, key, {
+                        value: value,
+                        writable: true,
+                        enumerable: true,
+                        configurable: true
+                    });
+                    if (hasOwnProperty.call(object, key)) {
+                        return;
+                    }
+                } catch (ignore) {
+                }
+            }
+
+            if (key === "__proto__") {
+                try {
+                    /*
+                     * Old ExtendScript engines expose __proto__ as an inherited
+                     * mutator and cannot define a shadowing data property. A
+                     * null prototype removes that mutator, after which the key
+                     * can safely be stored as an own enumerable property.
+                     */
+                    object.__proto__ = null;
+                    object[key] = value;
+                    if (hasOwnProperty.call(object, key)) {
+                        return;
+                    }
+                } catch (ignoreFallback) {
+                }
+                return;
+            }
+
+            object[key] = value;
+        }
+
+        function parseObject() {
+            const result = {};
+            index++;
+            skipWhitespace();
+
+            if (source.charAt(index) === "}") {
+                index++;
+                return result;
+            }
+
+            while (true) {
+                if (source.charAt(index) !== "\"") {
+                    fail("Expected a string property name");
+                }
+
+                var key = parseString();
+                skipWhitespace();
+                if (source.charAt(index) !== ":") {
+                    fail("Expected ':' after property name");
+                }
+
+                index++;
+                defineParsedProperty(result, key, parseValue());
+                skipWhitespace();
+
+                if (source.charAt(index) === "}") {
+                    index++;
+                    return result;
+                }
+
+                if (source.charAt(index) !== ",") {
+                    fail("Expected ',' or '}'");
+                }
+
+                index++;
+                skipWhitespace();
+                if (source.charAt(index) === "}") {
+                    fail("Trailing comma in object");
+                }
+            }
+        }
+
+        function parseValue() {
+            skipWhitespace();
+            const character = source.charAt(index);
+
+            if (character === "\"") {
                 return parseString();
             }
-
-            // Handle numbers and booleans
-            if (ch === "-" || (ch >= "0" && ch <= "9")) {
-                return parseNumber();
-            }
-            if (jsonString.substring(index, index + 4) === "true") {
-                index += 4;
-                return true;
-            }
-            if (jsonString.substring(index, index + 5) === "false") {
-                index += 5;
-                return false;
-            }
-
-            // Handle null
-            if (jsonString.substring(index, index + 4) === "null") {
-                index += 4;
-                return null;
-            }
-
-            // Handle arrays
-            if (ch === "[") {
+            if (character === "[") {
                 return parseArray();
             }
-
-            // Handle objects
-            if (ch === "{") {
+            if (character === "{") {
                 return parseObject();
             }
+            if (character === "t") {
+                return parseLiteral("true", true);
+            }
+            if (character === "f") {
+                return parseLiteral("false", false);
+            }
+            if (character === "n") {
+                return parseLiteral("null", null);
+            }
+            if (character === "-" || isDigit(character)) {
+                return parseNumber();
+            }
 
-            // Handle invalid JSON
-            throw new SyntaxError("Unexpected token " + ch);
-        };
+            fail("Unexpected token");
+        }
 
-        // Parse a JSON string recursively
-        var parseString = function () {
-            var quote = jsonString.charAt(index);
-            var value = "";
-            index++;
-            while (jsonString.charAt(index) !== quote) {
-                if (jsonString.charAt(index) === "\\") {
-                    index++;
-                    value += parseEscape();
-                } else {
-                    value += jsonString.charAt(index);
-                    index++;
-                }
-            }
-            index++;
-            return value;
-        };
-
-        // Parse a JSON number
-        var parseNumber = function () {
-            var start = index;
-            var ch = jsonString.charAt(index);
-            while (
-                (ch >= "0" && ch <= "9") ||
-                ch === "-" ||
-                ch === "+" ||
-                ch === "." ||
-                ch === "e" ||
-                ch === "E"
-            ) {
-                index++;
-                ch = jsonString.charAt(index);
-            }
-            var numString = jsonString.substring(start, index);
-            var num = parseFloat(numString);
-            if (isNaN(num)) {
-                throw new SyntaxError("Invalid number " + numString);
-            }
-            return num;
-        };
-
-        // Parse a JSON escape sequence
-        var parseEscape = function () {
-            var ch = jsonString.charAt(index);
-            switch (ch) {
-                case '"':
-                case "\\":
-                case "/":
-                    index++;
-                    return ch;
-                case "b":
-                    index++;
-                    return "\b";
-                case "f":
-                    index++;
-                    return "\f";
-                case "n":
-                    index++;
-                    return "\n";
-                case "r":
-                    index++;
-                    return "\r";
-                case "t":
-                    index++;
-                    return "\t";
-                case "u":
-                    index++;
-                    var hex = jsonString.substring(index, index + 4);
-                    var code = parseInt(hex, 16);
-                    if (isNaN(code)) {
-                        throw new SyntaxError(
-                            "Invalid unicode escape sequence " + hex
-                        );
-                    }
-                    index += 4;
-                    return String.fromCharCode(code);
-                default:
-                    throw new SyntaxError("Unexpected escape sequence \\" + ch);
-            }
-        };
-
-        // Parse a JSON array recursively
-        var parseArray = function () {
-            var arr = [];
-            index++; // Move past the opening '['
-            skipSpaces();
-            if (jsonString.charAt(index) === "]") { // Check for empty array
-                index++;
-                return arr;
-            }
-            while (true) {
-                var value = parseValue();
-                arr.push(value);
-                skipSpaces();
-                if (jsonString.charAt(index) === ",") {
-                    index++;
-                    skipSpaces();
-                    if (jsonString.charAt(index) === "]") { // Handle trailing comma
-                        throw new SyntaxError("Unexpected end of array");
-                    }
-                } else if (jsonString.charAt(index) === "]") {
-                    index++; // Move past the closing ']'
-                    break;
-                } else {
-                    throw new SyntaxError("Expected ',' or ']' in array");
-                }
-            }
-            return arr;
-        };
-
-        // Parse a JSON object recursively
-        var parseObject = function () {
-            var obj = {};
-            index++; // Move past the opening '{'
-            skipSpaces();
-            if (jsonString.charAt(index) === "}") { // Check for empty object
-                index++;
-                return obj;
-            }
-            while (true) {
-                if (jsonString.charAt(index) !== '"') {
-                    throw new SyntaxError("Expected string key");
-                }
-                var key = parseString();
-                skipSpaces();
-                if (jsonString.charAt(index) !== ":") {
-                    throw new SyntaxError("Expected ':' after key");
-                }
-                index++; // Move past the colon
-                var value = parseValue();
-                obj[key] = value;
-                skipSpaces();
-                if (jsonString.charAt(index) === ",") {
-                    index++;
-                    skipSpaces();
-                    if (jsonString.charAt(index) === "}") { // Handle trailing comma
-                        throw new SyntaxError("Unexpected end of object");
-                    }
-                } else if (jsonString.charAt(index) === "}") {
-                    index++; // Move past the closing '}'
-                    break;
-                } else {
-                    throw new SyntaxError("Expected ',' or '}' in object");
-                }
-            }
-            return obj;
-        };
-
-        // Function to walk and revive parsed object or array
-        function revive(holder, key) {
+        function walk(holder, key) {
             var value = holder[key];
-            if (value && typeof value === 'object') {
-                for (var k in value) {
-                    if (Object.hasOwnProperty.call(value, k)) {
-                        value[k] = revive(value, k);
+
+            if (value !== null && typeof value === "object") {
+                if (isArray(value)) {
+                    for (var i = 0; i < value.length; i++) {
+                        var arrayResult = walk(value, String(i));
+                        if (typeof arrayResult === "undefined") {
+                            delete value[i];
+                        } else {
+                            value[i] = arrayResult;
+                        }
+                    }
+                } else {
+                    for (var property in value) {
+                        if (hasOwnProperty.call(value, property)) {
+                            var objectResult = walk(value, property);
+                            if (typeof objectResult === "undefined") {
+                                delete value[property];
+                            } else {
+                                value[property] = objectResult;
+                            }
+                        }
                     }
                 }
             }
+
             return reviver.call(holder, key, value);
         }
 
-        // Start parsing the JSON string
-        var result = parseValue();
-
-        // Apply reviver function if provided
-        if (typeof reviver === 'function') {
-            result = revive({ '': result }, '');
+        const result = parseValue();
+        skipWhitespace();
+        if (index !== length) {
+            fail("Unexpected trailing character");
         }
 
-        // Make sure there are no trailing characters
-        while (index < jsonString.length) {
-            var ch = jsonString.charAt(index);
-            if (/\s/.test(ch)) {
-                index++;
-            } else {
-                throw new SyntaxError("Unexpected token " + ch);
-            }
+        if (typeof reviver === "function") {
+            return walk({"": result}, "");
         }
 
         return result;
-    };
-};
+    }
+
+    if (typeof JSON.stringify !== "function") {
+        JSON.stringify = stringify;
+    }
+
+    if (typeof JSON.parse !== "function") {
+        JSON.parse = parse;
+    }
+}());
