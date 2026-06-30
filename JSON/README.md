@@ -9,9 +9,7 @@ The parser is a strict recursive-descent parser. It does not use `eval`.
 
 ## Target
 
-The polyfill targets the ES5 JSON API over values available in ExtendScript and
-produces strict JSON text. The implementation deliberately uses ExtendScript-
-compatible syntax and does not require modern Array or Object methods.
+The polyfill targets the ES5 JSON API produces strict JSON text. The implementation deliberately uses ExtendScript-compatible syntax and does not require modern Array or Object methods.
 
 If a host already provides either JSON method, that method is left unchanged.
 
@@ -21,8 +19,7 @@ If a host already provides either JSON method, that method is left unchanged.
 //@include "JSON.js"
 ```
 
-`JSON.js` is standalone. The Array and Object polyfills from
-ExtendScript-Extended may be loaded, but they are not required.
+`JSON.js` is standalone. 
 
 ## Stringification
 
