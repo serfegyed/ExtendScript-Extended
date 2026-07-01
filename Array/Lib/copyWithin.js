@@ -1,47 +1,53 @@
 /**
- * Copies a sequence of array elements within the array to the position starting
- * at the specified target index. The copy is taken from the index positions
- * between the start and end arguments. The end parameter is optional and, if
- * omitted, the copy is made to the end of the array. Returns the modified array.
- *
- * @param {number} target - Target index position to which to copy the elements.
- * @param {number} start - The index position from which to start copying elements.
- * @param {number} [end] - The index position up to which to copy elements.
- * @return {Array} The modified array.
- * !dependency Math.trunc
+ * Copies indexed properties within an Array or array-like object.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.copyWithin) {
-    #include "../Math/Lib/Math.trunc.js"
     Array.prototype.copyWithin = function (target, start, end) {
-        var len = this.length;
-        var to = Math.trunc(target);
-        var from = Math.trunc(start);
-        var last = end === undefined ? len : Math.trunc(end);
+        "use strict";
 
-        // Normalize indices
-        to = to < 0 ? Math.max(len + to, 0) : Math.min(to, len);
-        from = from < 0 ? Math.max(len + from, 0) : Math.min(from, len);
-        last = last < 0 ? Math.max(len + last, 0) : Math.min(last, len);
+        var object;
+        var length;
+        var to;
+        var from;
+        var finalIndex;
+        var count;
+        var direction = 1;
 
-        var count = Math.min(last - from, len - to);
-        var direction = from < to && to < from + count ? -1 : 1;
+        if (this === null || this === undefined) {
+            throw new TypeError(
+                "Array.prototype.copyWithin called on null or undefined."
+            );
+        }
 
-        if (direction === -1) {
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        to = __arrayToInteger__(target);
+        from = __arrayToInteger__(start);
+        finalIndex = end === undefined ? length : __arrayToInteger__(end);
+
+        to = to < 0 ? Math.max(length + to, 0) : Math.min(to, length);
+        from = from < 0 ? Math.max(length + from, 0) : Math.min(from, length);
+        finalIndex = finalIndex < 0 ?
+            Math.max(length + finalIndex, 0) : Math.min(finalIndex, length);
+        count = Math.min(finalIndex - from, length - to);
+
+        if (from < to && to < from + count) {
+            direction = -1;
             from += count - 1;
             to += count - 1;
         }
 
         while (count > 0) {
-            if (from in this) {
-                this[to] = this[from];
+            if (from in object) {
+                object[to] = object[from];
             } else {
-                delete this[to];
+                delete object[to];
             }
             from += direction;
             to += direction;
             count--;
         }
-
-        return this;
+        return object;
     };
 }

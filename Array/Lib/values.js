@@ -1,29 +1,26 @@
 /**
- * Returns an iterator object that contains the values of the array.
- *
- * @return {object} An iterator object with a `next` method that returns the next value in the array.
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/values
+ * Returns a live iterator over every indexed value below length.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.values) {
     Array.prototype.values = function () {
-        var index = 0;
-        var length = this.length;
-        var arr = this;
+        "use strict";
 
-        var iterator = {
+        var object;
+        var index = 0;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.values called on null or undefined.");
+        }
+        object = Object(this);
+
+        return {
             next: function () {
-                if (index >= length)
-                    return {
-                        done: true,
-                        value: undefined,
-                    };
-                else
-                    return {
-                        done: false,
-                        value: arr[index++],
-                    };
-            },
+                if (index >= __arrayToLength__(object.length)) {
+                    return {done: true, value: undefined};
+                }
+                return {done: false, value: object[index++]};
+            }
         };
-        return iterator;
     };
-};
+}

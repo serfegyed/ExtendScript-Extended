@@ -1,10 +1,20 @@
 /**
- * Adds a new method to the Array prototype that returns a random element from the array.
- *
- * @return {*} The randomly selected element from the array.
+ * Returns the value at a uniformly selected index.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.random) {
-  Array.prototype.random = function () {
-    return this[Math.floor(Math.random() * this.length)];
-  };
-};
+    Array.prototype.random = function () {
+        "use strict";
+
+        var object;
+        var length;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.random called on null or undefined.");
+        }
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        if (length === 0) return undefined;
+        return object[Math.floor(Math.random() * length)];
+    };
+}

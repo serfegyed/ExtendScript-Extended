@@ -1,11 +1,15 @@
 /**
- * Checks if the given argument is an array.
- *
- * @param {any} arg - The argument to be checked.
- * @return {boolean} Returns true if the argument is an array, false otherwise.
+ * Tests whether a value is an actual Array.
  */
+if (typeof __arrayNativeObjectToString__ === "undefined") {
+    var __arrayNativeObjectToString__ = Object.prototype.toString;
+}
 if (!Array.isArray) {
-  Array.isArray = function (arg) {
-    return arg instanceof Array;
-  };
-};
+    Array.isArray = function (value) {
+        if (value !== null && value !== undefined &&
+                typeof value.__class__ !== "undefined") {
+            return value.__class__ === "Array";
+        }
+        return __arrayNativeObjectToString__.call(value) === "[object Array]";
+    };
+}

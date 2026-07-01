@@ -1,18 +1,21 @@
-﻿/**
- * Maps each element to an array using a callback function and then flattens the resulting array.
- *
- * @param {function} callback - The function used to map each element of the array
- * @return {Array} A new array with the mapped and flattened elements
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap
- * ! Dependency: flat()
+/**
+ * Maps present indexed values and flattens the result by one level.
  */
-#include "./flat.js"
+//@include "./map.js"
+//@include "./flat.js"
 if (!Array.prototype.flatMap) {
     Array.prototype.flatMap = function (callback, thisArg) {
-        if (typeof callback !== 'function') throw new TypeError('Callback must be a function');
+        "use strict";
 
-        var mappedArray = Array.prototype.map.call(this, callback, thisArg);
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.flatMap called on null or undefined.");
+        }
+        if (typeof callback !== "function") {
+            throw new TypeError("Array.prototype.flatMap: callback must be a function.");
+        }
 
-        return mappedArray.flat();
+        return Array.prototype.flat.call(
+            Array.prototype.map.call(this, callback, thisArg), 1
+        );
     };
 }

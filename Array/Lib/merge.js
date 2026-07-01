@@ -1,47 +1,36 @@
 /**
- * Merges the elements of the _sorted_ array with another _array_, using the provided compare function.
- * If any of them unsorted, the result will be unpredictable.
- * @param {Array} arrayToMerge - The array to merge with the original array.
- * @param {Function} [compareFunc] - The function used to compare elements during the merge.
- * @throws {TypeError} Throws a TypeError if the provided value is not an array or if the compare function is not a function.
- * @returns {Array} The original array with the merged result.
+ * Merges a sorted Array into the sorted receiver and mutates the receiver.
  */
-#include "./isArray.js"
+//@include "./arrayInternals.js"
+//@include "./isArray.js"
 if (!Array.prototype.merge) {
-    Array.prototype.merge = function (arrayToMerge, compareFunc) {
-        if (!Array.isArray(arrayToMerge)) {
-            throw new TypeError('The provided value is not an array.');
+    Array.prototype.merge = function (arrayToMerge, compareFunction) {
+        "use strict";
+
+        var compare;
+        var result;
+        var i = 0;
+        var j = 0;
+        var k = 0;
+
+        if (!Array.isArray(this) || !Array.isArray(arrayToMerge)) {
+            throw new TypeError("Array.prototype.merge requires two Arrays.");
         }
-
-        var compare = compareFunc || function (a, b) {
-            if (a === undefined || b === undefined) {
-                return (a === undefined) - (b === undefined);
-            } else {
-                return a.toString().localeCompare(b.toString());
-            }
-        };
-        if (typeof (compare) !== 'function') {
-            throw new TypeError('The provided compare function is not a function.');
+        if (compareFunction !== undefined && typeof compareFunction !== "function") {
+            throw new TypeError("Array.prototype.merge: comparator must be a function.");
         }
-
-        var i = 0, j = 0, k = 0;
-        var result = new Array(this.length + arrayToMerge.length);
-
+        compare = compareFunction === undefined ?
+            __arrayDefaultCompare__ : compareFunction;
+        result = new Array(this.length + arrayToMerge.length);
         while (i < this.length && j < arrayToMerge.length) {
-            result[k++] = compare(this[i], arrayToMerge[j]) < 0 ? this[i++] : arrayToMerge[j++];
+            result[k++] = compare(this[i], arrayToMerge[j]) <= 0 ?
+                this[i++] : arrayToMerge[j++];
         }
+        while (i < this.length) result[k++] = this[i++];
+        while (j < arrayToMerge.length) result[k++] = arrayToMerge[j++];
 
-        while (i < this.length) {
-            result[k++] = this[i++];
-        }
-
-        while (j < arrayToMerge.length) {
-            result[k++] = arrayToMerge[j++];
-        }
-
-        this.length = 0;
-        Array.prototype.push.apply(this, result);
-
+        this.length = result.length;
+        for (i = 0; i < result.length; i++) this[i] = result[i];
         return this;
     };
-};
+}

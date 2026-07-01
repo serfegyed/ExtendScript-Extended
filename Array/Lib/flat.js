@@ -1,27 +1,39 @@
 /**
- *  Returns a new array with all sub-array elements concatenated up to the specified depth.
- * @param {number} depth - Optional. The depth level specifying how deep a nested array structure should be flattened.
- * @returns {Array} A new array with the sub-array elements concatenated up to the specified depth.
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+ * Flattens nested Arrays up to the requested depth.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.flat) {
     Array.prototype.flat = function (depth) {
-        var flatDepth = isNaN(depth) ? 1 : Math.max(depth, 0);
+        "use strict";
 
-        var flatten = function (arr, d) {
-            var result = [];
-            for (var i = 0, len = arr.length; i < len; i++) {
-                if (i in arr) {
-                    if (arr[i] instanceof Array && d > 0) {
-                        result = result.concat(flatten(arr[i], d - 1));
+        var object;
+        var flatDepth;
+        var result = [];
+
+        function flattenInto(source, sourceLength, currentDepth) {
+            var value;
+            var i;
+
+            for (i = 0; i < sourceLength; i++) {
+                if (i in source) {
+                    value = source[i];
+                    if (currentDepth > 0 && value instanceof Array) {
+                        flattenInto(value, __arrayToLength__(value.length),
+                            currentDepth - 1);
                     } else {
-                        result.push(arr[i]);
+                        result[result.length] = value;
                     }
                 }
             }
-            return result;
-        };
+        }
 
-        return flatten(this, flatDepth);
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.flat called on null or undefined.");
+        }
+        object = Object(this);
+        flatDepth = depth === undefined ? 1 : __arrayToInteger__(depth);
+        if (flatDepth < 0) flatDepth = 0;
+        flattenInto(object, __arrayToLength__(object.length), flatDepth);
+        return result;
     };
 }

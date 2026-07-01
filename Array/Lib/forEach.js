@@ -1,15 +1,26 @@
 /**
- * @desc Executes a provided function once per array element.
- * @param {Function} callback
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+ * Calls a callback for every present indexed value.
  */
-Array.prototype.forEach = function (callback, thisArg) {
-	if (typeof callback !== "function") throw new TypeError("Callback must be a function");
+//@include "./arrayInternals.js"
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function (callback, thisArg) {
+        "use strict";
 
-	var length = this.length;
-	for (var i = 0; i < length; i++) {
-		if (i in this) {
-			callback.call(thisArg, this[i], i, this);
-		}
-	}
-};
+        var object;
+        var length;
+        var i;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.forEach called on null or undefined.");
+        }
+        if (typeof callback !== "function") {
+            throw new TypeError("Array.prototype.forEach: callback must be a function.");
+        }
+
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        for (i = 0; i < length; i++) {
+            if (i in object) callback.call(thisArg, object[i], i, object);
+        }
+    };
+}

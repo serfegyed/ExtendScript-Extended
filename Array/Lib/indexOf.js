@@ -1,20 +1,29 @@
 /**
- * Finds the index of the first occurrence of a specified element in an array.
- *
- * @param {any} elem - The element to locate in the array.
- * @param {number} [from] - The index at which to start the search. If not provided, the search starts from index 0.
- * @return {number} - The index of the first occurrence of the specified element in the array, or -1 if not found.
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
+ * Finds the first present index containing a strictly equal value.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.indexOf) {
-	Array.prototype.indexOf = function (searchElement, fromIndex) {
-		var from = fromIndex || 0;
-		var length = this.length;
-		from = Math.max(from >= 0 ? from : length + from, 0);
+    Array.prototype.indexOf = function (searchElement, fromIndex) {
+        "use strict";
 
-		for (var i = from; i < length; i++) {
-			if (this[i] === searchElement) return i;
-		}
-		return -1;
-	};
+        var object;
+        var length;
+        var from;
+        var i;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.indexOf called on null or undefined.");
+        }
+
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        if (length === 0) return -1;
+        from = __arrayToInteger__(fromIndex);
+        if (from === Infinity) return -1;
+        i = from >= 0 ? from : Math.max(length + from, 0);
+        for (; i < length; i++) {
+            if (i in object && object[i] === searchElement) return i;
+        }
+        return -1;
+    };
 }

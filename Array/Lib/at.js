@@ -1,35 +1,27 @@
 /**
- * Retrieves the element at the specified index of the array.
- *
- * @param {number} index - The index of the element to retrieve.
- * @return {*} - The element at the specified index, or undefined if the index is out of range.
- * !dependency Math.trunc
+ * Returns the value at an absolute or relative integer index.
+ * Generic: requires only length and integer-indexed properties.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.at) {
-    #include "../Math/Lib/Math.trunc.js"
     Array.prototype.at = function (index) {
-        // Check array length
-        if (this.length === 0) {
-            return undefined;
-        };
+        "use strict";
 
-        // Convert index to an integer
-        index = Math.trunc(index);
+        var object;
+        var length;
+        var relativeIndex;
+        var actualIndex;
 
-        // Adjust index if Infinite or NaN
-        if (isNaN(index)) { index = 0 };
-        if (!isFinite(index)) { return undefined };
-
-        // Adjust for negative indices
-        if (index < 0) {
-            index += this.length;
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.at called on null or undefined.");
         }
 
-        // Check range
-        if (index < 0 || index >= this.length) {
-            return undefined;
-        }
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        relativeIndex = __arrayToInteger__(index);
+        actualIndex = relativeIndex >= 0 ? relativeIndex : length + relativeIndex;
 
-        return this[index];
+        if (actualIndex < 0 || actualIndex >= length) return undefined;
+        return object[actualIndex];
     };
 }

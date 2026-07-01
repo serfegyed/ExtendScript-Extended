@@ -1,73 +1,97 @@
-# ExtendScript-Array
+# ExtendScript Array
 
-ES6+ Array functions for ExtendScript (ES3)
+Modern Array methods and project-specific utilities for Adobe ExtendScript.
+The runtime target is ESTK and Adobe applications; Node is used only as a
+convenient test reference.
 
-These are possible implementation of the modern JavaScript built-in Array functions.
+## Bundles
 
-## The available methods
+- `array_standard.js` installs the standard-compatible polyfills.
+- `array_non-standard.js` installs the project-specific extensions and their
+  required standard dependencies.
 
-### Standard methods
+Both bundles contain only ordered `//@include` directives. Every file in
+`Lib` can also be included independently; its dependencies are declared with
+the same Node-compatible directive form.
 
-- `at()` - Returns the item at that index, allowing for positive and negative integers
-- `copyWithin()` - Copies part of an array to another location in the same array.
-- `entries()` - Returns a new array iterator object that contains the key/value pairs for each index in the array.
-- `every()` - Tests whether _all_ elements in the array pass the test
-- `fill()` - Changes all elements in an array to a static value, from a start index to an end index
-- `filter()` - Creates a new array with all elements that pass the test
-- `find()` - Returns the first element in the provided array that satisfies the provided testing function
-- `findIndex()` - Returns the index of the first element in an array that satisfies the provided testing function
-- `findLast()` - Returns the value of the last element that satisfies the provided testing function
-- `findLastIndex()` - Returns the index of the last element that satisfies the provided testing function
-- `flat()` - Flattens nested arrays
-- `flatMap()` - Maps each element to an array using a callback function and then flattens the resulting array.
-- `forEach()` - Executes a provided function once per array element
-- `from()` - Creates a new, shallow-copied Array instance from an array-like or iterable object
-- `includes()` - Returns `true` if the given element exists
-- `indexOf()` - Returns the first index at the element can be found
-- `isArray()` - Tests if object is an array
-- `keys()` - Returns a new array iterator object that contains the keys for each index in the array.
-- `lastIndexOf()` - Returns the last index at the element can be found
-- `map()` - Calls a provided function on every element and returns a new array
-- `of()` - Creates a new Array instance from a variable number of arguments
-- `reduce()` - Applies a function on each value of the array as to reduce it to a single value
-- `reduceRight()` - Applies a function against two values of the array (from right-to-left)
-- `some()` - Tests whether _some_ element pasts the test
-- `toReversed()` - Copying version of reverse()
-- `toSorted()`- Copying version of sort()
-- `toSpliced()` - Copying version of splice()
-- `toString()` - A neater version of toString()
-- `values()` - Returns a new array iterator object that contains the values of each index in the array
-- `with()` - The copying version of using the bracket notation to change the value of a given index
+## Standard-compatible methods
 
-### Non-standard methods
+- `Array.from()` — creates a dense Array from an array-like value. The
+  iterator branch is intentionally unavailable because ExtendScript has no
+  standard iterator protocol.
+- `Array.isArray()`
+- `Array.of()`
+- `Array.prototype.at()`
+- `Array.prototype.copyWithin()`
+- `Array.prototype.entries()`
+- `Array.prototype.every()`
+- `Array.prototype.fill()`
+- `Array.prototype.filter()`
+- `Array.prototype.find()`
+- `Array.prototype.findIndex()`
+- `Array.prototype.findLast()`
+- `Array.prototype.findLastIndex()`
+- `Array.prototype.flat()`
+- `Array.prototype.flatMap()`
+- `Array.prototype.forEach()`
+- `Array.prototype.includes()`
+- `Array.prototype.indexOf()`
+- `Array.prototype.keys()`
+- `Array.prototype.lastIndexOf()`
+- `Array.prototype.map()`
+- `Array.prototype.reduce()`
+- `Array.prototype.reduceRight()`
+- `Array.prototype.some()`
+- `Array.prototype.toReversed()`
+- `Array.prototype.toSorted()`
+- `Array.prototype.toSpliced()`
+- `Array.prototype.values()`
+- `Array.prototype.with()`
 
-*(They are mostly methods in some stage of tc39 proposal phase)*
+The generic methods support array-like receivers where the ECMAScript method
+is generic. Sparse behavior is tested separately for true holes, explicit
+`undefined`, inherited indices, callback visitation, and copy density.
 
-- `apppend()` - Appends thegiven array to the end of the original array optionally flattening it
-- `clear()` - Removes all array elements.
-- `dim()` - Calculates the dimensions of a multidimensional array
-- `compact()` - Returns a copy of the array with all falsy values removed
-- `first()` - Returns the first item of this array
-- `groupBy()` - Groups the elements according to the string values returned by a callback function
-- `indexAfter()` - Returns the index of the element that comes after given element
-- `info()` - Analyzes the provided array and returns information about its uniformity, depths, type and structure
-- `insert()` - Inserts an element into the array at given index. Returns a new enlarged array
-- `isEmpty()` - Checks is parameter is an empty array
-- `isSorted()` - Checks if the array is sorted
-- `last()` - Returns the last item of this array
-- `max()` - Returns the maximum value in an array
-- `merge()` - Merges a _sorted_ array into the _sorted_ current array. If any of them are unsorted, the result will be unpredictable.
-- `min()` - The minimum value in an array
-- `pluck()` - Quickly pluck a single attribute from an array of objects
-- `random()` - Generates a random element from the array
-- `reject()` - The inverse of `filter`. Returns all elements that DON'T pass the test.
-- `remove()` - Removes element at given index. Returns a new shrinked array.
-- `rotate()` - Rotates an array
-- `shuffle()` - Shuffles an array implementing the Fisher-Yates algorithm
-- `sum()` - The sum of all array values
-- `tuShuffled()` - Creates a shuffled copy of a given array using the Inside-Out algorithm
-- `unique()` - A` function that returns an array with only unique elements.
+## Project-specific methods
 
-## Externals
+- `Array.info()` — reports nested lengths, uniformity, maximum depth, and leaf
+  types.
+- `Array.isEmpty()` — validates an Array and tests whether its length is zero.
+- `Array.isSorted()` — tests ordering with the shared default or a custom
+  comparator.
+- `Array.prototype.append()` — mutates the receiver by appending another
+  Array, with optional flattening.
+- `Array.prototype.clear()` — empties and returns the receiver.
+- `Array.prototype.compact()` — returns the truthy values as a dense Array.
+- `Array.prototype.dim()` — reports the maximum nested Array depth of each
+  indexed value.
+- `Array.prototype.first()` / `last()` — return endpoint values.
+- `Array.prototype.indexAfter()` — returns the index after a matching value.
+- `Array.prototype.insert()` / `remove()` — return shallow copies without
+  changing the source.
+- `Array.prototype.max()` / `min()` / `sum()` — aggregate direct values or
+  mapped keys.
+- `Array.prototype.merge()` — mutates a sorted receiver by merging another
+  sorted Array.
+- `Array.prototype.pluck()` — maps a property from every present item.
+- `Array.prototype.random()` — returns the value at a random index.
+- `Array.prototype.reject()` — returns the inverse of `filter()`.
+- `Array.prototype.rotate()` — returns a shallow copy; positive steps rotate
+  right and negative steps rotate left.
+- `Array.prototype.shuffle()` — shuffles the receiver in place.
+- `Array.prototype.toShuffled()` — returns a shuffled shallow copy.
+- `Array.prototype.unique()` — keeps the first value for each SameValueZero
+  key.
+- `Array.prototype.toString()` — intentionally replaces native Array output
+  with a readable ExtendScript Console representation and is loaded last.
 
-- `Object.deepCopy()` - Method implemented in the 'ExtendScript-Object' repository that makes a deep copy of an array.
+The shuffle methods preserve true sparse slots rather than converting them to
+explicit `undefined` values.
+
+## Tests
+
+- `Test/tests-Array-standard.js`
+- `Test/tests-Array-non-standard.js`
+
+Both harnesses run in ESTK and Node. Current checkpoints: 34 standard tests
+and 28 non-standard tests.

@@ -1,21 +1,29 @@
 /**
- * Creates a shuffled copy of a given array using the Inside-Out Algorithm, a variant of the Fisher-Yates shuffle.
- * The original array remains unmodified
- *
- * @param {Array} array The array to shuffle.
- * @return {Array} A new array that is a shuffled copy of the input array.
+ * Returns a shuffled shallow copy using the inside-out algorithm.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.toShuffled) {
     Array.prototype.toShuffled = function () {
-        var i, j, temp;
-        var arrCopy = new Array(this.length);
-        for (i = 0, length = this.length; i < length; i++) {
-            j = Math.floor(Math.random() * (i + 1));
-            if (i !== j) {
-                arrCopy[i] = arrCopy[j];
-            }
-            arrCopy[j] = this[i];
+        "use strict";
+
+        var object;
+        var length;
+        var result;
+        var i;
+        var j;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.toShuffled called on null or undefined.");
         }
-        return arrCopy;
-    }
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        result = new Array(length);
+        for (i = 0; i < length; i++) {
+            j = Math.floor(Math.random() * (i + 1));
+            if (i !== j && j in result) result[i] = result[j];
+            if (i in object) result[j] = object[i];
+            else delete result[j];
+        }
+        return result;
+    };
 }

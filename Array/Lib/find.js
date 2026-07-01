@@ -1,18 +1,29 @@
 /**
- * Finds the first element in the array that satisfies the provided testing function.
- *
- * @param {Function} callback - Function to execute on each value in the array.
- * @param {*} [thisArg] - Object to use as `this` when executing the callback.
- * @return {*} The first element in the array that satisfies the testing function, or `undefined` if no such element is found.
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
+ * Finds the first indexed value that satisfies the callback.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.find) {
-  Array.prototype.find = function (callback, thisArg) {
-    if (typeof callback !== "function") throw new TypeError("Callback must be a function");
+    Array.prototype.find = function (callback, thisArg) {
+        "use strict";
 
-    for (var i = 0, length = this.length; i < length; i++) {
-      if (callback.call(thisArg, this[i], i, this)) return this[i];
-    }
-    return undefined;
-  };
+        var object;
+        var length;
+        var value;
+        var i;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.find called on null or undefined.");
+        }
+        if (typeof callback !== "function") {
+            throw new TypeError("Array.prototype.find: callback must be a function.");
+        }
+
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        for (i = 0; i < length; i++) {
+            value = object[i];
+            if (callback.call(thisArg, value, i, object)) return value;
+        }
+        return undefined;
+    };
 }

@@ -1,32 +1,40 @@
 /**
- * Reduces the array to a single value by applying a callback function to each element.
- *
- * @param {function} callback - The function to execute on each element of the array.
- * @param {*} initialValue - The initial value for the accumulator.
- * @return {*} The final value of the accumulator.
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce
+ * Reduces present indexed values from left to right.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.reduce) {
     Array.prototype.reduce = function (callback, initialValue) {
-        if (typeof callback !== "function")
-            throw new TypeError("Callback must be a function");
-        var array = this;
-        var len = array.length;
-        if (len === 0 && initialValue === undefined)
-            throw new TypeError("Empty array without an initial value");
+        "use strict";
 
-        var accumulator = initialValue !== undefined ? initialValue : array[0];
-        var startIndex = initialValue !== undefined ? 0 : 1;
+        var object;
+        var length;
+        var accumulator;
+        var i = 0;
 
-        for (var i = startIndex; i < len; i++) {
-            if (i in array) {
-                accumulator = callback.call(undefined, accumulator, array[i], i, array);
-            }
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.reduce called on null or undefined.");
+        }
+        if (typeof callback !== "function") {
+            throw new TypeError("Array.prototype.reduce: callback must be a function.");
         }
 
-        if (accumulator === undefined)
-            throw new TypeError("Reducer function returns an invalid value");
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        if (arguments.length > 1) {
+            accumulator = initialValue;
+        } else {
+            while (i < length && !(i in object)) i++;
+            if (i >= length) {
+                throw new TypeError("Reduce of empty Array with no initial value.");
+            }
+            accumulator = object[i++];
+        }
 
+        for (; i < length; i++) {
+            if (i in object) {
+                accumulator = callback(accumulator, object[i], i, object);
+            }
+        }
         return accumulator;
     };
-};
+}

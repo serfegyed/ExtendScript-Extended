@@ -6,5 +6,7 @@
 - Remove the ExtendScript-specific `$.global` receiver checks. Accept the
   platform's ES3 `this` binding behavior instead of emulating strict-mode
   nullish receiver handling.
+- Audit every include directive across the entire `ExtendScript-Extended`
+  repository and convert it to the Node-compatible `//@include` form.
 - Audit every bundle file. Bundles must be single JavaScript files containing
-  ordered `#include` directives, never duplicated implementation bodies.
+  ordered `//@include` directives, never duplicated implementation bodies.

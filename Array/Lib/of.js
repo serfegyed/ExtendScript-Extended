@@ -1,18 +1,15 @@
 /**
- * Creates a new array instance with a variable number of elements.
- *
- * @param {any} arguments - The elements to include in the array.
- * @return {Array} The newly created array instance.
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/of
+ * Creates an Array containing the supplied arguments.
  */
-Array.of = function () {
-    var items = Array.prototype.slice.call(arguments);
-    // Use 'this' to allow subclass factories
-    var constructor = typeof this === 'function' ? this : Array;
-    var arrayLike = new constructor(items.length);
-    for (var i = 0, length = items.length; i < length; i++) {
-        arrayLike[i] = items[i];
-    }
-    arrayLike.length = length; // Ensure length is set correctly
-    return arrayLike;
-};
+if (!Array.of) {
+    Array.of = function () {
+        var length = arguments.length;
+        var constructor = typeof this === "function" ? this : Array;
+        var result = new constructor(length);
+        var i;
+
+        for (i = 0; i < length; i++) result[i] = arguments[i];
+        result.length = length;
+        return result;
+    };
+}

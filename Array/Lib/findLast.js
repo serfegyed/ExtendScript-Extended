@@ -1,21 +1,29 @@
 /**
- * Finds the last element that satisfies the provided testing function.
- *
- * @param {Function} callback - The testing function.
- * @param {*} [thisArg] - An optional object to use as the `this` value when executing the callback.
- * @return {*} - The value of the last element that satisfies the testing function, or `undefined` if no such element is found.
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findLast
+ * Finds the last indexed value that satisfies the callback.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.findLast) {
-  Array.prototype.findLast = function (callback, thisArg) {
-    if (typeof callback !== 'function') throw new TypeError('Callback must be a function');
+    Array.prototype.findLast = function (callback, thisArg) {
+        "use strict";
 
-    var length = this.length;
-    for (var i = length - 1; i >= 0; i--) {
-      if (i in this && callback.call(thisArg, this[i], i, this)) {
-        return this[i];
-      }
-    }
-    return undefined;
-  };
+        var object;
+        var length;
+        var value;
+        var i;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.findLast called on null or undefined.");
+        }
+        if (typeof callback !== "function") {
+            throw new TypeError("Array.prototype.findLast: callback must be a function.");
+        }
+
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        for (i = length - 1; i >= 0; i--) {
+            value = object[i];
+            if (callback.call(thisArg, value, i, object)) return value;
+        }
+        return undefined;
+    };
 }

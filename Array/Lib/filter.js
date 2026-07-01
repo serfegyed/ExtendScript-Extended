@@ -1,27 +1,32 @@
 /**
- * Filters the elements of an array based on a provided callback function.
- *
- * @param {function} callback - The function used to test each element of the array. Should return a boolean value.
- * @return {Array} - A new array with the elements that pass the test.
- * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/filter
+ * Returns a dense Array containing present values accepted by a callback.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.filter) {
     Array.prototype.filter = function (callback, thisArg) {
-        var len = this.length;
-        if (typeof callback !== 'function') {
-            throw new TypeError('Callback must be a function');
+        "use strict";
+
+        var object;
+        var length;
+        var result = [];
+        var value;
+        var i;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.filter called on null or undefined.");
+        }
+        if (typeof callback !== "function") {
+            throw new TypeError("Array.prototype.filter: callback must be a function.");
         }
 
-        var res = [];
-        thisArg = thisArg || undefined;
-        for (var i = 0; i < len; i++) {
-            if (Object.prototype.hasOwnProperty.call(this, i)) {
-                var val = this[i];
-                if (callback.call(thisArg, val, i, this)) {
-                    res.push(val);
-                }
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        for (i = 0; i < length; i++) {
+            if (i in object) {
+                value = object[i];
+                if (callback.call(thisArg, value, i, object)) result.push(value);
             }
         }
-        return res;
+        return result;
     };
 }

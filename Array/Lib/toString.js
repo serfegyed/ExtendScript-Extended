@@ -1,14 +1,27 @@
 /**
- * Converts an array to a string representation.
- *
- * @return {string} The string representation of the array.
+ * Intentionally overrides native Array output for readable ExtendScript logs.
  */
 Array.prototype.toString = function () {
-    var length = this.length;
-    var elements = new Array(length);
-    for (var i = 0; i < length; i++) {
+    var elements = new Array(this.length);
+    var value;
+    var i;
+
+    for (i = 0; i < this.length; i++) {
         if (i in this) {
-            elements[i] = (typeof this[i] === 'string') ? '"' + this[i] + '"' : this[i];
+            value = this[i];
+            if (typeof value === "string") {
+                elements[i] = "\"" + value
+                    .replace(/\\/g, "\\\\")
+                    .replace(/\"/g, "\\\"")
+                    .replace(/\r/g, "\\r")
+                    .replace(/\n/g, "\\n") + "\"";
+            } else if (value === null) {
+                elements[i] = "null";
+            } else if (typeof value === "undefined") {
+                elements[i] = "undefined";
+            } else {
+                elements[i] = String(value);
+            }
         }
     }
     return "[" + elements.join(", ") + "]";

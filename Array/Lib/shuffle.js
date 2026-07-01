@@ -1,18 +1,27 @@
 /**
- * Shuffles an array implementing the Fisher-Yates algorithm.
- * This method performs an in-place shuffle, directly modifying the original  array. 
- *
- * @returns {Array} The original array, shuffled.
+ * Shuffles indexed slots in place using Fisher-Yates.
  */
 if (!Array.prototype.shuffle) {
     Array.prototype.shuffle = function () {
-        var i = this.length, j, temp;
+        "use strict";
+
+        var i = this.length;
+        var j;
+        var hasI;
+        var hasJ;
+        var valueI;
+        var valueJ;
+
         while (--i > 0) {
-            j = Math.floor(Math.random() * (i + 1)); // Random index from 0 to i
-            // Swap elements at indices i and j
-            temp = this[i];
-            this[i] = this[j];
-            this[j] = temp;
+            j = Math.floor(Math.random() * (i + 1));
+            hasI = i in this;
+            hasJ = j in this;
+            valueI = this[i];
+            valueJ = this[j];
+            if (hasJ) this[i] = valueJ;
+            else delete this[i];
+            if (hasI) this[j] = valueI;
+            else delete this[j];
         }
         return this;
     };

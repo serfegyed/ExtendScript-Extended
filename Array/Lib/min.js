@@ -1,29 +1,46 @@
 /**
- * Finds the minimum value in an array.
- *
- * @param {function|string} salient - A function or string representing the property to compare for each element.
- * @return {*} The minimum value in the array.
+ * Returns the present value with the smallest mapped key.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.min) {
     Array.prototype.min = function (salient) {
+        "use strict";
+
+        var object;
+        var length;
         var mapper;
-        if (salient && typeof salient === "string") {
-            mapper = function (obj) {
-                return obj[salient];
-            };
-        } else {
-            mapper = salient || function (obj) {
-                return obj;
-            };
+        var minValue;
+        var minKey;
+        var value;
+        var key;
+        var i = 0;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.min called on null or undefined.");
+        }
+        mapper = typeof salient === "string" ? function (item) {
+            return item[salient];
+        } : (salient || function (item) { return item; });
+        if (typeof mapper !== "function") {
+            throw new TypeError("Array.prototype.min: mapper must be a function or string.");
         }
 
-        var minValue = this[0];
-        for (var i = 1, length = this.length; i < length; i++) {
-            if (mapper(this[i]) < mapper(minValue)) {
-                minValue = this[i];
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        while (i < length && !(i in object)) i++;
+        if (i >= length) return undefined;
+        minValue = object[i++];
+        minKey = mapper(minValue);
+        for (; i < length; i++) {
+            if (i in object) {
+                value = object[i];
+                key = mapper(value);
+                if (key < minKey) {
+                    minValue = value;
+                    minKey = key;
+                }
             }
         }
-
         return minValue;
     };
-};
+}

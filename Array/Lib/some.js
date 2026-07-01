@@ -1,20 +1,29 @@
 /**
- * Implements the `some` method for the Array prototype.
- *
- * @param {function} callback - A function to test each element of the array.
- * @param {object} thisArg - An object to use as `this` when executing the callback.
- * @return {boolean} Returns `true` if the callback function returns a truthy value for at least one element, otherwise `false`.
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+ * Tests whether any present indexed value satisfies a callback.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.some) {
     Array.prototype.some = function (callback, thisArg) {
-        var len = this.length;
-        if (typeof callback !== "function") throw new TypeError();
-        thisArg = thisArg || undefined;
+        "use strict";
 
-        for (var i = 0; i < len; i++) {
-            if (i in this && callback.call(thisArg, this[i], i, this)) return true;
+        var object;
+        var length;
+        var i;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.some called on null or undefined.");
+        }
+        if (typeof callback !== "function") {
+            throw new TypeError("Array.prototype.some: callback must be a function.");
+        }
+
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        for (i = 0; i < length; i++) {
+            if (i in object && callback.call(thisArg, object[i], i, object)) {
+                return true;
+            }
         }
         return false;
     };
-};
+}

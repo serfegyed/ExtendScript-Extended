@@ -1,22 +1,47 @@
 /**
- * A function that returns an array with only unique elements.
- * @param {function} [callback] - An optional function that is used to generate the keys used for checking uniqueness.
- * @returns {array} - An array with only unique elements.
+ * Returns the first present value for every unique SameValueZero key.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.unique) {
     Array.prototype.unique = function (callback, thisArg) {
-        var len = this.length;
+        "use strict";
+
+        var object;
+        var length;
         var result = [];
-        var keys = {};
-        for (var i = 0; i < len; i++) {
-            var key =
-                (callback && callback.call(thisArg, this[i], i, this)) || this[i]; // generate the key
-            if (!(key in keys)) {
-                // check if the key already exists in the keys object
-                keys[key] = true; // add the key to the keys object
-                result.push(this[i]); // add the element to the result array
+        var keys = [];
+        var value;
+        var key;
+        var seen;
+        var i;
+        var j;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.unique called on null or undefined.");
+        }
+        if (callback !== undefined && typeof callback !== "function") {
+            throw new TypeError("Array.prototype.unique: callback must be a function.");
+        }
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        for (i = 0; i < length; i++) {
+            if (i in object) {
+                value = object[i];
+                key = callback === undefined ? value :
+                    callback.call(thisArg, value, i, object);
+                seen = false;
+                for (j = 0; j < keys.length; j++) {
+                    if (keys[j] === key || (keys[j] !== keys[j] && key !== key)) {
+                        seen = true;
+                        break;
+                    }
+                }
+                if (!seen) {
+                    keys[keys.length] = key;
+                    result[result.length] = value;
+                }
             }
         }
         return result;
     };
-};
+}

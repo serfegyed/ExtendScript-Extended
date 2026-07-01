@@ -1,33 +1,46 @@
 /**
- * Finds the maximum value in an array based on a salient property or the element itself.
- *
- * @param {string|function} salient - A function or string representing the property to compare for each element.
- * @return {*} The maximum value in the array.
- * @example
- *     > var people = [{'name': 'Alfred'}, {'name': 'Zed'}];
- *     > people.max(function (obj) {return obj.name});
- *     {'name': 'Zed'}
+ * Returns the present value with the largest mapped key.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.max) {
     Array.prototype.max = function (salient) {
+        "use strict";
+
+        var object;
+        var length;
         var mapper;
-        if (salient && typeof salient === "string") {
-            mapper = function (obj) {
-                return obj[salient];
-            };
-        } else {
-            mapper = salient || function (obj) {
-                return obj;
-            };
+        var maxValue;
+        var maxKey;
+        var value;
+        var key;
+        var i = 0;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.max called on null or undefined.");
+        }
+        mapper = typeof salient === "string" ? function (item) {
+            return item[salient];
+        } : (salient || function (item) { return item; });
+        if (typeof mapper !== "function") {
+            throw new TypeError("Array.prototype.max: mapper must be a function or string.");
         }
 
-        var maxValue = this[0];
-        for (var i = 1, length = this.length; i < length; i++) {
-            if (mapper(this[i]) > mapper(maxValue)) {
-                maxValue = this[i];
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        while (i < length && !(i in object)) i++;
+        if (i >= length) return undefined;
+        maxValue = object[i++];
+        maxKey = mapper(maxValue);
+        for (; i < length; i++) {
+            if (i in object) {
+                value = object[i];
+                key = mapper(value);
+                if (key > maxKey) {
+                    maxValue = value;
+                    maxKey = key;
+                }
             }
         }
-
         return maxValue;
     };
-};
+}

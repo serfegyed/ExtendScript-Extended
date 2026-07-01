@@ -1,31 +1,24 @@
 /**
- * Check if the given array is sorted using the provided compare function, or a default compare function for numbers and strings.
- *
- * @param {Array} array - The array to be checked for sorting.
- * @param {Function} [compareFunction] - The function used to compare elements. If not provided, a default compare function is used.
- * @return {boolean} Returns true if the array is sorted, otherwise returns false.
+ * Tests whether an Array is ordered by the supplied comparator.
  */
+//@include "./arrayInternals.js"
+//@include "./isArray.js"
 if (!Array.isSorted) {
     Array.isSorted = function (array, compareFunction) {
+        var compare;
+        var i;
+
         if (!Array.isArray(array)) {
-            throw new TypeError('The provided value is not an array.');
+            throw new TypeError("Array.isSorted requires an Array.");
         }
-
-        // Default compare function for numbers and strings
-        if (!compareFunction) {
-            compareFunction = function (a, b) {
-                if (a < b) return -1;
-                if (a > b) return 1;
-                return 0;
-            };
+        if (compareFunction !== undefined && typeof compareFunction !== "function") {
+            throw new TypeError("Array.isSorted: comparator must be a function.");
         }
-
-        for (var i = 0, length = array.length; i < length - 1; i++) {
-            if (compareFunction(array[i], array[i + 1]) > 0) {
-                return false; // The array is not sorted
-            }
+        compare = compareFunction === undefined ?
+            __arrayDefaultCompare__ : compareFunction;
+        for (i = 0; i < array.length - 1; i++) {
+            if (compare(array[i], array[i + 1]) > 0) return false;
         }
-
-        return true; // The array is sorted
+        return true;
     };
-};
+}

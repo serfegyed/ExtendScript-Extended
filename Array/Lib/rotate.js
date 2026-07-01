@@ -1,16 +1,30 @@
 /**
- * Rotates the elements of an array by the specified number of steps.
- *
- * @param {number} step - The number of steps to rotate the array. Positive values rotate the array to the right, negative values rotate it to the left.
- * @return {Array} - The rotated array.
+ * Returns a shallow copy rotated right by a positive number of steps.
  */
+//@include "./arrayInternals.js"
 if (!Array.prototype.rotate) {
-  Array.prototype.rotate = function (step) {
-    var length = this.length;
-    var effectiveStep = ((step % length) + length) % length;
-    var rotated = this.slice(effectiveStep).concat(
-      this.slice(0, effectiveStep)
-    );
-    return rotated;
-  };
-};
+    Array.prototype.rotate = function (step) {
+        "use strict";
+
+        var object;
+        var length;
+        var offset;
+        var result;
+        var i;
+
+        if (this === null || this === undefined) {
+            throw new TypeError("Array.prototype.rotate called on null or undefined.");
+        }
+        object = Object(this);
+        length = __arrayToLength__(object.length);
+        result = new Array(length);
+        if (length === 0) return result;
+        offset = __arrayToInteger__(step);
+        if (offset === Infinity || offset === -Infinity) offset = 0;
+        offset = ((offset % length) + length) % length;
+        for (i = 0; i < length; i++) {
+            if (i in object) result[(i + offset) % length] = object[i];
+        }
+        return result;
+    };
+}

@@ -5,15 +5,16 @@
  * @param {number} depth - the depth to which the array should be flattened before being appended
  * @return {Array} - the original array with the appended elements
  */
+//@include "./isArray.js"
+//@include "./flat.js"
 if (!Array.prototype.append) {
-    //@include "./isArray.js"
-    //@include "./Array-flat.js"
     Array.prototype.append = function (arrayToAppend, depth) {
         if (!Array.isArray(arrayToAppend)) {
-            throw new TypeError("Can't append non-array values")
+            throw new TypeError("Array.prototype.append requires an Array.");
         }
 
-        Array.prototype.push.apply(this, arrayToAppend.flat(depth === undefined ? 0 : depth))
-        return this
-    }
+        Array.prototype.push.apply(this,
+            Array.prototype.flat.call(arrayToAppend, depth === undefined ? 0 : depth));
+        return this;
+    };
 }
