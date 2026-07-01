@@ -11,23 +11,40 @@
  * @return {any} The final value of the accumulator after the reduction.
  */
 Set.prototype.reduce = function (callback, initialValue) {
-    if (typeof callback !== "function")
-        throw new TypeError("Set.reduce(): Callback must be a function");
+    var iterator;
+    var item;
+    var accumulator;
+    var hasInitialValue = arguments.length > 1;
 
-    if (this.size === 0 && initialValue === undefined)
-        throw new TypeError("Set.reduce(): Empty Set without an initial value");
+    if (typeof callback !== "function") {
+        throw new TypeError("Set.prototype.reduce: callback must be a function.");
+    }
 
-    var accumulator = initialValue !== undefined ? initialValue : this._data[0];
+    iterator = this.values();
+    item = iterator.next();
 
-    for (var i = 0; i < this._data.length; i++) {
-        // Check if the types of the accumulator and currentValue are different
-        if (typeof accumulator !== typeof this._data[i]) {
+    if (hasInitialValue) {
+        accumulator = initialValue;
+    } else {
+        if (item.done) {
             throw new TypeError(
-                "Set.reduce(): Type mismatch in Set.reduce(). All elements must be of the same type."
+                "Set.prototype.reduce: empty Set without an initial value."
             );
         }
-        accumulator = callback.call(this, accumulator, this._data[i]);
-    };
+        accumulator = item.value;
+        item = iterator.next();
+    }
+
+    while (!item.done) {
+        accumulator = callback.call(
+            undefined,
+            accumulator,
+            item.value,
+            item.value,
+            this
+        );
+        item = iterator.next();
+    }
 
     return accumulator;
 };

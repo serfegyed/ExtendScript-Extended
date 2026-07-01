@@ -5,22 +5,26 @@
  * @return {boolean} Returns true if the sets are disjoint, false otherwise.
  */
 Set.prototype.isDisjointFrom = function (otherSet) {
-    if (!Set.isSet(otherSet)) {
-        throw new TypeError("Set.isDisjointFrom(): wrong parameter type.");
-    }
+    var other = __getSetRecord__(otherSet);
+    var iterator;
+    var item;
+    var i;
 
-    if (Set.isEmpty(this) || Set.isEmpty(otherSet)) {
-        // Two empty sets are always disjoint
-        return true;
-    }
-
-    for (var i = 0; i < this._data.length; i++) {
-        if (otherSet.has(this._data[i])) {
-            // If any element isn't found in both sets, 'this' is not a subset
-            return false;
+    if (this.size <= other.size) {
+        for (i = 0; i < this._data.length; i++) {
+            if (other.has.call(other.object, this._data[i])) return false;
         }
-    };
+    } else {
+        iterator = other.keys.call(other.object);
+        if (!iterator || typeof iterator.next !== "function") {
+            throw new TypeError("Set-like keys() must return an iterator.");
+        }
+        item = iterator.next();
+        while (!item.done) {
+            if (this.has(item.value)) return false;
+            item = iterator.next();
+        }
+    }
 
-    // If no common elements are found, they are disjoint
     return true;
 };

@@ -1,13 +1,16 @@
 /**
- * Iterates over the elements of the Set and calls the callback function for each element.
- *
- * @param {Function} callback - Function to execute for each element, taking three arguments:
- *                              value, currentValue, index, and object being traversed.
- * @param {Object} [thisArg] - Object to use as `this` when executing `callback`.
+ * Calls a callback for every live Set value in insertion order.
  */
 Set.prototype.forEach = function (callback, thisArg) {
-    var data = this._data;
-    for (var i = 0; i < data.length; i++) {
-        callback.call(thisArg, data[i], data[i], this);
+    var records = this._records;
+    var i;
+
+    if (typeof callback !== "function") {
+        throw new TypeError("Set.prototype.forEach: callback must be a function.");
+    }
+    for (i = 0; i < records.length; i++) {
+        if (records[i].active) {
+            callback.call(thisArg, records[i].value, records[i].value, this);
+        }
     }
 };

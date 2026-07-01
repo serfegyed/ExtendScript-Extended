@@ -7,7 +7,7 @@
  */
 Set.prototype.isEqual = function (otherSet) {
     if (!Set.isSet(otherSet)) {
-        throw new TypeError("Set.isEqual(): wrong parameter type.");
+        throw new TypeError("Set.prototype.isEqual: value must be a Set.");
     }
     if (this.size !== otherSet.size) {
         return false;
@@ -17,7 +17,7 @@ Set.prototype.isEqual = function (otherSet) {
         if (!otherSet.has(this._data[i])) {
             return false;
         }
-    };
+    }
 
     return true;
 };

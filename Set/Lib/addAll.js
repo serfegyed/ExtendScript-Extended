@@ -5,7 +5,9 @@
  * @return {Set} - The modified set with the added elements.
  */
 Set.prototype.addAll = function (argArr) {
-    if (!argArr) throw new TypeError("Set.addAll(): Argument array needed.");
+    if (!(argArr instanceof Array)) {
+        throw new TypeError("Set.prototype.addAll: values must be an array.");
+    }
     for (var i = 0; i < argArr.length; i++) {
         this.add(argArr[i]);
     }

@@ -1,59 +1,67 @@
-# ExtendScript-Set
+# ExtendScript Set
 
-A lightweight Set class extension for Adobe ExtendScript.
+A lightweight `Set` implementation for ESTK and Adobe ExtendScript applications.
+Node.js is used only as a development reference and test runner; it is not a
+production target.
 
-This Set class is an implementation of the JavaScript built-in Set object.
+## Bundles
 
-## Standard methods for the Set object
+- `Set_standard.js` includes the core and complete supported standard surface.
+- `Set_non-standard.js` includes the standard bundle and all project extensions.
+- `Set_full.js` is a compatibility alias for `Set_non-standard.js`.
+- `Set_composition.js` is a compatibility alias for `Set_standard.js`, because
+  Set composition is now standardized.
 
-* `add(value)` - Adds a value to the set.
-* `clear()` - Clears all element in the set and sets the size to 0.
-* `delete(value)` - Deletes the given value from the set.
-* `entries()` - Returns a new set iterator object that contains the value/value pairs for each element in the set.
-* `forEach()` - Iterates through each element of the set and applies a callback function.
-* `has(value)` - Checks if the given value exists in the set object or not.
-* `keys()` - The keys() method is an alias for the values() method.
-* `size()` - Returns the number of elements in the set.
-* `values()` - Returns a new set iterator object that contains the values for each element in the set.
+All bundle files contain only ordered `#include` directives. The constructor and
+core storage live in `Set_basic.js`; individual methods live in `Lib`.
 
-## Standard property for the Set object
+## Standard surface
 
-* `size` - Returns the number of elements in the set.
+The standard bundle provides:
 
-## Non-standard methods
-*(They are mostly (but not exclusively) Array-like methods mostly in some stage of tc39 proposal phase)*
+- `add`, `clear`, `delete`, `entries`, `forEach`, `has`, `keys`, `values`
+- `difference`, `intersection`, `symmetricDifference`, `union`
+- `isDisjointFrom`, `isSubsetOf`, `isSupersetOf`
+- the `size` data property
 
-* `addAll()` - Adds elements defined as parameters to the set.
-* `addEach()` - Adds elements defined as parameters to the set based on the result of a callback function
-* `deleteAll()` - Removes elements defined as parameters from the set.
-* `deleteEach()` - Removes elements defined by a callback function from the set.
-* `every()` - Checks if all elements in the set satisfy the provided callback function
-* `filter()` - Filters the elements of a Set object based on a provided callback function
-* `find()` - Finds the first element in the set that satisfies the provided testing function
-* `from()` - Adds values from iterable(s) and/or primitive(s)to the Set.
-* `isEmpty()` - Determines whether the given parameter is an empty Set.
-* `isSet()` - Checks if an object is a Set.
-* `join()` - Joins all elements of a Set into a string with a given separator
-* `map()` - Applies a callback function to each element in the set and returns a new set with the results.
-* `reduce()` - Reduce the set to a single value by applying a callback function
-* `some()` - Checks if any element in the set satisfies the provided callback function
-* `toArray()` - Returns an array representation of the set.
-* `toString()` - Returns a string representation of the set.
+Composition arguments may be Sets or Set-like objects with a numeric `size`
+property and callable `has()` and `keys()` methods.
 
-## Set composition
+This is an ExtendScript-oriented subset rather than a complete modern engine
+replacement. Construction supports arrays and project Set instances. Iterator
+objects expose `next()` but not the ES6 symbol iterator protocol.
 
-* `union()` - Returns a new Set with the union of the two sets
-* `difference()` - Calculates the difference between the current set and another set.
-* `symmetricDifference()` - Calculates the symmetric difference between this set and another set.
-* `intersection()` - Calculates the intersection of two sets.
-* `isSubsetOf()` - Checks if the current set is a subset of another set
-* `isSupersetOf()` - Checks if the current set is a superset of another set
-* `isDisjointFrom()` - Checks if the current set is a disjoint of another set
-* `isEqual()` - Checks if the current set is equal to another set
+Set values use SameValueZero equality. Iteration is live: deletions are skipped,
+new values are visited, and a deleted then re-added value receives a new position.
+The internal iteration record list intentionally retains inactive records so
+existing iterators remain valid.
 
-## Externals
+## Project extensions
 
-* `Object.isEmpty()` - Checks if an object is empty.
-* `sameValueZero()` - Determines if two values are equal using the SameValueZero algorithm.
-* `isPrimitive()` - Check if the given value is a primitive data type or null/undefined.
-* `isArrayLike()` - Checks if a given object is array-like.
+The non-standard bundle additionally provides:
+
+- Queries: `Set.isSet`, `Set.isEmpty`, `isEqual`
+- Predicates and search: `every`, `some`, `find`
+- Transformations: `filter`, `map`, `reduce`
+- Bulk mutation: `addAll`, `addEach`, `deleteAll`, `deleteEach`
+- Aggregation and output: `from`, `toArray`, `toString`, `join`
+
+Set callback methods generally receive `(value, value, set)`. `addEach` receives
+`(value, index, set)` from its source array, while `deleteEach` uses the same
+shape over a stable snapshot of the Set values.
+
+`from` accepts multiple inputs. Arrays, array-like objects, and Sets contribute
+their values; plain objects contribute their own property names; other values
+are added directly. Empty collections are no-ops.
+
+## Dependencies
+
+`external.js` supplies `sameValueZero()` and `isArrayLike()`. It does not modify
+native platform objects.
+
+## Tests
+
+- `Test/tests-Set-standard.js`: standard surface, 13 tests
+- `Test/tests-Set-nonstandard.js`: project extensions, 15 tests
+
+Both harnesses run in ESTK and Node.js.

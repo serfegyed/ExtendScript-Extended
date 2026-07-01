@@ -5,12 +5,23 @@
  * @return {Set} The set containing the elements that are in either this set or the other set, but not in both.
  */
 Set.prototype.symmetricDifference = function (otherSet) {
-    if (!Set.isSet(otherSet)) {
-        throw new TypeError("Set.symmetricDifference(): wrong parameter type.");
+    var other = __getSetRecord__(otherSet);
+    var result = new Set(this);
+    var iterator = other.keys.call(other.object);
+    var item;
+
+    if (!iterator || typeof iterator.next !== "function") {
+        throw new TypeError("Set-like keys() must return an iterator.");
+    }
+    item = iterator.next();
+    while (!item.done) {
+        if (this.has(item.value)) {
+            result.delete(item.value);
+        } else {
+            result.add(item.value);
+        }
+        item = iterator.next();
     }
 
-    var diffSet1 = this.difference(otherSet);
-    var diffSet2 = otherSet.difference(this);
-
-    return diffSet1.from(diffSet2);
+    return result;
 };

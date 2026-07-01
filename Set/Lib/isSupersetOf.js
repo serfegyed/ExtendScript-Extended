@@ -6,16 +6,19 @@
  * @return {boolean} True if this set is a superset of the given set, false otherwise.
  */
 Set.prototype.isSupersetOf = function (otherSet) {
-    if (!Set.isSet(otherSet)) {
-        throw new TypeError("Set.isSubsetOf(): wrong parameter type.");
-    }
-    if (this.size < otherSet.size) {
-        return false;
-    }
-    if (Set.isEmpty(otherSet)) {
-        // An empty set is subset of any other sets so 'this' is a superset
-        return true;
-    }
+    var other = __getSetRecord__(otherSet);
+    var iterator;
+    var item;
 
-    return otherSet.isSubsetOf(this);
+    if (this.size < other.size) return false;
+    iterator = other.keys.call(other.object);
+    if (!iterator || typeof iterator.next !== "function") {
+        throw new TypeError("Set-like keys() must return an iterator.");
+    }
+    item = iterator.next();
+    while (!item.done) {
+        if (!this.has(item.value)) return false;
+        item = iterator.next();
+    }
+    return true;
 };

@@ -7,14 +7,18 @@
  * @throws {TypeError} If the callback is not a function.
  * @return {Set} The modified set.
  */
-Set.prototype.addEach = function (argArr, callback, thisArg) { // callback returns boolean
-    if (typeof callback !== "function") throw new TypeError("Set.addEach(): Missing callback function.");
+Set.prototype.addEach = function (argArr, callback, thisArg) {
+    if (!(argArr instanceof Array)) {
+        throw new TypeError("Set.prototype.addEach: values must be an array.");
+    }
+    if (typeof callback !== "function") {
+        throw new TypeError("Set.prototype.addEach: callback must be a function.");
+    }
 
     for (var i = 0; i < argArr.length; i++) {
-        if (callback.call(thisArg, argArr[i], this)) {
+        if (callback.call(thisArg, argArr[i], i, this)) {
             this.add(argArr[i]);
-        };
-
+        }
     }
     return this;
 };

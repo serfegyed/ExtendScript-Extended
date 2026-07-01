@@ -6,11 +6,18 @@
  * @returns {boolean} Returns `true` if every element in the set satisfies the callback function, otherwise `false`.
  */
 Set.prototype.every = function (callback, thisArg) {
-    if (typeof callback !== "function")
-        throw new TypeError("Set.every(): Missing callback function");
+    var iterator;
+    var item;
 
-    for (var i = 0; i < this._data.length; i++) {
-        if (!callback.call(thisArg, this._data[i], i, this)) return false;
+    if (typeof callback !== "function") {
+        throw new TypeError("Set.prototype.every: callback must be a function.");
+    }
+
+    iterator = this.values();
+    item = iterator.next();
+    while (!item.done) {
+        if (!callback.call(thisArg, item.value, item.value, this)) return false;
+        item = iterator.next();
     }
 
     return true;

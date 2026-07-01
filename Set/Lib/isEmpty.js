@@ -6,6 +6,8 @@
  * @return {boolean} Returns true if the Set is empty, false otherwise.
  */
 Set.isEmpty = function (set) {
-    if (!set instanceof Set) throw new TypeError(set.toString() + " is not a Set");
+    if (!Set.isSet(set)) {
+        throw new TypeError("Set.isEmpty: value must be a Set.");
+    }
     return set.size === 0;
 };

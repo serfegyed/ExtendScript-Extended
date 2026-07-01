@@ -1,4 +1,4 @@
 /**
- * The keys() method is an alias for the values() method.
+ * Set keys are identical to Set values.
  */
 Set.prototype.keys = Set.prototype.values;

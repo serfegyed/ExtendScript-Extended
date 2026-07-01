@@ -1,46 +1,41 @@
 /**
- * Adds values from iterable(s) and/or primitive(s)to the Set.
+ * Adds values from one or more project-supported source forms.
  *
- * @param {Object} iterables - The iterable(s) and/or primitive(s) to add to the Set.
- * @return {Set} The modified Set object.
+ * Arrays, array-like objects, and Sets contribute their values. Plain objects
+ * contribute their own property names. Other values are added directly.
+ *
+ * @return {Set} The modified Set.
  */
 Set.prototype.from = function (iterables) {
-    for (var i = 0; i < arguments.length; i++) {
-        var iterable = arguments[i];
+    var i;
+    var j;
+    var key;
+    var iterable;
+    var iterator;
+    var item;
 
-        if (isPrimitive(iterable)) {
-            this.add(iterable);
+    for (i = 0; i < arguments.length; i++) {
+        iterable = arguments[i];
 
-        } else if (sameValueZero(iterable, NaN)) {
-            this.add(iterable);
-
-        } else if (isArrayLike(iterable)) {
-            if (!!iterable.length) {
-                for (var j = 0; j < iterable.length; j++) {
-                    this.add(iterable[j]);
-                }
-            } else {    // to add empty array
-                this.add(iterable);
+        if (iterable instanceof Set) {
+            iterator = iterable.values();
+            item = iterator.next();
+            while (!item.done) {
+                this.add(item.value);
+                item = iterator.next();
             }
-
-        } else if (iterable instanceof Set) {
-            for (var k = 0; k < iterable._data.length; k++) {
-                this.add(iterable._data[k])
-            };
-
-        } else if (typeof iterable === "object") {
-            if (!Object.isEmpty(iterable)) {
-                for (var key in iterable) {
-                    if (iterable.hasOwnProperty(key)) {
-                        this.add(key);
-                    }
-                }
-            } else {    // to add empty object
-                this.add(iterable);
+        } else if (iterable instanceof Array ||
+                (typeof iterable !== "string" && isArrayLike(iterable))) {
+            for (j = 0; j < iterable.length; j++) {
+                this.add(iterable[j]);
             }
-
+        } else if (iterable !== null && typeof iterable === "object") {
+            for (key in iterable) {
+                if (Object.prototype.hasOwnProperty.call(iterable, key)) {
+                    this.add(key);
+                }
+            }
         } else {
-            // For other unsupported types, directly add them to the Set.
             this.add(iterable);
         }
     }

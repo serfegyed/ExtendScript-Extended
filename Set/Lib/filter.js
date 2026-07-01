@@ -6,14 +6,21 @@
  * @return {Set} A new Set object containing only the elements for which the callback function returns true.
  */
 Set.prototype.filter = function (callback, thisArg) {
-    if (typeof callback !== "function")
-        throw new TypeError("Set.filter(): Missing callback function");
     var filteredSet = new Set();
+    var iterator;
+    var item;
 
-    for (var i = 0; i < this._data.length; i++) {
-        if (callback.call(thisArg, this._data[i])) {
-            filteredSet.add(this._data[i]);
-        };
+    if (typeof callback !== "function") {
+        throw new TypeError("Set.prototype.filter: callback must be a function.");
+    }
+
+    iterator = this.values();
+    item = iterator.next();
+    while (!item.done) {
+        if (callback.call(thisArg, item.value, item.value, this)) {
+            filteredSet.add(item.value);
+        }
+        item = iterator.next();
     }
 
     return filteredSet;

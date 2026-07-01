@@ -6,12 +6,17 @@
  * @return {Set} - The updated Set after removing the elements that satisfy the callback function.
  */
 Set.prototype.deleteEach = function (callback, thisArg) {
-    if (typeof callback !== "function") throw new TypeError("Set.deleteEach(): Missing callback function");
+    var originalData;
+    var i;
+    var value;
 
-    var originalData = this.toArray();
-    // Make a copy to avoid modification during iteration
-    for (var i = 0; i < originalData.length; i++) {
-        var value = originalData[i];
+    if (typeof callback !== "function") {
+        throw new TypeError("Set.prototype.deleteEach: callback must be a function.");
+    }
+
+    originalData = this.toArray();
+    for (i = 0; i < originalData.length; i++) {
+        value = originalData[i];
         if (callback.call(thisArg, value, i, this)) {
             this.delete(value);
         }

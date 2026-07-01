@@ -8,8 +8,9 @@ Set.prototype.toString = function () {
     for (var i = 0; i < this._data.length; i++) {
         if (str !== "") {
             str += ", ";
-        };
-        str += (typeof this._data[i] === 'string') ? '"' + this._data[i] + '"' : this._data[i];
+        }
+        str += typeof this._data[i] === "string" ?
+            '"' + this._data[i] + '"' : this._data[i];
     }
 
     return "{" + str + "}";

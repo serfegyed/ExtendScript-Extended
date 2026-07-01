@@ -1,15 +1,22 @@
 /**
  * Returns a new set that is the union of the current set and the otherSet.
  *
- * @param {Set} otherSet - The set to be combined with the current set.
- * @throws {TypeError} If the otherSet parameter is not an instance of Set.
+ * @param {Object} otherSet - The Set-like object to combine with this Set.
  * @return {Set} A new set that contains all the elements from both sets.
  */
 Set.prototype.union = function (otherSet) {
-    if (!Set.isSet(otherSet)) {
-        throw new TypeError("Set.union(): wrong parameter type.");
-    }
+    var other = __getSetRecord__(otherSet);
+    var result = new Set(this);
+    var iterator = other.keys.call(other.object);
+    var item;
 
-    var unionSet = new Set();
-    return unionSet.from(this, otherSet);
+    if (!iterator || typeof iterator.next !== "function") {
+        throw new TypeError("Set-like keys() must return an iterator.");
+    }
+    item = iterator.next();
+    while (!item.done) {
+        result.add(item.value);
+        item = iterator.next();
+    }
+    return result;
 };
