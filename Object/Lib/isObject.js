@@ -6,6 +6,6 @@
  */
 if (!Object.isObject) {
     Object.isObject = function (obj) {
-        return typeof obj === 'object' && obj !== null;
+        return (typeof obj === "object" && obj !== null) || typeof obj === "function";
     };
 };

@@ -3,26 +3,43 @@
  *
  * @param {object} obj - The object to be flattened
  * @return {object} The flattened object
+ * @dependency Object.isCyclic()
  */
-Object.flat = function (obj) {
-    if (!obj || typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'function') return obj;
+if (!Object.flat) {
+    Object.flat = function (obj) {
+        var result = {};
+        var key;
 
-    var result = {};
-    function flatten(key, value, prefix) {
-        var flatKey = prefix ? prefix + "_" + key : key;
+        if (obj === null || typeof obj !== "object") return obj;
+        if (Object.isCyclic(obj)) {
+            throw new TypeError("Object.flat: cyclic reference.");
+        }
 
-        if (typeof value === 'object' && value !== null && !(value instanceof Array) && !(value instanceof Date)) {
-            for (var innerKey in value) {
-                flatten(innerKey, value[innerKey], flatKey);
+        function flatten(property, value, prefix) {
+            var flatKey = prefix ? prefix + "_" + property : property;
+            var hasOwn = false;
+            var innerKey;
+
+            if (typeof value === "object" && value !== null &&
+                    !(value instanceof Array) && !(value instanceof Date)) {
+                for (innerKey in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, innerKey)) {
+                        hasOwn = true;
+                        flatten(innerKey, value[innerKey], flatKey);
+                    }
+                }
+                if (!hasOwn) result[flatKey] = value;
+            } else {
+                result[flatKey] = value;
             }
-        } else {
-            result[flatKey] = value;
-        };
-    };
+        }
 
-    for (var key in obj) {
-        flatten(key, obj[key], '');
-    };
+        for (key in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                flatten(key, obj[key], "");
+            }
+        }
 
-    return result;
-};
+        return result;
+    };
+}

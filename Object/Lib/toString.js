@@ -1,18 +1,19 @@
 /**
- * Overrides the default `toString` method of `Object` prototype
- * to return a string representation of the object.
+ * Overrides Object.prototype.toString for readable ExtendScript Console output.
  *
- * @return {string} A string representation of the object.
+ * @return {string} A string representation of enumerable own properties.
  */
-
 Object.prototype.toString = function () {
-    var results = "";
-    var obj = this;
-    for (var key in obj) {
-        if (obj.hasOwnProperty(key)) {
-            if (results !== "") results += ", ";
-            results += key + ": " + (typeof obj[key] === "string" ? '"' + obj[key] + '"' : obj[key]);
+    var result = "";
+    var key;
+
+    for (key in this) {
+        if (Object.prototype.hasOwnProperty.call(this, key)) {
+            if (result !== "") result += ", ";
+            result += key + ": " +
+                (typeof this[key] === "string" ? '"' + this[key] + '"' : this[key]);
         }
     }
-    return "{" + results + "}";
+
+    return "{" + result + "}";
 };

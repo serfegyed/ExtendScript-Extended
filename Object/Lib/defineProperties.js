@@ -9,8 +9,11 @@
  * @return {object} The object with the defined or modified properties.
  */
 if (!Object.defineProperties) {
-    Object.defineProperties = function (obj, properties) {
-        if (typeof obj !== "object" || obj === null) {
+    Object.defineProperties = function (object, properties) {
+        var property;
+
+        if (object === null ||
+                (typeof object !== "object" && typeof object !== "function")) {
             throw new TypeError("Object.defineProperties called on non-object");
         }
         if (typeof properties !== "object" || properties === null) {
@@ -19,12 +22,12 @@ if (!Object.defineProperties) {
             );
         }
 
-        for (var prop in properties) {
-            if (properties.hasOwnProperty(prop)) {
-                Object.defineProperty(obj, prop, properties[prop]);
+        for (property in properties) {
+            if (Object.prototype.hasOwnProperty.call(properties, property)) {
+                Object.defineProperty(object, property, properties[property]);
             }
         }
 
-        return obj;
+        return object;
     };
-};
+}

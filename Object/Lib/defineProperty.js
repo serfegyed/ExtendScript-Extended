@@ -9,8 +9,9 @@
  * @return {Object} The object that was passed to the function.
  */
 if (!Object.defineProperty) {
-    Object.defineProperty = function (obj, prop, descriptor) {
-        if (typeof obj !== "object" || obj === null) {
+    Object.defineProperty = function (object, property, descriptor) {
+        if (object === null ||
+                (typeof object !== "object" && typeof object !== "function")) {
             throw new TypeError("Object.defineProperty called on non-object");
         }
 
@@ -18,12 +19,12 @@ if (!Object.defineProperty) {
             throw new TypeError("Property description must be an object");
         }
 
-        if (typeof descriptor.value !== "undefined") {
-            obj[prop] = descriptor.value;
+        if ("value" in descriptor) {
+            object[String(property)] = descriptor.value;
         }
 
         // Other descriptor attributes (writable, enumerable, configurable) are not supported in ES3
 
-        return obj;
+        return object;
     };
 }

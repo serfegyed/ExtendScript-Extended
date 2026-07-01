@@ -7,40 +7,75 @@
  */
 if (!Object.isEquals) {
     Object.isEquals = function (obj1, obj2) {
-        // ES3 version
-        var alreadyCompared = []
+        var alreadyCompared = [];
+
+        function sameValueZero(a, b) {
+            return a === b || (a !== a && b !== b);
+        }
+
+        function isRegExp(value) {
+            return value instanceof RegExp || value.__class__ === "RegExp" ||
+                value.reflect && value.reflect.name === "RegExp" ||
+                typeof value.exec === "function" && typeof value.test === "function" &&
+                typeof value.global === "boolean" &&
+                typeof value.ignoreCase === "boolean" &&
+                typeof value.multiline === "boolean";
+        }
 
         function innerCompare(a, b) {
-            if (sameValueZero(a, b)) return true
+            var aIsArray;
+            var bIsArray;
+            var aIsRegExp;
+            var bIsRegExp;
+            var countA = 0;
+            var countB = 0;
+            var i;
+            var key;
 
-            // Check if objects have already been compared
-            for (var i = 0; i < alreadyCompared.length; i++) {
+            if (sameValueZero(a, b)) return true;
+
+            if (a === null || b === null) return false;
+
+            aIsRegExp = isRegExp(a);
+            bIsRegExp = isRegExp(b);
+            if (aIsRegExp || bIsRegExp) {
+                return aIsRegExp && bIsRegExp && String(a) === String(b);
+            }
+
+            if (typeof a !== "object" || typeof b !== "object") return false;
+
+            if (a instanceof Date || b instanceof Date) {
+                return a instanceof Date && b instanceof Date &&
+                    sameValueZero(a.getTime(), b.getTime());
+            }
+
+            aIsArray = a instanceof Array;
+            bIsArray = b instanceof Array;
+            if (aIsArray !== bIsArray || aIsArray && a.length !== b.length) return false;
+
+            if (a.__proto__ !== b.__proto__) return false;
+
+            for (i = 0; i < alreadyCompared.length; i++) {
                 if (alreadyCompared[i][0] === a && alreadyCompared[i][1] === b) {
-                    return true
+                    return true;
                 }
             }
 
-            // No, add objects
-            alreadyCompared.push([a, b])
+            alreadyCompared.push([a, b]);
 
-            if (a instanceof Date && b instanceof Date)
-                return a.getTime() === b.getTime()
+            for (key in a) {
+                if (Object.prototype.hasOwnProperty.call(a, key)) {
+                    countA++;
+                    if (!Object.prototype.hasOwnProperty.call(b, key) ||
+                            !innerCompare(a[key], b[key])) return false;
+                }
+            }
+            for (key in b) {
+                if (Object.prototype.hasOwnProperty.call(b, key)) countB++;
+            }
 
-            if (a instanceof RegExp && b instanceof RegExp)
-                return a.toString() === b.toString()
-
-            if (!a || !b || (typeof a !== "object" && typeof b !== "object"))
-                return sameValueZero(a, b)
-
-            if (a.__proto__ !== b.__proto__) return false
-
-            const keys = Object.keys(a)
-            if (keys.length !== Object.keys(b).length) return false
-
-            return keys.every(function (k) {
-                return innerCompare(a[k], b[k])
-            })
+            return countA === countB;
         }
-        return innerCompare(obj1, obj2)
-    }
-};
+        return innerCompare(obj1, obj2);
+    };
+}

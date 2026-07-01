@@ -5,13 +5,22 @@
  * @return {Array} An array of all the values in the object.
  */
 if (!Object.values) {
-    Object.values = function (obj) {
-        if (!obj || typeof obj !== "object") throw new TypeError(obj.toString() + " is not an object");
-
+    Object.values = function (value) {
+        var object;
         var results = [];
-        for (var key in obj) {
-            (obj.hasOwnProperty ? obj.hasOwnProperty(key) : key in obj) && results.push(obj[key]);
+        var key;
+
+        if (value === null || value === undefined) {
+            throw new TypeError("Object.values called on null or undefined");
         }
+
+        object = typeof value === "string" ? value.split("") : Object(value);
+        for (key in object) {
+            if (Object.prototype.hasOwnProperty.call(object, key)) {
+                results.push(object[key]);
+            }
+        }
+
         return results;
     };
-};
+}

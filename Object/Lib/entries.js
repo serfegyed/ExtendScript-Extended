@@ -5,12 +5,22 @@
  * @return {Array} An array of key-value pairs representing the properties of the object.
  */
 if (!Object.entries) {
-    Object.entries = function (obj) {
-        if (!obj || typeof obj !== "object") throw new TypeError(obj.toString() + " is not an object");
+    Object.entries = function (value) {
+        var object;
         var results = [];
-        for (var key in obj) {
-            if (obj.hasOwnProperty(key)) results.push([key, obj[key]]);
+        var key;
+
+        if (value === null || value === undefined) {
+            throw new TypeError("Object.entries called on null or undefined");
         }
+
+        object = typeof value === "string" ? value.split("") : Object(value);
+        for (key in object) {
+            if (Object.prototype.hasOwnProperty.call(object, key)) {
+                results.push([key, object[key]]);
+            }
+        }
+
         return results;
     };
-};
+}

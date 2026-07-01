@@ -1,22 +1,27 @@
 /**
- * Returns an array of all properties (including non-enumerable properties) 
- * found directly on a given object.
+ * Returns the enumerable own property names visible to ExtendScript.
+ * Non-enumerable properties cannot be discovered through ES3 `for...in`.
  *
  * @param {object} obj - The object to retrieve the property names from.
  * @return {array} An array of property names.
  */
-if (!Object.getOwnPropertyNames) { // ChatGPT version
-    Object.getOwnPropertyNames = function (obj) {
-        if (obj !== Object(obj)) {
-            throw new TypeError('Object.getOwnPropertyNames: called on non-object');
+if (!Object.getOwnPropertyNames) {
+    Object.getOwnPropertyNames = function (value) {
+        var object;
+        var propertyNames = [];
+        var property;
+
+        if (value === null || value === undefined) {
+            throw new TypeError("Object.getOwnPropertyNames called on null or undefined");
         }
 
-        var propNames = [];
-        for (var prop in obj) {
-            if (Object.prototype.hasOwnProperty.call(obj, prop)) {
-                propNames.push(prop);
+        object = typeof value === "string" ? value.split("") : Object(value);
+        for (property in object) {
+            if (Object.prototype.hasOwnProperty.call(object, property)) {
+                propertyNames.push(property);
             }
         }
-        return propNames;
+
+        return propertyNames;
     };
-};
+}

@@ -1,39 +1,51 @@
 /**
  * Groups the items based on the provided callback function.
  *
- * @param {Array|String|Map|Set|Object} items - The array, string, or iterable object to be grouped.
+ * @param {Array|String|Map|Set|Object} items - Array-like or `forEach` collection.
  * @param {function} callback - The function to be called on each item to determine the group.
  * @throws {TypeError} If the callback parameter is not a function or if the items parameter is not an iterable.
  * @return {Object} An object containing the groups as keys and arrays of items as values.
  */
 if (!Object.groupBy) {
     Object.groupBy = function (items, callback) {
+        var groups = {};
+        var index = 0;
+
         if (typeof callback !== "function") {
             throw new TypeError("Object.groupBy: callback must be a function.");
         }
 
-        if (!((items != null) && (items.length >= 0 || items.size >= 0))) {
-            throw new TypeError("Object.groupBy: items must be an iterable (Array, String, Map, Set, or Object).");
+        if (items === null || items === undefined ||
+                (typeof items.length !== "number" && typeof items.forEach !== "function")) {
+            throw new TypeError("Object.groupBy: items must be array-like or support forEach.");
         }
 
-        var groups = {};
-        var groupName;
-        var item, key;
+        function add(value) {
+            var groupName = String(callback.call(undefined, value, index++));
 
-        // Consolidated iteration logic
-        var iterate = (typeof items.length === 'number') ?
-            function (callback) { for (var i = 0; i < items.length; i++) callback(items[i], i); } :
-            function (callback) { items.forEach(function (value, k) { callback(value, k); }); };
+            if (groupName === "__proto__") {
+                throw new TypeError("Object.groupBy: __proto__ group name is not supported.");
+            }
+            if (!Object.prototype.hasOwnProperty.call(groups, groupName)) {
+                groups[groupName] = [];
+            }
+            groups[groupName].push(value);
+        }
 
-        iterate(function (value, k) {
-            key = (typeof items.length === 'number') ? k : value;
-            item = (typeof items.length === 'number') ? value : [k, value];
-            groupName = callback.call(undefined, item, key);
-
-            groups[groupName] = groups[groupName] || [];
-            groups[groupName].push(item);
-        });
+        if (typeof items.length === "number") {
+            for (var i = 0; i < items.length; i++) {
+                add(items[i]);
+            }
+        } else if (typeof Map !== "undefined" && items instanceof Map) {
+            items.forEach(function (value, key) {
+                add([key, value]);
+            });
+        } else {
+            items.forEach(function (value) {
+                add(value);
+            });
+        }
 
         return groups;
     };
-};
+}

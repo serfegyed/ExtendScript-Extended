@@ -1,51 +1,55 @@
+# ExtendScript Object extensions
 
-# ExtendScript-Object
+Object methods for ESTK and Adobe ExtendScript. `Object.js` is the complete
+include-only bundle; every implementation is also available separately in
+`Lib`.
 
-ES6 Object functions for ExtendScript (ES3)
+## Standard-compatible methods
 
-These are possible implementation of the JavaScript built-in Object static methods.
+- `Object.assign()`
+- `Object.create()`
+- `Object.defineProperty()`
+- `Object.defineProperties()`
+- `Object.entries()`
+- `Object.fromEntries()`
+- `Object.getOwnPropertyNames()`
+- `Object.getPrototypeOf()`
+- `Object.groupBy()`
+- `Object.hasOwn()`
+- `Object.is()`
+- `Object.keys()`
+- `Object.values()`
 
-## Built-in Extendscript Object functions (these are for information only, they are not implemented here)
+These are ExtendScript-compatible subsets where ES3 cannot expose the full
+modern object model:
 
-  `hasOwnProperty()`  
-  `isPrototypeOf()`  
-  `isValid()`  
-  `propertyIsEnumerable()`  
-  `toLocaleString()`  
-  `toSource()`  
-  `toString()`  
-  `unwatch()`  
-  `valueOf()`  
-  `watch()`  
+- `fromEntries()` accepts arrays of two-element rows.
+- `getOwnPropertyNames()` can return only enumerable own names.
+- `getPrototypeOf()` accepts objects and functions, not primitive values.
+- `create()` uses direct property values instead of descriptor maps.
+- `defineProperty()` and `defineProperties()` support only descriptor `value`.
+- `groupBy()` supports array-like and `forEach` collections. Maps contribute
+  `[key, value]` pairs; Sets contribute values. ESTK cannot represent an own
+  `__proto__` group, so that key throws `TypeError`.
 
-## Implemented functions
-  
-* `Object.assign()`             - Copies all enumerable own properties from source object(s) to target object.  
-* `Object.create()`             - Creates a new Object, using an existing object as the prototype.
-* `Object.defineProperty()`     - Defines or modifies a property directly on an object.  
-* `Object.defineProperties()`   - Defines new or modifies existing properties directly on an object.  
-* `Object.entries()`            - Returns an array of a given object's own string-keyed property key-value pairs  
-* `Object.fromEntries()`        - Creates a new Object from an array of key-value pairs.The reverse of Object.entries().  
-* `Object.getOwnPropertyNames()` - Returns an array of a given object's own enumerable string-keyed property names  
-* `Object.groupBy()`            - Groups the items based on the provided callback function.  
-* `Object.hasOwn()`             - The preferred method over hasOwnProperty()  
-* `Object.is()`                 - Determines whether two values are the same value or both NaN.  
-* `Object.keys()`               - Returns an array of a given object's string-keyed property names
-* `Object.prototype.toString()` - Returns a string of a given object's own property key-value pairs.  
-* `Object.values()`             - Returns an array of a given object's own enumerable string-keyed property values
+## Non-standard extensions
 
-## Non-standard functions
+- `Object.compact()` recursively removes falsy values from objects and arrays.
+- `Object.deepCopy()` creates independent copies and rejects cyclic references.
+- `Object.flat()` flattens nested own properties. Depends on `Object.isCyclic()`.
+- `Object.isCyclic()` detects true recursive cycles without rejecting shared references.
+- `Object.isEmpty()` checks enumerable own properties.
+- `Object.isEquals()` deeply compares supported values and cyclic structures.
+- `Object.isObject()` recognizes non-null objects and functions.
+- `Object.prototype.merge()` performs a shallow-key merge with deeply copied
+  values. Depends on `Object.deepCopy()`.
+- `Object.prototype.toString()` intentionally replaces native output with a
+  readable representation for the ExtendScript Console.
 
-* `Object.compact()`          - Compacts an object or an array by removing any falsy values.
-* `Object.deepCopy()`           - Returns a new `deep copy` of an Object, Array, Date or any types
-* `Object.flat()`               - Flattens an object into a single-level object
-* `Object.safeDeepCopy()`       - Implements a safe `deep copy` with handling circular references.
-* `Object.isCyclic()`           - Detects cyclic references in an object.
-* `Object.isEmpty()`            - Tests if a passed object is empty
-* `Object.isEquals()`           - Compares two objects for equality.
-* `Object.isObject()`           - Tests if a passed data is Object
-* `Object.prototype.merge()`    - Merges two Objects and returns a new Object. Handles nested Objects/Arrays.
+## Tests
 
-## Ddependecies
+- `Test/tests-Object-standard.js`
+- `Test/tests-Object-nonstandard.js`
 
-`Array.isArray()`, `isPrimitive()`, `sameValueZero()`
+Both harnesses run in ESTK and Node. Node is used only as a convenient behavior
+reference; ESTK and Adobe applications are the production targets.

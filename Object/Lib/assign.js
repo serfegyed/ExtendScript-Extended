@@ -6,26 +6,31 @@
  * @return {Object} - The target object with the assigned properties.
  */
 if (!Object.assign) {
-    Object.assign = function (targetObj /*, sourceObj1, sourceObj2, ..., sourceObjN */) {
-        if (!targetObj || typeof targetObj !== 'object') {
-            throw new TypeError("Target is not an Object");
+    Object.assign = function (target /*, source1, source2, ..., sourceN */) {
+        var targetObject;
+        var source;
+        var property;
+        var i;
+
+        if (target === null || target === undefined) {
+            throw new TypeError("Object.assign target is null or undefined");
         }
 
-        for (var i = 1; i < arguments.length; i++) {
-            var source = arguments[i];
+        targetObject = Object(target);
+        for (i = 1; i < arguments.length; i++) {
+            source = arguments[i];
 
-            if (typeof source === 'string') {
-                source = source.split('');
+            if (source === null || source === undefined) {
+                continue;
             }
-            if (!source || typeof source !== 'object') continue;
-
-            for (var prop in source) {
-                if (source.hasOwnProperty(prop)) {
-                    targetObj[prop] = source[prop];
+            source = typeof source === "string" ? source.split("") : Object(source);
+            for (property in source) {
+                if (Object.prototype.hasOwnProperty.call(source, property)) {
+                    targetObject[property] = source[property];
                 }
             }
         }
 
-        return targetObj;
+        return targetObject;
     };
-};
+}

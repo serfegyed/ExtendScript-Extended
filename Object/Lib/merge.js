@@ -4,20 +4,32 @@
  * @param {Object} obj - The object to merge with the current object.
  * @throws {TypeError} Throws a TypeError if the provided object is not an object.
  * @return {Object} Returns a new object with the merged properties.
+ * @dependency Object.deepCopy()
  */
 if (!Object.prototype.merge) {
     Object.prototype.merge = function (obj) {
-        if (!(typeof obj === 'object' && obj !== null))
-            throw new TypeError(obj.toString() + " is not an object");
-        var thisObj = Object.deepCopy(this);
-        var secondObj = Object.deepCopy(obj);
+        var thisObj;
+        var secondObj;
         var mergedObj = {};
-        for (var prop in thisObj) {
-            if (thisObj.hasOwnProperty(prop)) mergedObj[prop] = thisObj[prop];
+        var prop;
+
+        if (obj === null || typeof obj !== "object") {
+            throw new TypeError("Object.merge: argument must be an object.");
         }
-        for (var prop in secondObj) {
-            if (secondObj.hasOwnProperty(prop)) mergedObj[prop] = obj[prop];
+
+        thisObj = Object.deepCopy(this);
+        secondObj = Object.deepCopy(obj);
+
+        for (prop in thisObj) {
+            if (Object.prototype.hasOwnProperty.call(thisObj, prop)) {
+                mergedObj[prop] = thisObj[prop];
+            }
+        }
+        for (prop in secondObj) {
+            if (Object.prototype.hasOwnProperty.call(secondObj, prop)) {
+                mergedObj[prop] = secondObj[prop];
+            }
         }
         return mergedObj;
     };
-};
+}

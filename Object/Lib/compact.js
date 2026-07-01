@@ -5,18 +5,44 @@
  * @throws {TypeError} If val is not an object or array.
  * @return {Object|Array} The compacted object or array.
  */
-Object.compact = function (val) {
-    if (!Object.isObject(val) && !Array.isArray(val)) {
-        throw new TypeError("Object.compact: " + typeof val + " is not an Object.");
+if (!Object.compact) {
+    Object.compact = function (val) {
+        var result;
+        var value;
+        var key;
+        var i;
+        var isArray;
+        var isPlainObject;
+
+        if (val === null || val === undefined) {
+            throw new TypeError("Object.compact: value must be an object or array.");
+        }
+
+        isArray = val instanceof Array;
+        isPlainObject = val.__class__ === "Object" ||
+            typeof val === "object" && val.constructor === Object;
+        if (!isArray && !isPlainObject) {
+            throw new TypeError("Object.compact: value must be an object or array.");
+        }
+
+        if (isArray) {
+            result = [];
+            for (i = 0; i < val.length; i++) {
+                value = val[i];
+                if (value) {
+                    result.push(typeof value === "object" ? Object.compact(value) : value);
+                }
+            }
+            return result;
+        }
+
+        result = {};
+        for (key in val) {
+            if (Object.prototype.hasOwnProperty.call(val, key) && val[key]) {
+                value = val[key];
+                result[key] = typeof value === "object" ? Object.compact(value) : value;
+            }
+        }
+        return result;
     };
-    const data = Array.isArray(val) ? val.filter(Boolean) : val;
-    return Object.keys(data).reduce(
-        function (acc, key) {
-            const value = data[key];
-            if (Boolean(value))
-                acc[key] = typeof value === 'object' ? Object.compact(value) : value;
-            return acc;
-        },
-        Array.isArray(val) ? [] : {}
-    );
-};
+}

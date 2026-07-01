@@ -6,10 +6,12 @@
  */
 if (!Object.isEmpty) {
     Object.isEmpty = function (obj) {
-        if (!(typeof obj === 'object' && obj !== null)) throw new TypeError(obj.toString() + " is not an Object");
+        if ((typeof obj !== "object" || obj === null) && typeof obj !== "function") {
+            throw new TypeError("Object.isEmpty: value must be an object.");
+        }
         for (var key in obj) {
-            if (obj.hasOwnProperty(key)) return false;
+            if (Object.prototype.hasOwnProperty.call(obj, key)) return false;
         }
         return true;
     };
-};
+}

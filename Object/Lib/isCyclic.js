@@ -3,30 +3,35 @@
  *
  * @param {Object} obj - The object to check for cyclic references.
  * @return {boolean} True if the object contains cyclic references, false otherwise.
- * @dependecy isPrimitive()
  */
 if (!Object.isCyclic) {
     Object.isCyclic = function (obj) {
-        var visited = [];
-        var detected = false;
+        var stack = [];
 
-        function detect(obj) {
-            if (isPrimitive(obj)) {
+        function detect(value) {
+            var i;
+            var key;
+
+            if (value === null ||
+                    (typeof value !== "object" && typeof value !== "function")) {
                 return false;
-            };
-            if (visited.indexOf(obj) !== -1) {
-                return detected = true;
+            }
+            for (i = 0; i < stack.length; i++) {
+                if (stack[i] === value) return true;
             }
 
-            visited.push(obj)
-            for (var key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                    detect(obj[key])
-                };
-            };
-            visited.pop();
+            stack.push(value);
+            for (key in value) {
+                if (Object.prototype.hasOwnProperty.call(value, key) &&
+                        detect(value[key])) {
+                    stack.pop();
+                    return true;
+                }
+            }
+            stack.pop();
+            return false;
         }
-        detect(obj);
-        return detected;
+
+        return detect(obj);
     };
-};
+}
