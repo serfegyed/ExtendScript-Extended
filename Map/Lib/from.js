@@ -7,40 +7,53 @@
  * @return {Map} A new Map object containing the mapped key-value pairs.
  */
 Map.from = function (iterable, mapFunc, thisArg) {
-    if (!iterable || typeof iterable !== 'object') {
-        throw new TypeError("Expected an object for 'iterable' but received: " + (typeof iterable));
+    var result = new Map();
+    var i;
+    var key;
+    var iterator;
+    var entry;
+
+    if (iterable === null || iterable === undefined ||
+            typeof iterable !== "object") {
+        throw new TypeError("Map.from: source must be an object.");
     }
 
-    // Default identity function if no mapFunc is provided.
-    mapFunc = mapFunc || function (value, key) { return [key, value]; };
+    if (mapFunc === undefined) {
+        mapFunc = function (value, sourceKey) {
+            return [sourceKey, value];
+        };
+    } else if (typeof mapFunc !== "function") {
+        throw new TypeError("Map.from: mapper must be a function.");
+    }
 
-    var result = new Map();
-
-    function processEntry(value, key) {
-        var transformed = mapFunc.call(thisArg, value, key);
-        if (!Array.isArray(transformed) || transformed.length !== 2) {
-            throw new TypeError(iterable + " is not an object.");
+    function processEntry(value, sourceKey) {
+        var transformed = mapFunc.call(thisArg, value, sourceKey);
+        if (!(transformed instanceof Array) || transformed.length !== 2) {
+            throw new TypeError("Map.from: mapper must return a key-value pair.");
         }
         result.set(transformed[0], transformed[1]);
     }
 
     if (iterable instanceof Array) {
-        for (var i = 0; i < iterable.length; i++) {
-            if (Array.isArray(iterable[i]) && iterable[i].length === 2) {
+        for (i = 0; i < iterable.length; i++) {
+            if (iterable[i] instanceof Array && iterable[i].length === 2) {
                 processEntry(iterable[i][1], iterable[i][0]);
             }
         }
     } else if (iterable instanceof Map) {
-        for (var j = 0; j < iterable._entries.length; j++) {
-            processEntry(iterable._entries[j][1], iterable._entries[j][0]);
+        iterator = iterable.entries();
+        entry = iterator.next();
+        while (!entry.done) {
+            processEntry(entry.value[1], entry.value[0]);
+            entry = iterator.next();
         }
-    } else if (typeof iterable.length === 'number') { // Handling for array-like objects
-        for (var k = 0; k < iterable.length; k++) {
-            processEntry(iterable[k], k);
+    } else if (typeof iterable.length === "number") {
+        for (i = 0; i < iterable.length; i++) {
+            processEntry(iterable[i], i);
         }
     } else {
-        for (var key in iterable) {
-            if (iterable.hasOwnProperty(key)) {
+        for (key in iterable) {
+            if (Object.prototype.hasOwnProperty.call(iterable, key)) {
                 processEntry(iterable[key], key);
             }
         }

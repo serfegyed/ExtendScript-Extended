@@ -13,27 +13,38 @@
  * @external Map.prototype.entries
  */
 Map.prototype.reduce = function (callback, initialValue) {
-    if (typeof callback !== "function")
-        throw new TypeError("Map.reduce(): Callback must be a function");
+    var iterator;
+    var entry;
+    var accumulator;
+    var hasInitialValue = arguments.length > 1;
 
-    if (this.size === 0 && initialValue === undefined)
-        throw new TypeError("Map.reduce(): Empty Map without an initial value");
+    if (typeof callback !== "function") {
+        throw new TypeError("Map.prototype.reduce: callback must be a function.");
+    }
 
-    var accumulator = initialValue || undefined;
+    iterator = this.entries();
+    entry = iterator.next();
 
-    if (this.size !== 0 && !accumulator) {
-        accumulator = this._entries[0][1];
-        startindex = 1;
+    if (hasInitialValue) {
+        accumulator = initialValue;
     } else {
-        startindex = 0;
-    };
+        if (entry.done) {
+            throw new TypeError("Map.prototype.reduce: empty Map without an initial value.");
+        }
+        accumulator = entry.value[1];
+        entry = iterator.next();
+    }
 
-    for (var i = startindex; i < this._entries.length; i++) {
-        accumulator = callback.call(null, accumulator, this._entries[i][1], this._entries[i][0], this);
-    };
-
-    if (accumulator === undefined)
-        throw new TypeError("Map.reduce(): Reducer function returns an invalid value");
+    while (!entry.done) {
+        accumulator = callback.call(
+            undefined,
+            accumulator,
+            entry.value[1],
+            entry.value[0],
+            this
+        );
+        entry = iterator.next();
+    }
 
     return accumulator;
 };

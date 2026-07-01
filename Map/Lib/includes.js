@@ -6,7 +6,9 @@
  * @external Map.prototype.values, sameValueZero()
  */
 Map.prototype.includes = function (searchElement) {
-    if (!arguments.length) throw new TypeError('Map.includes(): Missing search element')
+    if (!arguments.length) {
+        throw new TypeError("Map.prototype.includes: missing search element.");
+    }
 
     return this._findIndex(searchElement) !== -1;
 };

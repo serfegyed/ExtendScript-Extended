@@ -9,20 +9,24 @@
  * @return {Map} - The updated Map object.
  */
 Map.prototype.setEach = function (argArr, callback, thisArg) {
-    if (!(argArr instanceof Array))
-        throw new TypeError("Map.setEach(): Need array to add elements");
+    var i;
+    var entry;
 
-    if (typeof callback !== "function")
-        throw new TypeError("Map.setEach(): Missing callback function");
+    if (!(argArr instanceof Array)) {
+        throw new TypeError("Map.prototype.setEach: entries must be an array.");
+    }
+    if (typeof callback !== "function") {
+        throw new TypeError("Map.prototype.setEach: callback must be a function.");
+    }
 
-    for (var i = 0; i < argArr.length; i++) {
-        var entry = argArr[i];
+    for (i = 0; i < argArr.length; i++) {
+        entry = argArr[i];
         if (entry instanceof Array && entry.length === 2) {
             if (callback.call(thisArg, entry[1], entry[0], this)) {
                 this.set(entry[0], entry[1]);
             }
-        };
-    };
+        }
+    }
 
     return this;
 };

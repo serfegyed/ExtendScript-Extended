@@ -11,9 +11,9 @@ Map.prototype.setAll = function (argArr) {
             var entry = argArr[i];
             if (entry instanceof Array && entry.length === 2) {
                 this.set(entry[0], entry[1]);
-            };
-        };
-    };
+            }
+        }
+    }
 
     return this;
 };

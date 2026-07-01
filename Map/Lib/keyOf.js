@@ -6,7 +6,11 @@
  * @external Map.prototype.entries, sameValueZero()
  */
 Map.prototype.keyOf = function (searchElement) {
-    if (!arguments.length) throw new TypeError('Map.keyOf(): Missing search element')
+    var index;
+
+    if (!arguments.length) {
+        throw new TypeError("Map.prototype.keyOf: missing search element.");
+    }
     index = this._findIndex(searchElement);
 
     return index === -1 ? undefined : this._entries[index][0];

@@ -5,8 +5,12 @@
  */
 Map.prototype.toArray = function () {
     var entries = [];
-    for (var i = 0; i < this._entries.length; i++) {
-        entries.push([this._entries[i][0], this._entries[i][1]]);
+    var iterator = this.entries();
+    var entry = iterator.next();
+
+    while (!entry.done) {
+        entries.push(entry.value);
+        entry = iterator.next();
     }
-    return entries; // Returns an array of [key, value] pairs
+    return entries;
 };

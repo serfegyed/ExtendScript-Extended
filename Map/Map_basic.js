@@ -14,29 +14,15 @@
  * Property for the Map class:
  * - size       - Returns the number of key-value pairs in the map.
  *
- * @external:   nothing
+ * @external:   sameValueZero()
  */
 function Map(iterable) {
+    if (!(this instanceof Map)) {
+        throw new TypeError("Constructor Map requires 'new'.");
+    }
+
     this._entries = []; // Store entries as an array of [key, value] arrays
     this.size = 0;
-
-    Map.prototype._findEntry = function (key) {
-        for (var i = 0; i < this._entries.length; i++) {
-            if (sameValueZero(this._entries[i][0], key)) {
-                return i;
-            }
-        }
-        return -1; // Return -1 if no entry is found
-    };
-
-    Map.prototype._findIndex = function (value) {
-        for (var i = 0; i < this._entries.length; i++) {
-            if (sameValueZero(this._entries[i][1], value)) {
-                return i;
-            }
-        }
-        return -1; // Return -1 if no entry is found
-    };
 
     if (iterable instanceof Array) {
         for (var i = 0; i < iterable.length; i++) {
@@ -47,6 +33,24 @@ function Map(iterable) {
         }
     }
 }
+
+Map.prototype._findEntry = function (key) {
+    for (var i = 0; i < this._entries.length; i++) {
+        if (sameValueZero(this._entries[i][0], key)) {
+            return i;
+        }
+    }
+    return -1;
+};
+
+Map.prototype._findIndex = function (value) {
+    for (var i = 0; i < this._entries.length; i++) {
+        if (sameValueZero(this._entries[i][1], value)) {
+            return i;
+        }
+    }
+    return -1;
+};
 
 /**
  * Sets the value of a key in the data object.

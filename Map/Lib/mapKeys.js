@@ -7,13 +7,23 @@
  * @external Map.prototype.entries
  */
 Map.prototype.mapKeys = function (callback, thisArg) {
-    if (typeof callback !== "function")
-        throw new TypeError("Map.mapKeys(): Missing callback function");
     var newMap = new Map();
+    var iterator;
+    var entry;
 
-    for (var i = 0; i < this._entries.length; i++) {
-        newMap.set(callback.call(thisArg, this._entries[i][0], this._entries[i][1], this), this._entries[i][1]);
-    };
+    if (typeof callback !== "function") {
+        throw new TypeError("Map.prototype.mapKeys: callback must be a function.");
+    }
+
+    iterator = this.entries();
+    entry = iterator.next();
+    while (!entry.done) {
+        newMap.set(
+            callback.call(thisArg, entry.value[0], entry.value[1], this),
+            entry.value[1]
+        );
+        entry = iterator.next();
+    }
 
     return newMap;
 };

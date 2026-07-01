@@ -1,39 +1,48 @@
 /**
- * Groups the elements of an iterable according to the result of a callback function.
+ * Groups iterable values according to a callback result.
  *
- * @param {Iterable} iterable - The iterable to group.
- * @param {Function} callback - The function that produces the grouping key.
- * @return {Map} A Map object with the grouped elements.
+ * ExtendScript subset: array-like values, Map entries, and forEach collections.
+ *
+ * @param {Object} iterable - The collection to group.
+ * @param {Function} callback - Receives the iterated value and numeric index.
+ * @return {Map} A Map whose values are arrays of grouped elements.
  */
-Map.groupBy = function (iterable, callback) {
-    if (typeof callback !== 'function') {
-        throw new TypeError('Second argument must be a function');
-    }
+if (!Map.groupBy) {
+    Map.groupBy = function (iterable, callback) {
+        var groups = new Map();
+        var index = 0;
+        var i;
 
-    var groups = new Map();
-
-    if (iterable instanceof Map) {
-        iterable.forEach(function (value, key) {
-            var groupName = callback(value, key, iterable);
-            if (!groups.has(groupName)) {
-                groups.set(groupName, []);
-            }
-            groups.get(groupName).push(value);
-        });
-    } else if (iterable instanceof Array || typeof iterable === 'object') {
-        for (var key in iterable) {
-            if (iterable.hasOwnProperty(key)) {
-                var value = iterable[key];
-                var groupName = callback(value, key, iterable);
-                if (!groups.has(groupName)) {
-                    groups.set(groupName, []);
-                }
-                groups.get(groupName).push(value);
-            }
+        if (typeof callback !== "function") {
+            throw new TypeError("Map.groupBy: callback must be a function.");
         }
-    } else {
-        throw new TypeError('First argument must be an iterable (Map, Array, or Object)');
-    }
+        if (iterable === null || iterable === undefined ||
+                (typeof iterable.length !== "number" &&
+                typeof iterable.forEach !== "function")) {
+            throw new TypeError("Map.groupBy: value must be array-like or support forEach.");
+        }
 
-    return groups;
-};
+        function add(value) {
+            var groupKey = callback.call(undefined, value, index++);
+
+            if (!groups.has(groupKey)) groups.set(groupKey, []);
+            groups.get(groupKey).push(value);
+        }
+
+        if (iterable instanceof Map) {
+            iterable.forEach(function (value, key) {
+                add([key, value]);
+            });
+        } else if (typeof iterable.length === "number") {
+            for (i = 0; i < iterable.length; i++) {
+                add(iterable[i]);
+            }
+        } else {
+            iterable.forEach(function (value) {
+                add(value);
+            });
+        }
+
+        return groups;
+    };
+}

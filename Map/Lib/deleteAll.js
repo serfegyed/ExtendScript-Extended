@@ -8,7 +8,7 @@
 Map.prototype.deleteAll = function (key1/*, ..., keyN*/) {
     for (var i = 0; i < arguments.length; i++) {
         this.delete(arguments[i]);
-    };
+    }
 
     return this;
 };

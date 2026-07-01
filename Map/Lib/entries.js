@@ -4,26 +4,32 @@
  * @returns {Object}
  */
 Map.prototype.entries = function () {
-    var entries = [];
-    for (var i = 0; i < this._entries.length; i++) {
-        entries.push([this._entries[i][0], this._entries[i][1]]);
-    }
-
-    var index = 0;
-    var length = entries.length;
+    var map = this;
+    var visited = [];
 
     var iterator = {
         next: function () {
-            if (index >= length)
-                return {
-                    done: true,
-                    value: undefined,
-                };
-            else
-                return {
-                    done: false,
-                    value: entries[index++],
-                };
+            var i;
+            var j;
+            var wasVisited;
+
+            for (i = 0; i < map._entries.length; i++) {
+                wasVisited = false;
+                for (j = 0; j < visited.length; j++) {
+                    if (visited[j] === map._entries[i]) {
+                        wasVisited = true;
+                        break;
+                    }
+                }
+                if (!wasVisited) {
+                    visited.push(map._entries[i]);
+                    return {
+                        done: false,
+                        value: [map._entries[i][0], map._entries[i][1]]
+                    };
+                }
+            }
+            return {done: true, value: undefined};
         },
     };
     return iterator;

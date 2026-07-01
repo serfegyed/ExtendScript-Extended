@@ -5,13 +5,20 @@
  * @throws {TypeError} Throws a TypeError if `otherMap` is not an instance of Map.
  * @return {Map} Returns the current map after merging.
  */
-Map.prototype.merge = function (otherMap) { //
+Map.prototype.merge = function (otherMap) {
+    var iterator;
+    var entry;
+
     if (!(otherMap instanceof Map)) {
-        throw new TypeError(otherMap + " is not a Map instance.");
-    };
-    for (var i = 0; i < otherMap._entries.length; i++) {
-        this.set(otherMap._entries[i][0], otherMap._entries[i][1])
-    };
+        throw new TypeError("Map.prototype.merge: value must be a Map.");
+    }
+
+    iterator = otherMap.entries();
+    entry = iterator.next();
+    while (!entry.done) {
+        this.set(entry.value[0], entry.value[1]);
+        entry = iterator.next();
+    }
 
     return this;
 };

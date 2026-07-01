@@ -10,14 +10,21 @@
  * @external Map.prototype.entries
  */
 Map.prototype.every = function (callback, thisArg) {
-    if (typeof callback !== "function")
-        throw new TypeError("Map.every(): Missing callback function");
+    var iterator;
+    var entry;
 
-    for (var i = 0; i < this._entries.length; i++) {
-        if (!callback.call(thisArg, this._entries[i][1], this._entries[i][0], this)) {
+    if (typeof callback !== "function") {
+        throw new TypeError("Map.prototype.every: callback must be a function.");
+    }
+
+    iterator = this.entries();
+    entry = iterator.next();
+    while (!entry.done) {
+        if (!callback.call(thisArg, entry.value[1], entry.value[0], this)) {
             return false;
         }
-    };
+        entry = iterator.next();
+    }
 
     return true;
 };

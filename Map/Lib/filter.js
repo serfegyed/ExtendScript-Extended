@@ -9,15 +9,22 @@
  * @external Map.prototype.entries
  */
 Map.prototype.filter = function (callback, thisArg) {
-    if (typeof callback !== "function")
-        throw new TypeError("Map.filter(): Missing callback function");
     var filteredMap = new Map();
+    var iterator;
+    var entry;
 
-    for (var i = 0; i < this._entries.length; i++) {
-        if (callback.call(thisArg, this._entries[i][1], this._entries[i][0], this)) {
-            filteredMap.set(this._entries[i][0], this._entries[i][1]);
+    if (typeof callback !== "function") {
+        throw new TypeError("Map.prototype.filter: callback must be a function.");
+    }
+
+    iterator = this.entries();
+    entry = iterator.next();
+    while (!entry.done) {
+        if (callback.call(thisArg, entry.value[1], entry.value[0], this)) {
+            filteredMap.set(entry.value[0], entry.value[1]);
         }
-    };
+        entry = iterator.next();
+    }
 
     return filteredMap;
 };
