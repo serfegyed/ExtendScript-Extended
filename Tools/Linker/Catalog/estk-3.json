@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "runtime": "Adobe ExtendScript / ESTK (ECMAScript 3 baseline)",
+  "globals": [
+    "Array", "Boolean", "Date", "Error", "EvalError", "Function",
+    "Infinity", "Math", "NaN", "Number", "Object", "RangeError",
+    "ReferenceError", "RegExp", "String", "SyntaxError", "TypeError",
+    "URIError", "decodeURI", "decodeURIComponent", "encodeURI",
+    "encodeURIComponent", "escape", "eval", "isFinite", "isNaN",
+    "parseFloat", "parseInt", "undefined", "unescape"
+  ],
+  "types": {
+    "Array": {
+      "static": [],
+      "prototype": [
+        "concat", "join", "length", "pop", "push", "reverse", "shift",
+        "slice", "sort", "splice", "toLocaleString", "toString", "unshift"
+      ]
+    },
+    "String": {
+      "static": ["fromCharCode"],
+      "prototype": [
+        "charAt", "charCodeAt", "concat", "indexOf", "lastIndexOf",
+        "length", "localeCompare", "match", "replace", "search", "slice",
+        "split", "substr", "substring", "toLocaleLowerCase",
+        "toLocaleUpperCase", "toLowerCase", "toString", "toUpperCase",
+        "valueOf"
+      ]
+    },
+    "Number": {
+      "static": ["MAX_VALUE", "MIN_VALUE", "NaN", "NEGATIVE_INFINITY", "POSITIVE_INFINITY"],
+      "prototype": ["toExponential", "toFixed", "toPrecision", "toString", "valueOf"]
+    },
+    "Boolean": {
+      "static": [],
+      "prototype": ["toString", "valueOf"]
+    },
+    "Date": {
+      "static": ["UTC", "parse"],
+      "prototype": [
+        "getDate", "getDay", "getFullYear", "getHours", "getMilliseconds",
+        "getMinutes", "getMonth", "getSeconds", "getTime", "getTimezoneOffset",
+        "getUTCDate", "getUTCDay", "getUTCFullYear", "getUTCHours",
+        "getUTCMilliseconds", "getUTCMinutes", "getUTCMonth", "getUTCSeconds",
+        "setDate", "setFullYear", "setHours", "setMilliseconds", "setMinutes",
+        "setMonth", "setSeconds", "setTime", "setUTCDate", "setUTCFullYear",
+        "setUTCHours", "setUTCMilliseconds", "setUTCMinutes", "setUTCMonth",
+        "setUTCSeconds", "toDateString", "toLocaleDateString",
+        "toLocaleString", "toLocaleTimeString", "toString", "toTimeString",
+        "toUTCString", "valueOf"
+      ]
+    },
+    "RegExp": {
+      "static": [],
+      "prototype": ["exec", "global", "ignoreCase", "lastIndex", "multiline", "source", "test", "toString"]
+    },
+    "Math": {
+      "static": [
+        "E", "LN10", "LN2", "LOG10E", "LOG2E", "PI", "SQRT1_2", "SQRT2",
+        "abs", "acos", "asin", "atan", "atan2", "ceil", "cos", "exp",
+        "floor", "log", "max", "min", "pow", "random", "round", "sin",
+        "sqrt", "tan"
+      ],
+      "prototype": []
+    },
+    "Object": {
+      "static": [],
+      "prototype": ["constructor", "hasOwnProperty", "isPrototypeOf", "propertyIsEnumerable", "toLocaleString", "toString", "valueOf"]
+    },
+    "Function": {
+      "static": [],
+      "prototype": ["apply", "call", "length", "toString"]
+    }
+  },
+  "returns": {
+    "Array.prototype.concat": "Array",
+    "Array.prototype.slice": "Array",
+    "Array.prototype.splice": "Array",
+    "String.prototype.slice": "String",
+    "String.prototype.split": "Array",
+    "String.prototype.substr": "String",
+    "String.prototype.substring": "String",
+    "String.prototype.toLocaleLowerCase": "String",
+    "String.prototype.toLocaleUpperCase": "String",
+    "String.prototype.toLowerCase": "String",
+    "String.prototype.toString": "String",
+    "String.prototype.toUpperCase": "String",
+    "String.prototype.valueOf": "String",
+    "Number.prototype.toExponential": "String",
+    "Number.prototype.toFixed": "String",
+    "Number.prototype.toPrecision": "String",
+    "Number.prototype.toString": "String",
+    "Boolean.prototype.toString": "String",
+    "Date.prototype.toDateString": "String",
+    "Date.prototype.toLocaleDateString": "String",
+    "Date.prototype.toLocaleString": "String",
+    "Date.prototype.toLocaleTimeString": "String",
+    "Date.prototype.toString": "String",
+    "Date.prototype.toTimeString": "String",
+    "Date.prototype.toUTCString": "String"
+  }
+}

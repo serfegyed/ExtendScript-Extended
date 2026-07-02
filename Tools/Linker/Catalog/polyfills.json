@@ -1,0 +1,1653 @@
+{
+  "version": 1,
+  "providers": {
+    "Array.prototype.append": {
+      "path": "Array/Lib/append.js",
+      "dependencies": [
+        "Array/Lib/isArray.js",
+        "Array/Lib/flat.js"
+      ],
+      "returnType": "Array"
+    },
+    "Array.prototype.at": {
+      "path": "Array/Lib/at.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.clear": {
+      "path": "Array/Lib/clear.js",
+      "dependencies": [],
+      "returnType": "Array"
+    },
+    "Array.prototype.compact": {
+      "path": "Array/Lib/compact.js",
+      "dependencies": [],
+      "returnType": "Array"
+    },
+    "Array.prototype.copyWithin": {
+      "path": "Array/Lib/copyWithin.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.dim": {
+      "path": "Array/Lib/dim.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js",
+        "Array/Lib/isArray.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.entries": {
+      "path": "Array/Lib/entries.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.every": {
+      "path": "Array/Lib/every.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.fill": {
+      "path": "Array/Lib/fill.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.filter": {
+      "path": "Array/Lib/filter.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.find": {
+      "path": "Array/Lib/find.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.findIndex": {
+      "path": "Array/Lib/findIndex.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.findLast": {
+      "path": "Array/Lib/findLast.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.findLastIndex": {
+      "path": "Array/Lib/findLastIndex.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.first": {
+      "path": "Array/Lib/first.js",
+      "dependencies": [],
+      "returnType": "any"
+    },
+    "Array.prototype.flat": {
+      "path": "Array/Lib/flat.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.flatMap": {
+      "path": "Array/Lib/flatMap.js",
+      "dependencies": [
+        "Array/Lib/map.js",
+        "Array/Lib/flat.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.forEach": {
+      "path": "Array/Lib/forEach.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.from": {
+      "path": "Array/Lib/from.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.includes": {
+      "path": "Array/Lib/includes.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.indexAfter": {
+      "path": "Array/Lib/indexAfter.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js",
+        "Array/Lib/indexOf.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.indexOf": {
+      "path": "Array/Lib/indexOf.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.info": {
+      "path": "Array/Lib/info.js",
+      "dependencies": [
+        "Array/Lib/isArray.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.insert": {
+      "path": "Array/Lib/insert.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.isArray": {
+      "path": "Array/Lib/isArray.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Array.isEmpty": {
+      "path": "Array/Lib/isEmpty.js",
+      "dependencies": [
+        "Array/Lib/isArray.js"
+      ],
+      "returnType": "boolean"
+    },
+    "Array.isSorted": {
+      "path": "Array/Lib/isSorted.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js",
+        "Array/Lib/isArray.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.keys": {
+      "path": "Array/Lib/keys.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.last": {
+      "path": "Array/Lib/last.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Array.prototype.lastIndexOf": {
+      "path": "Array/Lib/lastIndexOf.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.map": {
+      "path": "Array/Lib/map.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.max": {
+      "path": "Array/Lib/max.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.merge": {
+      "path": "Array/Lib/merge.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js",
+        "Array/Lib/isArray.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.min": {
+      "path": "Array/Lib/min.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.of": {
+      "path": "Array/Lib/of.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Array.prototype.pluck": {
+      "path": "Array/Lib/pluck.js",
+      "dependencies": [
+        "Array/Lib/map.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.random": {
+      "path": "Array/Lib/random.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.reduce": {
+      "path": "Array/Lib/reduce.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.reduceRight": {
+      "path": "Array/Lib/reduceRight.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.reject": {
+      "path": "Array/Lib/reject.js",
+      "dependencies": [
+        "Array/Lib/filter.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.remove": {
+      "path": "Array/Lib/remove.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.rotate": {
+      "path": "Array/Lib/rotate.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.shuffle": {
+      "path": "Array/Lib/shuffle.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Array.prototype.some": {
+      "path": "Array/Lib/some.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.sum": {
+      "path": "Array/Lib/sum.js",
+      "dependencies": [
+        "Array/Lib/map.js",
+        "Array/Lib/reduce.js"
+      ],
+      "returnType": "number"
+    },
+    "Array.prototype.toReversed": {
+      "path": "Array/Lib/toReversed.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.toShuffled": {
+      "path": "Array/Lib/toShuffled.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.toSorted": {
+      "path": "Array/Lib/toSorted.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.toSpliced": {
+      "path": "Array/Lib/toSpliced.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.toString": {
+      "path": "Array/Lib/toString.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Array.prototype.unique": {
+      "path": "Array/Lib/unique.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.values": {
+      "path": "Array/Lib/values.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Array.prototype.with": {
+      "path": "Array/Lib/with.js",
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ],
+      "returnType": null
+    },
+    "Date.prototype.toISOString": {
+      "path": "Date/Lib/Date.toISOString.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Date.prototype.toJSON": {
+      "path": "Date/Lib/Date.toJSON.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Date.prototype.toTemporalInstant": {
+      "path": "Date/Lib/Date.toTemporalInstant.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "JSON.parse": {
+      "path": "JSON/JSON.parse.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "JSON.stringify": {
+      "path": "JSON/JSON.stringify.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Map.prototype.clear": {
+      "path": "Map/Lib/clear.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Map.prototype.deleteAll": {
+      "path": "Map/Lib/deleteAll.js",
+      "dependencies": [],
+      "returnType": "Map"
+    },
+    "Map.prototype.deleteEach": {
+      "path": "Map/Lib/deleteEach.js",
+      "dependencies": [],
+      "returnType": "Map"
+    },
+    "Map.prototype.entries": {
+      "path": "Map/Lib/entries.js",
+      "dependencies": [],
+      "returnType": "Object"
+    },
+    "Map.prototype.every": {
+      "path": "Map/Lib/every.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Map.prototype.filter": {
+      "path": "Map/Lib/filter.js",
+      "dependencies": [],
+      "returnType": "Map"
+    },
+    "Map.prototype.find": {
+      "path": "Map/Lib/find.js",
+      "dependencies": [],
+      "returnType": "any"
+    },
+    "Map.prototype.findKey": {
+      "path": "Map/Lib/findKey.js",
+      "dependencies": [],
+      "returnType": "any"
+    },
+    "Map.prototype.forEach": {
+      "path": "Map/Lib/forEach.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Map.from": {
+      "path": "Map/Lib/from.js",
+      "dependencies": [],
+      "returnType": "Map"
+    },
+    "Map.prototype.getOrInsert": {
+      "path": "Map/Lib/getOrInsert.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Map.prototype.getOrInsertComputed": {
+      "path": "Map/Lib/getOrInsertComputed.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Map.groupBy": {
+      "path": "Map/Lib/groupBy.js",
+      "dependencies": [],
+      "returnType": "Map"
+    },
+    "Map.prototype.includes": {
+      "path": "Map/Lib/includes.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Map.isEmpty": {
+      "path": "Map/Lib/isEmpty.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Map.isMap": {
+      "path": "Map/Lib/isMap.js",
+      "dependencies": [],
+      "returnType": "Boolean"
+    },
+    "Map.prototype.keyOf": {
+      "path": "Map/Lib/keyOf.js",
+      "dependencies": [],
+      "returnType": "any"
+    },
+    "Map.prototype.keys": {
+      "path": "Map/Lib/keys.js",
+      "dependencies": [],
+      "returnType": "Object"
+    },
+    "Map.prototype.mapKeys": {
+      "path": "Map/Lib/mapKeys.js",
+      "dependencies": [],
+      "returnType": "Map"
+    },
+    "Map.prototype.mapValues": {
+      "path": "Map/Lib/mapValues.js",
+      "dependencies": [],
+      "returnType": "Map"
+    },
+    "Map.prototype.merge": {
+      "path": "Map/Lib/merge.js",
+      "dependencies": [],
+      "returnType": "Map"
+    },
+    "Map.prototype.reduce": {
+      "path": "Map/Lib/reduce.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Map.prototype.setAll": {
+      "path": "Map/Lib/setAll.js",
+      "dependencies": [],
+      "returnType": "Map"
+    },
+    "Map.prototype.setEach": {
+      "path": "Map/Lib/setEach.js",
+      "dependencies": [],
+      "returnType": "Map"
+    },
+    "Map.prototype.some": {
+      "path": "Map/Lib/some.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Map.prototype.toArray": {
+      "path": "Map/Lib/toArray.js",
+      "dependencies": [],
+      "returnType": "Array"
+    },
+    "Map.prototype.toString": {
+      "path": "Map/Lib/toString.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "Map.prototype.values": {
+      "path": "Map/Lib/values.js",
+      "dependencies": [],
+      "returnType": "Object"
+    },
+    "Math.cbrt": {
+      "path": "Math/Math.cbrt.js",
+      "dependencies": [],
+      "returnType": "number"
+    },
+    "Math.log10": {
+      "path": "Math/Math.log10.js",
+      "dependencies": [],
+      "returnType": "number"
+    },
+    "Math.mean": {
+      "path": "Math/Math.mean.js",
+      "dependencies": [
+        "Array/Lib/flat.js",
+        "Array/Lib/info.js",
+        "Array/Lib/reduce.js",
+        "Array/Lib/map.js"
+      ],
+      "returnType": null
+    },
+    "Math.median": {
+      "path": "Math/Math.median.js",
+      "dependencies": [],
+      "returnType": "number"
+    },
+    "Math.sign": {
+      "path": "Math/Math.sign.js",
+      "dependencies": [],
+      "returnType": "number"
+    },
+    "Math.sum": {
+      "path": "Math/Math.sum.js",
+      "dependencies": [],
+      "returnType": "number"
+    },
+    "Math.trunc": {
+      "path": "Math/Math.trunc.js",
+      "dependencies": [],
+      "returnType": "number"
+    },
+    "Number.isFinite": {
+      "path": "Number/Lib/isFinite.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Number.isInteger": {
+      "path": "Number/Lib/isInteger.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Number.isNaN": {
+      "path": "Number/Lib/isNaN.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Object.assign": {
+      "path": "Object/Lib/assign.js",
+      "dependencies": [],
+      "returnType": "Object"
+    },
+    "Object.compact": {
+      "path": "Object/Lib/compact.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Object.create": {
+      "path": "Object/Lib/create.js",
+      "dependencies": [],
+      "returnType": "Object"
+    },
+    "Object.deepCopy": {
+      "path": "Object/Lib/deepCopy.js",
+      "dependencies": [],
+      "returnType": "object"
+    },
+    "Object.defineProperties": {
+      "path": "Object/Lib/defineProperties.js",
+      "dependencies": [],
+      "returnType": "object"
+    },
+    "Object.defineProperty": {
+      "path": "Object/Lib/defineProperty.js",
+      "dependencies": [],
+      "returnType": "Object"
+    },
+    "Object.entries": {
+      "path": "Object/Lib/entries.js",
+      "dependencies": [],
+      "returnType": "Array"
+    },
+    "Object.flat": {
+      "path": "Object/Lib/flat.js",
+      "dependencies": [],
+      "returnType": "object"
+    },
+    "Object.fromEntries": {
+      "path": "Object/Lib/fromEntries.js",
+      "dependencies": [],
+      "returnType": "Object"
+    },
+    "Object.getOwnPropertyNames": {
+      "path": "Object/Lib/getOwnPropertyNames.js",
+      "dependencies": [],
+      "returnType": "array"
+    },
+    "Object.getPrototypeOf": {
+      "path": "Object/Lib/getPrototypeOf.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Object.groupBy": {
+      "path": "Object/Lib/groupBy.js",
+      "dependencies": [],
+      "returnType": "Object"
+    },
+    "Object.hasOwn": {
+      "path": "Object/Lib/hasOwn.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Object.is": {
+      "path": "Object/Lib/is.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Object.isCyclic": {
+      "path": "Object/Lib/isCyclic.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Object.isEmpty": {
+      "path": "Object/Lib/isEmpty.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Object.isEquals": {
+      "path": "Object/Lib/isEquals.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Object.isObject": {
+      "path": "Object/Lib/isObject.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Object.keys": {
+      "path": "Object/Lib/keys.js",
+      "dependencies": [],
+      "returnType": "Array"
+    },
+    "Object.prototype.merge": {
+      "path": "Object/Lib/merge.js",
+      "dependencies": [],
+      "returnType": "Object"
+    },
+    "Object.prototype.toString": {
+      "path": "Object/Lib/toString.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "Object.values": {
+      "path": "Object/Lib/values.js",
+      "dependencies": [],
+      "returnType": "Array"
+    },
+    "Set.prototype.addAll": {
+      "path": "Set/Lib/addAll.js",
+      "dependencies": [],
+      "returnType": "Set"
+    },
+    "Set.prototype.addEach": {
+      "path": "Set/Lib/addEach.js",
+      "dependencies": [],
+      "returnType": "Set"
+    },
+    "Set.prototype.clear": {
+      "path": "Set/Lib/clear.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Set.prototype.deleteAll": {
+      "path": "Set/Lib/deleteAll.js",
+      "dependencies": [],
+      "returnType": "Set"
+    },
+    "Set.prototype.deleteEach": {
+      "path": "Set/Lib/deleteEach.js",
+      "dependencies": [],
+      "returnType": "Set"
+    },
+    "Set.prototype.difference": {
+      "path": "Set/Lib/difference.js",
+      "dependencies": [],
+      "returnType": "Set"
+    },
+    "Set.prototype.entries": {
+      "path": "Set/Lib/entries.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Set.prototype.every": {
+      "path": "Set/Lib/every.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Set.prototype.filter": {
+      "path": "Set/Lib/filter.js",
+      "dependencies": [],
+      "returnType": "Set"
+    },
+    "Set.prototype.find": {
+      "path": "Set/Lib/find.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Set.prototype.forEach": {
+      "path": "Set/Lib/forEach.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Set.prototype.from": {
+      "path": "Set/Lib/from.js",
+      "dependencies": [],
+      "returnType": "Set"
+    },
+    "Set.prototype.intersection": {
+      "path": "Set/Lib/intersection.js",
+      "dependencies": [],
+      "returnType": "Set"
+    },
+    "Set.prototype.isDisjointFrom": {
+      "path": "Set/Lib/isDisjointFrom.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Set.isEmpty": {
+      "path": "Set/Lib/isEmpty.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Set.prototype.isEqual": {
+      "path": "Set/Lib/isEqual.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Set.isSet": {
+      "path": "Set/Lib/isSet.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Set.prototype.isSubsetOf": {
+      "path": "Set/Lib/isSubsetOf.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Set.prototype.isSupersetOf": {
+      "path": "Set/Lib/isSupersetOf.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Set.prototype.join": {
+      "path": "Set/Lib/join.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "Set.prototype.keys": {
+      "path": "Set/Lib/keys.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Set.prototype.map": {
+      "path": "Set/Lib/map.js",
+      "dependencies": [],
+      "returnType": "Set"
+    },
+    "Set.prototype.reduce": {
+      "path": "Set/Lib/reduce.js",
+      "dependencies": [],
+      "returnType": "any"
+    },
+    "Set.prototype.some": {
+      "path": "Set/Lib/some.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "Set.prototype.symmetricDifference": {
+      "path": "Set/Lib/symmetricDifference.js",
+      "dependencies": [],
+      "returnType": "Set"
+    },
+    "Set.prototype.toArray": {
+      "path": "Set/Lib/toArray.js",
+      "dependencies": [],
+      "returnType": "Array"
+    },
+    "Set.prototype.toString": {
+      "path": "Set/Lib/toString.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "Set.prototype.union": {
+      "path": "Set/Lib/union.js",
+      "dependencies": [],
+      "returnType": "Set"
+    },
+    "Set.prototype.values": {
+      "path": "Set/Lib/values.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "String.prototype.at": {
+      "path": "String/Lib/at.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "String.prototype.codePointAt": {
+      "path": "String/Lib/codePointAt.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "String.prototype.contains": {
+      "path": "String/Lib/contains.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "String.prototype.endsWith": {
+      "path": "String/Lib/endsWith.js",
+      "dependencies": [],
+      "returnType": "Bool"
+    },
+    "String.prototype.format": {
+      "path": "String/Lib/format.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "String.fromCodePoint": {
+      "path": "String/Lib/fromCodePoint.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "String.prototype.includes": {
+      "path": "String/Lib/includes.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "String.prototype.indexAfter": {
+      "path": "String/Lib/indexAfter.js",
+      "dependencies": [],
+      "returnType": "number"
+    },
+    "String.prototype.insert": {
+      "path": "String/Lib/insert.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "String.isEmpty": {
+      "path": "String/Lib/isEmpty.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "String.prototype.isWellFormed": {
+      "path": "String/Lib/isWellFormed.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "String.prototype.matchAll": {
+      "path": "String/Lib/matchAll.js",
+      "dependencies": [],
+      "returnType": "Iterator"
+    },
+    "String.prototype.padEnd": {
+      "path": "String/Lib/padEnd.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "String.prototype.padStart": {
+      "path": "String/Lib/padStart.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "String.prototype.repeat": {
+      "path": "String/Lib/repeat.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "String.prototype.replaceAll": {
+      "path": "String/Lib/replaceAll.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "String.prototype.reverse": {
+      "path": "String/Lib/reverse.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "String.prototype.startsWith": {
+      "path": "String/Lib/startsWith.js",
+      "dependencies": [],
+      "returnType": "boolean"
+    },
+    "String.prototype.toWellFormed": {
+      "path": "String/Lib/toWellFormed.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "String.prototype.trim": {
+      "path": "String/Lib/trim.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "String.prototype.trimEnd": {
+      "path": "String/Lib/trimEnd.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "String.prototype.trimStart": {
+      "path": "String/Lib/trimStart.js",
+      "dependencies": [],
+      "returnType": "string"
+    },
+    "console": {
+      "path": "Tools/Console/console.js",
+      "dependencies": []
+    }
+  },
+  "files": {
+    "Array/Lib/append.js": {
+      "dependencies": [
+        "Array/Lib/isArray.js",
+        "Array/Lib/flat.js"
+      ]
+    },
+    "Array/Lib/arrayInternals.js": {
+      "dependencies": []
+    },
+    "Array/Lib/at.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/clear.js": {
+      "dependencies": []
+    },
+    "Array/Lib/compact.js": {
+      "dependencies": []
+    },
+    "Array/Lib/copyWithin.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/dim.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js",
+        "Array/Lib/isArray.js"
+      ]
+    },
+    "Array/Lib/entries.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/every.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/fill.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/filter.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/find.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/findIndex.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/findLast.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/findLastIndex.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/first.js": {
+      "dependencies": []
+    },
+    "Array/Lib/flat.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/flatMap.js": {
+      "dependencies": [
+        "Array/Lib/map.js",
+        "Array/Lib/flat.js"
+      ]
+    },
+    "Array/Lib/forEach.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/from.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/includes.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/indexAfter.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js",
+        "Array/Lib/indexOf.js"
+      ]
+    },
+    "Array/Lib/indexOf.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/info.js": {
+      "dependencies": [
+        "Array/Lib/isArray.js"
+      ]
+    },
+    "Array/Lib/insert.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/isArray.js": {
+      "dependencies": []
+    },
+    "Array/Lib/isEmpty.js": {
+      "dependencies": [
+        "Array/Lib/isArray.js"
+      ]
+    },
+    "Array/Lib/isSorted.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js",
+        "Array/Lib/isArray.js"
+      ]
+    },
+    "Array/Lib/keys.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/last.js": {
+      "dependencies": []
+    },
+    "Array/Lib/lastIndexOf.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/map.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/max.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/merge.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js",
+        "Array/Lib/isArray.js"
+      ]
+    },
+    "Array/Lib/min.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/of.js": {
+      "dependencies": []
+    },
+    "Array/Lib/pluck.js": {
+      "dependencies": [
+        "Array/Lib/map.js"
+      ]
+    },
+    "Array/Lib/random.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/reduce.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/reduceRight.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/reject.js": {
+      "dependencies": [
+        "Array/Lib/filter.js"
+      ]
+    },
+    "Array/Lib/remove.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/rotate.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/shuffle.js": {
+      "dependencies": []
+    },
+    "Array/Lib/some.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/sum.js": {
+      "dependencies": [
+        "Array/Lib/map.js",
+        "Array/Lib/reduce.js"
+      ]
+    },
+    "Array/Lib/toReversed.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/toShuffled.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/toSorted.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/toSpliced.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/toString.js": {
+      "dependencies": []
+    },
+    "Array/Lib/unique.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/values.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Array/Lib/with.js": {
+      "dependencies": [
+        "Array/Lib/arrayInternals.js"
+      ]
+    },
+    "Date/Lib/Date.toISOString.js": {
+      "dependencies": []
+    },
+    "Date/Lib/Date.toJSON.js": {
+      "dependencies": []
+    },
+    "Date/Lib/Date.toTemporalInstant.js": {
+      "dependencies": []
+    },
+    "JSON/JSON.parse.js": {
+      "dependencies": []
+    },
+    "JSON/JSON.stringify.js": {
+      "dependencies": []
+    },
+    "Map/Lib/clear.js": {
+      "dependencies": []
+    },
+    "Map/Lib/deleteAll.js": {
+      "dependencies": []
+    },
+    "Map/Lib/deleteEach.js": {
+      "dependencies": []
+    },
+    "Map/Lib/entries.js": {
+      "dependencies": []
+    },
+    "Map/Lib/every.js": {
+      "dependencies": []
+    },
+    "Map/Lib/filter.js": {
+      "dependencies": []
+    },
+    "Map/Lib/find.js": {
+      "dependencies": []
+    },
+    "Map/Lib/findKey.js": {
+      "dependencies": []
+    },
+    "Map/Lib/forEach.js": {
+      "dependencies": []
+    },
+    "Map/Lib/from.js": {
+      "dependencies": []
+    },
+    "Map/Lib/getOrInsert.js": {
+      "dependencies": []
+    },
+    "Map/Lib/getOrInsertComputed.js": {
+      "dependencies": []
+    },
+    "Map/Lib/groupBy.js": {
+      "dependencies": []
+    },
+    "Map/Lib/includes.js": {
+      "dependencies": []
+    },
+    "Map/Lib/isEmpty.js": {
+      "dependencies": []
+    },
+    "Map/Lib/isMap.js": {
+      "dependencies": []
+    },
+    "Map/Lib/keyOf.js": {
+      "dependencies": []
+    },
+    "Map/Lib/keys.js": {
+      "dependencies": []
+    },
+    "Map/Lib/mapKeys.js": {
+      "dependencies": []
+    },
+    "Map/Lib/mapValues.js": {
+      "dependencies": []
+    },
+    "Map/Lib/merge.js": {
+      "dependencies": []
+    },
+    "Map/Lib/reduce.js": {
+      "dependencies": []
+    },
+    "Map/Lib/setAll.js": {
+      "dependencies": []
+    },
+    "Map/Lib/setEach.js": {
+      "dependencies": []
+    },
+    "Map/Lib/some.js": {
+      "dependencies": []
+    },
+    "Map/Lib/toArray.js": {
+      "dependencies": []
+    },
+    "Map/Lib/toString.js": {
+      "dependencies": []
+    },
+    "Map/Lib/values.js": {
+      "dependencies": []
+    },
+    "Math/Math.cbrt.js": {
+      "dependencies": []
+    },
+    "Math/Math.log10.js": {
+      "dependencies": []
+    },
+    "Math/Math.mean.js": {
+      "dependencies": [
+        "Array/Lib/flat.js",
+        "Array/Lib/info.js",
+        "Array/Lib/reduce.js",
+        "Array/Lib/map.js"
+      ]
+    },
+    "Math/Math.median.js": {
+      "dependencies": []
+    },
+    "Math/Math.sign.js": {
+      "dependencies": []
+    },
+    "Math/Math.sum.js": {
+      "dependencies": []
+    },
+    "Math/Math.trunc.js": {
+      "dependencies": []
+    },
+    "Number/Lib/constants.js": {
+      "dependencies": []
+    },
+    "Number/Lib/isFinite.js": {
+      "dependencies": []
+    },
+    "Number/Lib/isInteger.js": {
+      "dependencies": []
+    },
+    "Number/Lib/isNaN.js": {
+      "dependencies": []
+    },
+    "Number/Lib/isSafeInteger.js": {
+      "dependencies": []
+    },
+    "Object/Lib/assign.js": {
+      "dependencies": []
+    },
+    "Object/Lib/compact.js": {
+      "dependencies": []
+    },
+    "Object/Lib/create.js": {
+      "dependencies": []
+    },
+    "Object/Lib/deepCopy.js": {
+      "dependencies": []
+    },
+    "Object/Lib/defineProperties.js": {
+      "dependencies": []
+    },
+    "Object/Lib/defineProperty.js": {
+      "dependencies": []
+    },
+    "Object/Lib/entries.js": {
+      "dependencies": []
+    },
+    "Object/Lib/flat.js": {
+      "dependencies": []
+    },
+    "Object/Lib/fromEntries.js": {
+      "dependencies": []
+    },
+    "Object/Lib/getOwnPropertyNames.js": {
+      "dependencies": []
+    },
+    "Object/Lib/getPrototypeOf.js": {
+      "dependencies": []
+    },
+    "Object/Lib/groupBy.js": {
+      "dependencies": []
+    },
+    "Object/Lib/hasOwn.js": {
+      "dependencies": []
+    },
+    "Object/Lib/is.js": {
+      "dependencies": []
+    },
+    "Object/Lib/isCyclic.js": {
+      "dependencies": []
+    },
+    "Object/Lib/isEmpty.js": {
+      "dependencies": []
+    },
+    "Object/Lib/isEquals.js": {
+      "dependencies": []
+    },
+    "Object/Lib/isObject.js": {
+      "dependencies": []
+    },
+    "Object/Lib/keys.js": {
+      "dependencies": []
+    },
+    "Object/Lib/merge.js": {
+      "dependencies": []
+    },
+    "Object/Lib/toString.js": {
+      "dependencies": []
+    },
+    "Object/Lib/values.js": {
+      "dependencies": []
+    },
+    "Set/Lib/addAll.js": {
+      "dependencies": []
+    },
+    "Set/Lib/addEach.js": {
+      "dependencies": []
+    },
+    "Set/Lib/clear.js": {
+      "dependencies": []
+    },
+    "Set/Lib/deleteAll.js": {
+      "dependencies": []
+    },
+    "Set/Lib/deleteEach.js": {
+      "dependencies": []
+    },
+    "Set/Lib/difference.js": {
+      "dependencies": []
+    },
+    "Set/Lib/entries.js": {
+      "dependencies": []
+    },
+    "Set/Lib/every.js": {
+      "dependencies": []
+    },
+    "Set/Lib/filter.js": {
+      "dependencies": []
+    },
+    "Set/Lib/find.js": {
+      "dependencies": []
+    },
+    "Set/Lib/forEach.js": {
+      "dependencies": []
+    },
+    "Set/Lib/from.js": {
+      "dependencies": []
+    },
+    "Set/Lib/getSetRecord.js": {
+      "dependencies": []
+    },
+    "Set/Lib/intersection.js": {
+      "dependencies": []
+    },
+    "Set/Lib/isDisjointFrom.js": {
+      "dependencies": []
+    },
+    "Set/Lib/isEmpty.js": {
+      "dependencies": []
+    },
+    "Set/Lib/isEqual.js": {
+      "dependencies": []
+    },
+    "Set/Lib/isSet.js": {
+      "dependencies": []
+    },
+    "Set/Lib/isSubsetOf.js": {
+      "dependencies": []
+    },
+    "Set/Lib/isSupersetOf.js": {
+      "dependencies": []
+    },
+    "Set/Lib/join.js": {
+      "dependencies": []
+    },
+    "Set/Lib/keys.js": {
+      "dependencies": []
+    },
+    "Set/Lib/map.js": {
+      "dependencies": []
+    },
+    "Set/Lib/reduce.js": {
+      "dependencies": []
+    },
+    "Set/Lib/some.js": {
+      "dependencies": []
+    },
+    "Set/Lib/symmetricDifference.js": {
+      "dependencies": []
+    },
+    "Set/Lib/toArray.js": {
+      "dependencies": []
+    },
+    "Set/Lib/toString.js": {
+      "dependencies": []
+    },
+    "Set/Lib/union.js": {
+      "dependencies": []
+    },
+    "Set/Lib/values.js": {
+      "dependencies": []
+    },
+    "String/Lib/at.js": {
+      "dependencies": []
+    },
+    "String/Lib/codePointAt.js": {
+      "dependencies": []
+    },
+    "String/Lib/contains.js": {
+      "dependencies": []
+    },
+    "String/Lib/endsWith.js": {
+      "dependencies": []
+    },
+    "String/Lib/format.js": {
+      "dependencies": []
+    },
+    "String/Lib/fromCodePoint.js": {
+      "dependencies": []
+    },
+    "String/Lib/includes.js": {
+      "dependencies": []
+    },
+    "String/Lib/indexAfter.js": {
+      "dependencies": []
+    },
+    "String/Lib/insert.js": {
+      "dependencies": []
+    },
+    "String/Lib/isEmpty.js": {
+      "dependencies": []
+    },
+    "String/Lib/isWellFormed.js": {
+      "dependencies": []
+    },
+    "String/Lib/matchAll.js": {
+      "dependencies": []
+    },
+    "String/Lib/padEnd.js": {
+      "dependencies": []
+    },
+    "String/Lib/padStart.js": {
+      "dependencies": []
+    },
+    "String/Lib/repeat.js": {
+      "dependencies": []
+    },
+    "String/Lib/replaceAll.js": {
+      "dependencies": []
+    },
+    "String/Lib/reverse.js": {
+      "dependencies": []
+    },
+    "String/Lib/startsWith.js": {
+      "dependencies": []
+    },
+    "String/Lib/toWellFormed.js": {
+      "dependencies": []
+    },
+    "String/Lib/trim.js": {
+      "dependencies": []
+    },
+    "String/Lib/trimEnd.js": {
+      "dependencies": []
+    },
+    "String/Lib/trimStart.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isArrayLike.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isBoolean.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isCallable.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isDate.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isDefined.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isDigit.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isFalsy.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isFunction.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isIterable.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isLetter.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isNull.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isNullish.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isNumber.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isPrimitive.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isRegExp.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/isString.js": {
+      "dependencies": []
+    },
+    "TypeTest/Lib/sameValueZero.js": {
+      "dependencies": []
+    },
+    "Tools/Console/console.js": {
+      "dependencies": []
+    }
+  },
+  "warnings": [
+    {
+      "path": "Number/Lib/constants.js",
+      "reason": "multiple-public-symbols",
+      "symbols": [
+        "Number.MAX_SAFE_INTEGER",
+        "Number.MIN_SAFE_INTEGER",
+        "Number.EPSILON"
+      ]
+    },
+    {
+      "path": "Number/Lib/isSafeInteger.js",
+      "reason": "multiple-public-symbols",
+      "symbols": [
+        "Number.MAX_SAFE_INTEGER",
+        "Number.MIN_SAFE_INTEGER",
+        "Number.isSafeInteger"
+      ]
+    }
+  ]
+}

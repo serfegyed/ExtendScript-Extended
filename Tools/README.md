@@ -2,13 +2,19 @@
 
 ## Overview
 
-This folder contains two useful tools for ExtendScript developers: **Console Polyfill** and **File Processor**. These tools provide familiar logging capabilities and streamline file consolidation.
+This folder contains three useful tools for ExtendScript developers:
+**Console Polyfill**, **File Processor**, and **ExtendScript Linker**. These
+tools provide familiar logging capabilities, streamline file consolidation,
+and help resolve polyfill dependencies.
 
 ## Tools
 
 - **Console Polyfill**: Offers a familiar `console` interface for logging, assertions, and error reporting, making debugging more intuitive in ExtendScript.
 
 - **File Processor**: Automates the consolidation of ExtendScript files and their dependencies into a single file, simplifying script management and deployment.
+
+- **Linker**: Detects statically recognizable non-ESTK APIs, inserts indexed
+  polyfill includes once, and reports unresolved or ambiguous dependencies.
 
 ## Usage
 
