@@ -5,20 +5,6 @@
         Date.prototype.toISOString = function () {
             var time;
 
-            function rangeError(message) {
-                var error = new RangeError(message);
-
-                error.name = "RangeError";
-                return error;
-            }
-
-            function typeError(message) {
-                var error = new TypeError(message);
-
-                error.name = "TypeError";
-                return error;
-            }
-
             function pad(number, length) {
                 var string = String(number);
 
@@ -38,11 +24,11 @@
             try {
                 time = Date.prototype.getTime.call(this);
             } catch (error) {
-                throw typeError("Date.prototype.toISOString called on incompatible receiver");
+                throw new TypeError("Date.prototype.toISOString called on incompatible receiver");
             }
 
             if (!isFinite(time)) {
-                throw rangeError("Invalid time value");
+                throw new RangeError("Invalid time value");
             }
 
             return (

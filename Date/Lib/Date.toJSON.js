@@ -7,13 +7,6 @@
             var primitive;
             var toISOString;
 
-            function typeError(message) {
-                var error = new TypeError(message);
-
-                error.name = "TypeError";
-                return error;
-            }
-
             function isPrimitive(value) {
                 return value === null ||
                     (typeof value !== "object" && typeof value !== "function");
@@ -30,7 +23,7 @@
                     result = value.toString();
                     if (isPrimitive(result)) return result;
                 }
-                throw typeError("Cannot convert object to primitive value");
+                throw new TypeError("Cannot convert object to primitive value");
             }
 
             primitive = toPrimitiveNumber(object);
@@ -40,7 +33,7 @@
 
             toISOString = object.toISOString;
             if (typeof toISOString !== "function") {
-                throw typeError("toISOString is not a function");
+                throw new TypeError("toISOString is not a function");
             }
             return toISOString.call(object);
         };

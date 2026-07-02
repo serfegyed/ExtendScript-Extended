@@ -63,7 +63,19 @@ if (isNodeRuntime) {
         try {
             callback();
         } catch (error) {
-            assertEqual(error.name, expectedName, message || "Unexpected error name");
+            if (isNodeRuntime) {
+                assertEqual(error.name, expectedName,
+                    message || "Unexpected error name");
+            } else if (expectedName === "TypeError") {
+                assertEqual(error instanceof TypeError, true,
+                    message || "Expected TypeError");
+            } else if (expectedName === "RangeError") {
+                assertEqual(error instanceof RangeError, true,
+                    message || "Expected RangeError");
+            } else {
+                assertEqual(error instanceof Error, true,
+                    message || "Expected Error");
+            }
             return;
         }
 

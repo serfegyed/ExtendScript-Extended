@@ -15,18 +15,6 @@ if (typeof JSON === "undefined") {
     const objectToString = Object.prototype.toString;
     const hasOwnProperty = Object.prototype.hasOwnProperty;
 
-    function createTypeError(message) {
-        const error = (typeof TypeError === "function") ? new TypeError(message) : new Error(message);
-        error.name = "TypeError";
-        return error;
-    }
-
-    function createSyntaxError(message) {
-        const error = (typeof SyntaxError === "function") ? new SyntaxError(message) : new Error(message);
-        error.name = "SyntaxError";
-        return error;
-    }
-
     function isArray(value) {
         if (typeof Array.isArray === "function") {
             return Array.isArray(value);
@@ -196,7 +184,7 @@ if (typeof JSON === "undefined") {
             }
 
             if (indexOfIdentity(stack, current) !== -1) {
-                throw createTypeError("Converting circular structure to JSON");
+                throw new TypeError("Converting circular structure to JSON");
             }
 
             stack.push(current);
@@ -276,7 +264,7 @@ if (typeof JSON === "undefined") {
         var index = 0;
 
         function fail(message) {
-            throw createSyntaxError(message + " at position " + index);
+            throw new SyntaxError(message + " at position " + index);
         }
 
         function isDigit(character) {

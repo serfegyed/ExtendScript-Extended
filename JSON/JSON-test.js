@@ -56,8 +56,16 @@ if (nativeJSON !== null) {
             callback();
         } catch (error) {
             thrown = true;
-            if (expectedName && error.name !== expectedName) {
+            if (expectedName && nativeJSON !== null && error.name !== expectedName) {
                 fail((message ? message + ": " : "") + "expected " + expectedName + ", got " + error.name);
+            }
+            if (expectedName && nativeJSON === null) {
+                var expectedConstructor = expectedName === "TypeError" ? TypeError :
+                    (expectedName === "SyntaxError" ? SyntaxError : Error);
+                if (!(error instanceof expectedConstructor)) {
+                    fail((message ? message + ": " : "") +
+                        "expected native " + expectedName + " constructor");
+                }
             }
         }
         if (!thrown) {
