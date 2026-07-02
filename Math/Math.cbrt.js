@@ -7,13 +7,19 @@
 if (!Math.cbrt) {
     Math.cbrt = function (x) {
         x = x * 1;
-        if (x === 0) return x;
+        if (x === 0 || x !== x || x === Infinity || x === -Infinity) return x;
         var negate = x < 0,
-            result;
+            result,
+            rounded;
         if (negate) {
             x = -x;
         }
         result = Math.exp(Math.log(x) / 3);
+        result = (2 * result + x / (result * result)) / 3;
+        rounded = Math.round(result);
+        if (rounded * rounded * rounded === x) {
+            result = rounded;
+        }
         return negate ? -result : result;
     };
 }

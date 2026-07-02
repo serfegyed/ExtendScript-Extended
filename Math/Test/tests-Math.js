@@ -203,6 +203,20 @@ if (isNodeRuntime) {
         }
     });
 
+    test("Math.cbrt returns exact integer cube roots", function () {
+        checkStandardMethod("cbrt", [
+            { value: -64, expected: -4 },
+            { value: -27, expected: -3 },
+            { value: -8, expected: -2 },
+            { value: -1, expected: -1 },
+            { value: 1, expected: 1 },
+            { value: 8, expected: 2 },
+            { value: 27, expected: 3 },
+            { value: 64, expected: 4 },
+            { value: "27", expected: 3 }
+        ]);
+    });
+
     test("Math.log10 preserves special values and coercion", function () {
         checkStandardMethod("log10", [
             { value: -2, expected: NaN },
