@@ -2,7 +2,7 @@
 
 ## Overview
 
-This folder contains two useful tools for ExtendScript developers: **Console Polyfill** and **File Processor**.These tools are designed to enhance the ExtendScript development experience by providing a familiar interface for logging capabilities and streamlining the file consolidation process.
+This folder contains two useful tools for ExtendScript developers: **Console Polyfill** and **File Processor**. These tools provide familiar logging capabilities and streamline file consolidation.
 
 ## Tools
 

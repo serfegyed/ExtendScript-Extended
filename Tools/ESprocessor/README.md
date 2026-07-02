@@ -2,63 +2,99 @@
 
 ## Overview
 
-ESTK handles include files rather stupidly. If you insert an #include file twice, it will insert the source code twice in the final one. This is almost inevitable if the included files contain additional #include lines.
-The ExtendScript File Processor is a script to automate the process of merging ExtendScript files and their dependencies into a single file. This tool is useful for Adobe ExtendScript developers who want to simplify their workflow by efficiently handling `#include` statements, and thus integrate the contents of referenced files into a single coherent script without unnecessary repetition.
+ESprocessor consolidates an ExtendScript source file and its recursive include
+dependencies into one output file. Duplicate includes are expanded only once.
+
+The tool targets ESTK and Adobe ExtendScript hosts. Node.js support exists only
+for running the development harness.
 
 ## Features
 
-- **File Dialog Selection**: Opens a file dialog to select the source ExtendScript file to be processed.
-- **Dependency Integration**:  
-  - Recursively processes `#include` statements to integrate content from referenced files.  
-  - Supports various formats including `#include` or `//@include`, and `#includepath` or `//@includepath` directives.  
-  - Handles leading spaces and indentation in `#include` statements.
-- **Enhanced Logging**: Offers configurable logging capabilities, including toggles for general logging, log file creation, and indentation in log files for better readability.
-- **Path Resolution**: 
-  - Handles relative paths(`./` and`../`), facilitating the organization of script files and dependencies.  
-  - Accepts `\\` or/and `/` as path separators.
+- Recognizes `#include` and `//@include` directives.
+- Recognizes `#includepath` and `//@includepath` directives.
+- Accepts indented directives.
+- Resolves `./` and `../` paths from the file containing the directive.
+- Accepts `/` and `\` path separators.
+- Recursively expands nested includes.
+- Prevents duplicate expansion.
+- Preserves `.js`, `.jsx`, and `.jsxinc` output extensions.
+- Optionally writes console messages, include markers, and a log file.
 
-## Sample
+## Files
 
-The Test folder contains the result of running the ESprocessor_1_4.js file on itself. 😈
+- `ESprocessor_1_5.js` is the include-only interactive bundle.
+- `Lib/ESprocessor.js` contains the reusable processing engine.
+- `Lib/run.js` opens the ESTK file dialog with the default options.
+- `Test/tests-ESprocessor.js` is the shared ESTK/Node harness.
 
-## Installation
+The bundle loads its Console, Array, and String dependencies through ordered
+`//@include` directives. No dependency code is copied into the bundle.
 
-1. Ensure you have Adobe ExtendScript Toolkit installed or any Adobe application that supports ExtendScript scripting.
-2. Download the script files into your project directory.
+## Interactive usage
 
-## Dependencies
+Run `ESprocessor_1_5.js` in ESTK or an Adobe ExtendScript host. Select a `.js`,
+`.jsx`, or `.jsxinc` source file when prompted.
 
-Before running the ExtendScript File Processor, include the necessary polyfills as follows:
+The generated filename inserts `_full` before the original extension:
 
-- **Console Polyfill**: Place`console.js` in your project directory.  Include it in your script with `#include "~/path/to/console.js"`.
-- **String and Array Polyfills**: Include `startsWith.js` and`indexOf.js` in your project and reference them using `#include` directives at the beginning of your main script.
+```text
+script.jsx -> script_full.jsx
+```
 
-## Usage
+With default settings, a matching `.log` file is also created.
 
-1. **Running the Script**: Execute the script in the ExtendScript Toolkit. A file dialog will prompt you to select a source file.
-2. **Selecting a Source File**: Choose the ExtendScript file you wish to process. It accepts `.js`, `.jsx` and `.jsxinc` files. The script will handle `#include` statements and consolidate dependencies into a single output file.
-3. **Output**: The script generates a consolidated file with a`_full` suffix added before the source file extension. If logging is enabled, a`.log` file will also be created detailing the consolidation process.
+## Programmatic usage
 
-## Configuration
+Include the dependencies and `Lib/ESprocessor.js`, then call:
 
-Toggle the following constants at the beginning of the script to customize the logging output:
+```javascript
+ESprocessor.process(sourceFile, {
+    log: true,
+    logFile: true,
+    indent: true
+});
+```
 
-- `LOG`: Enables or disables general logging to the console.
-- `LOGFILE`: Toggles the creation of a log file (requires`LOG` to be`true`).
-- `INDENT`: Controls indentation in the log file for better readability (requires`LOGFILE` to be`true`).
+`sourceFile` must be an ExtendScript `File`. The method returns processing
+metadata, or `null` when no file was selected or the source does not exist.
 
-## Author
+To open the standard file dialog programmatically:
 
-- Egyed Serf
+```javascript
+ESprocessor.run({
+    log: true,
+    logFile: true,
+    indent: true
+});
+```
 
-## Version History
+## Tests
 
-- **1.4**: Added support for preserving source file extension and introduced configurable logging constants.
-- **1.3**: Improved path resolution to handle relative paths.
-- **1.2**: Enhanced include file recognition and added support for various`#include` statement formats.
-- **1.1**: Performed a small code cleanup to reduce redundancy.
-- **1.0**: Initial version with basic functionality for recognizing`#include` statements.
+Run `Test/tests-ESprocessor.js` directly in ESTK. The harness creates isolated
+fixtures under `Folder.temp`, tests the real processing engine, and removes the
+fixtures afterward.
+
+The same file can be run with Node.js during development:
+
+```text
+node Test/tests-ESprocessor.js
+```
+
+The harness covers nested includes, duplicate suppression, both directive
+styles, absolute and relative include paths, missing files, logging, and absent
+input handling.
+
+## Version history
+
+- **1.5**: Split the engine from the interactive runner, added the shared
+  harness, fixed relative include-path resolution, and converted the root file
+  to an include-only bundle.
+- **1.4**: Preserved source extensions and added logging switches.
+- **1.3**: Added relative-path handling.
+- **1.2**: Added indented directives, include paths, and `//@include` support.
+- **1.1**: Cleaned up the original implementation.
+- **1.0**: Added basic `#include` processing.
 
 ## License
 
-This project is licensed under the MIT License.
+Provided under the MIT License.

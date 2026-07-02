@@ -1,0 +1,6 @@
+//@include "../Console/console.js"
+//@include "../../Array/Lib/indexOf.js"
+//@include "../../String/Lib/startsWith.js"
+//@include "../../String/Lib/repeat.js"
+//@include "Lib/ESprocessor.js"
+//@include "Lib/run.js"
