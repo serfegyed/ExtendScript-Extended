@@ -62,8 +62,22 @@ Preview the output path and exact include directives without writing:
 node Linker.js source.js --out build/source.js --dry-run
 ```
 
-Both modes return exit code 2 when any dependency is missing or its receiver
-type cannot be inferred. `--check` and `--dry-run` are mutually exclusive.
+Print a detailed, non-writing dependency report to standard output:
+
+```text
+node Linker.js source.js --report
+```
+
+The report classifies unique API uses as `native`, `polyfill`, `unknown`, or
+`unresolved` in source order. Redirect standard output to save it:
+
+```text
+node Linker.js source.js --report > linker-report.txt
+```
+
+All three analysis modes return exit code 2 when any dependency is missing or
+its receiver type cannot be inferred. `--check`, `--dry-run`, and `--report`
+are mutually exclusive.
 
 ## Deliberate limits of this checkpoint
 

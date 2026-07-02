@@ -225,7 +225,9 @@ function analyze(source, nativeCatalog, polyfillCatalog) {
     var scopeModel = buildScopes(tokens, pairs);
     var dependencies = [];
     var diagnostics = [];
+    var report = [];
     var seenDiagnostic = {};
+    var seenReport = {};
     var index;
 
     function declarationScope(scope, name) {
@@ -314,6 +316,21 @@ function analyze(source, nativeCatalog, polyfillCatalog) {
             column: location.column,
             message: message
         });
+        record(kind === "missing" ? "unresolved" : "unknown", symbol, token);
+    }
+
+    function record(status, symbol, token, provider) {
+        var key = status + ":" + symbol;
+        if (seenReport[key]) return;
+        seenReport[key] = true;
+        var location = lineAndColumn(source, token.start);
+        report.push({
+            status: status,
+            symbol: symbol,
+            line: location.line,
+            column: location.column,
+            provider: provider || null
+        });
     }
 
     for (index = 0; index < tokens.length; index++) {
@@ -365,9 +382,13 @@ function analyze(source, nativeCatalog, polyfillCatalog) {
 
         if (token.type === "identifier" && token.value === "console" &&
                 !isDeclared(currentScope, "console")) {
-            if (has(nativeCatalog.globals, "console")) continue;
+            if (has(nativeCatalog.globals, "console")) {
+                record("native", "console." + member, token);
+                continue;
+            }
             if (polyfillCatalog.providers.console) {
                 dependencies.push({ symbol: "console", provider: polyfillCatalog.providers.console, offset: token.lineStart });
+                record("polyfill", "console." + member, token, polyfillCatalog.providers.console.path);
             } else {
                 diagnose("missing", "console", token, "console is not provided by ESTK or the polyfill catalog.");
             }
@@ -380,6 +401,7 @@ function analyze(source, nativeCatalog, polyfillCatalog) {
                 symbol = token.value + "." + member;
                 if (polyfillCatalog.providers[symbol]) {
                     dependencies.push({ symbol: symbol, provider: polyfillCatalog.providers[symbol], offset: token.lineStart });
+                    record("polyfill", symbol, token, polyfillCatalog.providers[symbol].path);
                 } else {
                     diagnose("missing", symbol, token, symbol + " is not provided by ESTK or the polyfill catalog.");
                 }
@@ -394,15 +416,19 @@ function analyze(source, nativeCatalog, polyfillCatalog) {
         if (member === "prototype") continue;
         symbol = receiverType + (mode === "prototype" ? ".prototype." : ".") + member;
         var nativeType = nativeCatalog.types[receiverType] || { "static": [], "prototype": [] };
-        if (has(nativeType[mode], member)) continue;
+        if (has(nativeType[mode], member)) {
+            record("native", symbol, token);
+            continue;
+        }
         if (polyfillCatalog.providers[symbol]) {
             dependencies.push({ symbol: symbol, provider: polyfillCatalog.providers[symbol], offset: token.lineStart });
+            record("polyfill", symbol, token, polyfillCatalog.providers[symbol].path);
         } else {
             diagnose("missing", symbol, token, symbol + " is not provided by ESTK or the polyfill catalog.");
         }
     }
 
-    return { dependencies: dependencies, diagnostics: diagnostics };
+    return { dependencies: dependencies, diagnostics: diagnostics, report: report };
 }
 
 function linkSource(source, options) {
@@ -449,7 +475,8 @@ function linkSource(source, options) {
         source: output,
         includes: scheduledFiles,
         includeDirectives: includeDirectives,
-        diagnostics: analysis.diagnostics
+        diagnostics: analysis.diagnostics,
+        report: analysis.report
     };
 }
 

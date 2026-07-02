@@ -220,6 +220,21 @@ function slash(value) {
     assert.ok(check.stderr.indexOf("Array.prototype.notImplemented") !== -1);
 }());
 
+(function testDetailedReportUsesStandardOutput() {
+    var cliPath = path.join(linkerRoot, "Linker.js");
+    var fixturePath = path.join(__dirname, "linker-report-input.js");
+    var report = childProcess.spawnSync(process.execPath, [
+        cliPath, fixturePath, "--report"
+    ], {encoding: "utf8"});
+    assert.strictEqual(report.status, 2);
+    assert.strictEqual(report.stderr, "");
+    assert.ok(report.stdout.indexOf("native:     Array.prototype.push") !== -1);
+    assert.ok(report.stdout.indexOf("polyfill:   Array.prototype.at") !== -1);
+    assert.ok(report.stdout.indexOf("unknown:    custom.getValue") !== -1);
+    assert.ok(report.stdout.indexOf("unresolved: Array.prototype.futureMethod") !== -1);
+    assert.strictEqual(fs.existsSync(path.join(__dirname, "linker-report-input_linked.js")), false);
+}());
+
 (function testIndexBuilderFindsAtomicProvidersAndWarnings() {
     assert.strictEqual(polyfillCatalog.providers["Array.prototype.at"].path, "Array/Lib/at.js");
     assert.strictEqual(polyfillCatalog.providers.console.path, "Tools/Console/console.js");
@@ -239,4 +254,4 @@ function slash(value) {
     }), "local helper prototypes must not be treated as public Object APIs");
 }());
 
-console.log("Linker tests passed: 14");
+console.log("Linker tests passed: 15");

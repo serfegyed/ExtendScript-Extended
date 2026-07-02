@@ -6,7 +6,7 @@ var path = require("path");
 var linker = require("./Lib/linker");
 
 function usage() {
-    console.log("Usage: node Linker.js <source.js> [--out <linked.js>] [--check | --dry-run]");
+    console.log("Usage: node Linker.js <source.js> [--out <linked.js>] [--check | --dry-run | --report]");
 }
 
 var argumentsList = process.argv.slice(2);
@@ -19,8 +19,9 @@ var sourcePath = path.resolve(argumentsList[0]);
 var outputIndex = argumentsList.indexOf("--out");
 var checkOnly = argumentsList.indexOf("--check") !== -1;
 var dryRun = argumentsList.indexOf("--dry-run") !== -1;
-if (checkOnly && dryRun) {
-    console.error("Use either --check or --dry-run, not both.");
+var reportOnly = argumentsList.indexOf("--report") !== -1;
+if ((checkOnly ? 1 : 0) + (dryRun ? 1 : 0) + (reportOnly ? 1 : 0) > 1) {
+    console.error("Use only one of --check, --dry-run, or --report.");
     process.exit(1);
 }
 if (outputIndex !== -1 && !argumentsList[outputIndex + 1]) {
@@ -41,7 +42,12 @@ var result = linker.linkSource(fs.readFileSync(sourcePath, "utf8"), {
     polyfillCatalog: catalogs.polyfillCatalog
 });
 
-if (dryRun) {
+if (reportOnly) {
+    result.report.forEach(function (item) {
+        var label = item.status + ":";
+        console.log(label + new Array(Math.max(2, 13 - label.length)).join(" ") + item.symbol);
+    });
+} else if (dryRun) {
     console.log("Output: " + outputPath);
     console.log("Would insert: " + result.includeDirectives.length);
     result.includeDirectives.forEach(function (directive) {
@@ -56,13 +62,17 @@ if (dryRun) {
     console.log("Written: " + outputPath);
     console.log("Includes inserted: " + result.includes.length);
 }
-result.diagnostics.forEach(function (diagnostic) {
-    console.error(diagnostic.kind.toUpperCase() + " " + diagnostic.line + ":" + diagnostic.column + " " + diagnostic.message);
-});
+if (!reportOnly) {
+    result.diagnostics.forEach(function (diagnostic) {
+        console.error(diagnostic.kind.toUpperCase() + " " + diagnostic.line + ":" + diagnostic.column + " " + diagnostic.message);
+    });
+}
 if (result.diagnostics.length) {
     process.exitCode = 2;
 } else if (checkOnly) {
     console.log("Check passed.");
 } else if (dryRun) {
     console.log("Dry run passed.");
+} else if (reportOnly) {
+    console.log("Report passed.");
 }
