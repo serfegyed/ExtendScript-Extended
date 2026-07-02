@@ -1,6 +1,15 @@
 # ExtendScript-TypeTest
  Type tests extensions for ExtendScript (ES3)
 
+## Bundle
+
+```javascript
+//@include "TypeTest.js"
+```
+
+`TypeTest.js` is an include-only bundle. Every type test can also be included
+individually from `Lib`.
+
 ## The available functions are:
 
 - `isBoolean()`     - Tests if a passed data is Boolean

@@ -2,7 +2,7 @@
  * TypeTest compatibility tests.
  *
  * ExtendScript processes the include directives. Node.js ignores them and
- * loads the same public bundle explicitly.
+ * loads the same public source files explicitly.
  */
 //@debug 0
 
@@ -13,9 +13,32 @@ if (typeof require === "function" && typeof process !== "undefined") {
     (function () {
         var fs = require("fs");
         var path = require("path");
-        var filename = path.join(__dirname, "../TypeTest.js");
+        var filenames = [
+            "../Lib/isArrayLike.js",
+            "../Lib/isBoolean.js",
+            "../Lib/isCallable.js",
+            "../Lib/isDate.js",
+            "../Lib/isDefined.js",
+            "../Lib/isDigit.js",
+            "../Lib/isFalsy.js",
+            "../Lib/isFunction.js",
+            "../Lib/isIterable.js",
+            "../Lib/isLetter.js",
+            "../Lib/isNull.js",
+            "../Lib/isNullish.js",
+            "../Lib/isNumber.js",
+            "../Lib/isPrimitive.js",
+            "../Lib/isRegExp.js",
+            "../Lib/isString.js",
+            "../Lib/sameValueZero.js"
+        ];
+        var i;
 
-        (0, eval)(fs.readFileSync(filename, "utf8"));
+        for (i = 0; i < filenames.length; i++) {
+            (0, eval)(fs.readFileSync(
+                path.join(__dirname, filenames[i]), "utf8"
+            ));
+        }
     }());
 }
 

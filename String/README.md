@@ -4,6 +4,16 @@ ES6 String functions for ExtendScript (ES3)
 
 These are possible implementation of the JavaScript built-in String methods.
 
+## Bundles
+
+```javascript
+//@include "String-standard.js"
+//@include "String-nonstandard.js"
+```
+
+Both files are include-only bundles. Individual implementations remain
+available under `Lib`.
+
 ## The available methods
 
 ### Standard methods

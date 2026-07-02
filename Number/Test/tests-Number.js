@@ -36,10 +36,20 @@ if (isNodeRuntime) {
     (function () {
         var fs = require("fs");
         var path = require("path");
-        var filename = path.join(__dirname, "../Number.js");
-        var source = fs.readFileSync(filename, "utf8");
+        var filenames = [
+            "../Lib/constants.js",
+            "../Lib/isFinite.js",
+            "../Lib/isInteger.js",
+            "../Lib/isNaN.js",
+            "../Lib/isSafeInteger.js"
+        ];
+        var i;
 
-        (0, eval)(source);
+        for (i = 0; i < filenames.length; i++) {
+            (0, eval)(fs.readFileSync(
+                path.join(__dirname, filenames[i]), "utf8"
+            ));
+        }
     }());
 }
 

@@ -1,6 +1,15 @@
 # Number Polyfills for ExtendScript
 This package provides a collection of polyfills to add support for several Number methods and constants not natively available in ExtendScript, an extended form of ECMAScript 3. These polyfills allow developers to use modern JavaScript Number functionalities, enhancing compatibility and making scripting more efficient in environments like Adobe InDesign scripting.
 
+## Bundle
+
+```javascript
+//@include "Number.js"
+```
+
+`Number.js` is an include-only bundle. Individual files under `Lib` can also
+be included separately.
+
 ## Included Polyfills
 
 ### Number constants

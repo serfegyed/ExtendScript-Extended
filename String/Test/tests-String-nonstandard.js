@@ -18,12 +18,7 @@ String.prototype.insert = undefined;
 String.isEmpty = undefined;
 String.prototype.reverse = undefined;
 
-//@include "../Lib/contains.js"
-//@include "../Lib/format.js"
-//@include "../Lib/indexAfter.js"
-//@include "../Lib/insert.js"
-//@include "../Lib/isEmpty.js"
-//@include "../Lib/reverse.js"
+//@include "../String-nonstandard.js"
 
 if (isNodeRuntime) {
     (function () {

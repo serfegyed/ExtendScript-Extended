@@ -45,24 +45,7 @@ String.prototype.toWellFormed = undefined;
 String.prototype.matchAll = undefined;
 String.prototype.replaceAll = undefined;
 
-//@include "../Lib/at.js"
-//@include "../Lib/endsWith.js"
-//@include "../Lib/startsWith.js"
-//@include "../Lib/includes.js"
-//@include "../Lib/repeat.js"
-//@include "../Lib/padStart.js"
-//@include "../Lib/padEnd.js"
-//@include "../Lib/trim.js"
-//@include "../Lib/trimStart.js"
-//@include "../Lib/trimEnd.js"
-//@include "../Lib/codePointAt.js"
-//@include "../Lib/fromCodePoint.js"
-//@include "../Lib/isWellFormed.js"
-//@include "../Lib/toWellFormed.js"
-//@include "../../Array/Lib/from.js"
-//@include "../../Array/Lib/values.js"
-//@include "../Lib/matchAll.js"
-//@include "../Lib/replaceAll.js"
+//@include "../String-standard.js"
 
 if (isNodeRuntime) {
     (function () {
