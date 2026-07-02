@@ -1,7 +1,9 @@
 "use strict";
 
 var assert = require("assert");
+var childProcess = require("child_process");
 var fs = require("fs");
+var os = require("os");
 var path = require("path");
 var builder = require("../Lib/buildPolyfillIndex");
 var linker = require("../Lib/linker");
@@ -186,6 +188,38 @@ function slash(value) {
         "the source-relative include must not remain in relocated output");
 }());
 
+(function testCheckAndDryRunDoNotWriteFiles() {
+    var cliPath = path.join(linkerRoot, "Linker.js");
+    var fixturePath = path.join(__dirname, "linker-smoke-input.js");
+    var outputPath = path.join(os.tmpdir(), "linker-dry-run-" + process.pid + ".js");
+    var check = childProcess.spawnSync(process.execPath, [
+        cliPath, fixturePath, "--out", outputPath, "--check"
+    ], {encoding: "utf8"});
+    assert.strictEqual(check.status, 0, check.stderr);
+    assert.ok(check.stdout.indexOf("Check passed.") !== -1);
+    assert.strictEqual(fs.existsSync(outputPath), false);
+
+    var dryRun = childProcess.spawnSync(process.execPath, [
+        cliPath, fixturePath, "--out", outputPath, "--dry-run"
+    ], {encoding: "utf8"});
+    assert.strictEqual(dryRun.status, 0, dryRun.stderr);
+    assert.ok(dryRun.stdout.indexOf("Would insert: 9") !== -1);
+    assert.ok(dryRun.stdout.indexOf("Array/Lib/at.js") !== -1);
+    assert.ok(dryRun.stdout.indexOf("Dry run passed.") !== -1);
+    assert.strictEqual(fs.existsSync(outputPath), false);
+}());
+
+(function testCheckFailsForUnresolvedDependencies() {
+    var cliPath = path.join(linkerRoot, "Linker.js");
+    var fixturePath = path.join(__dirname, "linker-unresolved-input.js");
+    var check = childProcess.spawnSync(process.execPath, [
+        cliPath, fixturePath, "--check"
+    ], {encoding: "utf8"});
+    assert.strictEqual(check.status, 2);
+    assert.ok(check.stderr.indexOf("MISSING") !== -1);
+    assert.ok(check.stderr.indexOf("Array.prototype.notImplemented") !== -1);
+}());
+
 (function testIndexBuilderFindsAtomicProvidersAndWarnings() {
     assert.strictEqual(polyfillCatalog.providers["Array.prototype.at"].path, "Array/Lib/at.js");
     assert.strictEqual(polyfillCatalog.providers.console.path, "Tools/Console/console.js");
@@ -205,4 +239,4 @@ function slash(value) {
     }), "local helper prototypes must not be treated as public Object APIs");
 }());
 
-console.log("Linker tests passed: 12");
+console.log("Linker tests passed: 14");

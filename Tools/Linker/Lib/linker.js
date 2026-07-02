@@ -428,6 +428,7 @@ function linkSource(source, options) {
     });
 
     var output = relocateExistingIncludes(source, sourcePath, outputPath);
+    var includeDirectives = [];
     if (scheduledFiles.length) {
         var offset = firstCodeOffset(output);
         var block = scheduledFiles.map(function (file) {
@@ -435,7 +436,9 @@ function linkSource(source, options) {
             var relative = slash(path.relative(path.dirname(outputPath), absolute));
             if (relative.charAt(0) !== ".") relative = "./" + relative;
             return "//@include \"" + relative + "\"";
-        }).join("\n") + "\n";
+        });
+        includeDirectives = block.slice();
+        block = block.join("\n") + "\n";
         if (offset > 0 && output.charAt(offset - 1) !== "\n" && output.charAt(offset - 1) !== "\r") {
             block = "\n" + block;
         }
@@ -445,6 +448,7 @@ function linkSource(source, options) {
     return {
         source: output,
         includes: scheduledFiles,
+        includeDirectives: includeDirectives,
         diagnostics: analysis.diagnostics
     };
 }

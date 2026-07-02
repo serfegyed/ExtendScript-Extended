@@ -6,7 +6,7 @@ var path = require("path");
 var linker = require("./Lib/linker");
 
 function usage() {
-    console.log("Usage: node Linker.js <source.js> [--out <linked.js>]");
+    console.log("Usage: node Linker.js <source.js> [--out <linked.js>] [--check | --dry-run]");
 }
 
 var argumentsList = process.argv.slice(2);
@@ -17,6 +17,16 @@ if (!argumentsList.length || argumentsList[0] === "--help") {
 
 var sourcePath = path.resolve(argumentsList[0]);
 var outputIndex = argumentsList.indexOf("--out");
+var checkOnly = argumentsList.indexOf("--check") !== -1;
+var dryRun = argumentsList.indexOf("--dry-run") !== -1;
+if (checkOnly && dryRun) {
+    console.error("Use either --check or --dry-run, not both.");
+    process.exit(1);
+}
+if (outputIndex !== -1 && !argumentsList[outputIndex + 1]) {
+    console.error("--out requires a filename.");
+    process.exit(1);
+}
 var extension = path.extname(sourcePath);
 var outputPath = outputIndex !== -1
     ? path.resolve(argumentsList[outputIndex + 1])
@@ -31,11 +41,28 @@ var result = linker.linkSource(fs.readFileSync(sourcePath, "utf8"), {
     polyfillCatalog: catalogs.polyfillCatalog
 });
 
-fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-fs.writeFileSync(outputPath, result.source, "utf8");
-console.log("Written: " + outputPath);
-console.log("Includes inserted: " + result.includes.length);
+if (dryRun) {
+    console.log("Output: " + outputPath);
+    console.log("Would insert: " + result.includeDirectives.length);
+    result.includeDirectives.forEach(function (directive) {
+        console.log("  " + directive);
+    });
+} else if (checkOnly) {
+    console.log("Check: " + sourcePath);
+    console.log("Required includes: " + result.includes.length);
+} else {
+    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+    fs.writeFileSync(outputPath, result.source, "utf8");
+    console.log("Written: " + outputPath);
+    console.log("Includes inserted: " + result.includes.length);
+}
 result.diagnostics.forEach(function (diagnostic) {
     console.error(diagnostic.kind.toUpperCase() + " " + diagnostic.line + ":" + diagnostic.column + " " + diagnostic.message);
 });
-if (result.diagnostics.some(function (diagnostic) { return diagnostic.kind === "missing"; })) process.exitCode = 2;
+if (result.diagnostics.length) {
+    process.exitCode = 2;
+} else if (checkOnly) {
+    console.log("Check passed.");
+} else if (dryRun) {
+    console.log("Dry run passed.");
+}

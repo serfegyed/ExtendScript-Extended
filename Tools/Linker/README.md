@@ -50,6 +50,21 @@ For a manual smoke test covering several native and polyfilled APIs:
 node Linker.js Test/linker-smoke-input.js
 ```
 
+Validate without writing an output file:
+
+```text
+node Linker.js source.js --check
+```
+
+Preview the output path and exact include directives without writing:
+
+```text
+node Linker.js source.js --out build/source.js --dry-run
+```
+
+Both modes return exit code 2 when any dependency is missing or its receiver
+type cannot be inferred. `--check` and `--dry-run` are mutually exclusive.
+
 ## Deliberate limits of this checkpoint
 
 This version does not yet implement computed properties, user-function return
