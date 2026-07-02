@@ -12,6 +12,10 @@ constructor calls, `new` expressions, simple assignments, direct member
 accesses, and chained calls whose return type is known by a catalog. Unknown
 receiver types are reported instead of guessed.
 
+`var` and ExtendScript `const` declarations use function scope. Function
+parameters and nested function scopes shadow outer variables and built-in
+names during type analysis.
+
 ## Catalogs
 
 - `Catalog/estk-3.json` is the preliminary, versioned native ESTK baseline.
@@ -36,7 +40,9 @@ node Linker.js path/to/source.js
 ```
 
 The default output is `source_linked.js`. Use `--out path/to/result.js` to pick
-another output path. A missing known API is reported and sets exit code 2.
+another output path. Generated and existing relative include paths are adjusted
+to the output file's directory. A missing known API is reported and sets exit
+code 2.
 
 For a manual smoke test covering several native and polyfilled APIs:
 
@@ -46,7 +52,6 @@ node Linker.js Test/linker-smoke-input.js
 
 ## Deliberate limits of this checkpoint
 
-This version does not yet implement block/function scopes, computed
-properties, user-function return analysis, or JSDoc type hints in application
-sources. Those cases remain visible as diagnostics rather than being linked on
-a guess.
+This version does not yet implement computed properties, user-function return
+analysis, or JSDoc type hints in application sources. Those cases remain
+visible as diagnostics rather than being linked on a guess.

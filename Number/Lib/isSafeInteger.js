@@ -1,6 +1,5 @@
-// Defining MAX_SAFE_INTEGER and MIN_SAFE_INTEGER
-Number.MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
-Number.MIN_SAFE_INTEGER = -Math.pow(2, 53) + 1;
+//@include "./MAX_SAFE_INTEGER.js"
+//@include "./MIN_SAFE_INTEGER.js"
 
 /**
  * Check if the given value is a safe integer.

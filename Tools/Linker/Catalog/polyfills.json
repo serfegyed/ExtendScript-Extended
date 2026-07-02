@@ -568,6 +568,11 @@
       "dependencies": [],
       "returnType": "number"
     },
+    "Number.EPSILON": {
+      "path": "Number/Lib/EPSILON.js",
+      "dependencies": [],
+      "returnType": null
+    },
     "Number.isFinite": {
       "path": "Number/Lib/isFinite.js",
       "dependencies": [],
@@ -582,6 +587,24 @@
       "path": "Number/Lib/isNaN.js",
       "dependencies": [],
       "returnType": "boolean"
+    },
+    "Number.isSafeInteger": {
+      "path": "Number/Lib/isSafeInteger.js",
+      "dependencies": [
+        "Number/Lib/MAX_SAFE_INTEGER.js",
+        "Number/Lib/MIN_SAFE_INTEGER.js"
+      ],
+      "returnType": "boolean"
+    },
+    "Number.MAX_SAFE_INTEGER": {
+      "path": "Number/Lib/MAX_SAFE_INTEGER.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Number.MIN_SAFE_INTEGER": {
+      "path": "Number/Lib/MIN_SAFE_INTEGER.js",
+      "dependencies": [],
+      "returnType": null
     },
     "Object.assign": {
       "path": "Object/Lib/assign.js",
@@ -1338,7 +1361,7 @@
     "Math/Math.trunc.js": {
       "dependencies": []
     },
-    "Number/Lib/constants.js": {
+    "Number/Lib/EPSILON.js": {
       "dependencies": []
     },
     "Number/Lib/isFinite.js": {
@@ -1351,6 +1374,15 @@
       "dependencies": []
     },
     "Number/Lib/isSafeInteger.js": {
+      "dependencies": [
+        "Number/Lib/MAX_SAFE_INTEGER.js",
+        "Number/Lib/MIN_SAFE_INTEGER.js"
+      ]
+    },
+    "Number/Lib/MAX_SAFE_INTEGER.js": {
+      "dependencies": []
+    },
+    "Number/Lib/MIN_SAFE_INTEGER.js": {
       "dependencies": []
     },
     "Object/Lib/assign.js": {
@@ -1630,24 +1662,5 @@
       "dependencies": []
     }
   },
-  "warnings": [
-    {
-      "path": "Number/Lib/constants.js",
-      "reason": "multiple-public-symbols",
-      "symbols": [
-        "Number.MAX_SAFE_INTEGER",
-        "Number.MIN_SAFE_INTEGER",
-        "Number.EPSILON"
-      ]
-    },
-    {
-      "path": "Number/Lib/isSafeInteger.js",
-      "reason": "multiple-public-symbols",
-      "symbols": [
-        "Number.MAX_SAFE_INTEGER",
-        "Number.MIN_SAFE_INTEGER",
-        "Number.isSafeInteger"
-      ]
-    }
-  ]
+  "warnings": []
 }

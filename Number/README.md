@@ -7,8 +7,8 @@ This package provides a collection of polyfills to add support for several Numbe
 //@include "Number.js"
 ```
 
-`Number.js` is an include-only bundle. Individual files under `Lib` can also
-be included separately.
+`Number.js` is an include-only bundle. Every method and constant has its own
+individually include-able file under `Lib`.
 
 ## Included Polyfills
 

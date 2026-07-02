@@ -21,6 +21,10 @@ function link(source) {
     });
 }
 
+function slash(value) {
+    return value.split(path.sep).join("/");
+}
+
 (function testOriginalExample() {
     var result = link([
         "var arr = [1, 2, 3];",
@@ -136,15 +140,64 @@ function link(source) {
     assert.ok(result.source.indexOf("//@include") < result.source.indexOf("var numbers"));
 }());
 
+(function testFunctionScopesAndConstShadowing() {
+    var result = link([
+        "const value = [];",
+        "function format(console, JSON, Array) {",
+        "    const value = \"x\";",
+        "    value.padStart(3, \"0\");",
+        "    console.log(value);",
+        "    JSON.stringify(value);",
+        "    Array.from(value);",
+        "}",
+        "value.at(0);",
+        "console.log(value);",
+        ""
+    ].join("\n"));
+    assert.deepStrictEqual(result.diagnostics, []);
+    assert.deepStrictEqual(result.includes, [
+        "String/Lib/padStart.js",
+        "Array/Lib/at.js",
+        "Tools/Console/console.js"
+    ]);
+}());
+
+(function testOutputDirectoryControlsAllRelativeIncludes() {
+    var sourcePath = path.join(__dirname, "source", "input.js");
+    var outputPath = path.join(__dirname, "build", "nested", "output.js");
+    var existingTarget = path.join(repositoryRoot, "String", "Lib", "trim.js");
+    var oldRelative = slash(path.relative(path.dirname(sourcePath), existingTarget));
+    var newRelative = slash(path.relative(path.dirname(outputPath), existingTarget));
+    var atTarget = path.join(repositoryRoot, "Array", "Lib", "at.js");
+    var atRelative = slash(path.relative(path.dirname(outputPath), atTarget));
+    var source = "//@include \"" + oldRelative + "\"\nvar values = [];\nvalues.at(0);\n";
+    var result = linker.linkSource(source, {
+        sourcePath: sourcePath,
+        outputPath: outputPath,
+        repositoryRoot: repositoryRoot,
+        nativeCatalog: nativeCatalog,
+        polyfillCatalog: polyfillCatalog
+    });
+    assert.ok(result.source.indexOf("//@include \"" + newRelative + "\"") !== -1,
+        "existing relative includes must follow the output directory");
+    assert.ok(result.source.indexOf("//@include \"" + atRelative + "\"") !== -1,
+        "generated relative includes must follow the output directory");
+    assert.ok(result.source.split(/\r\n|\r|\n/).indexOf("//@include \"" + oldRelative + "\"") === -1,
+        "the source-relative include must not remain in relocated output");
+}());
+
 (function testIndexBuilderFindsAtomicProvidersAndWarnings() {
     assert.strictEqual(polyfillCatalog.providers["Array.prototype.at"].path, "Array/Lib/at.js");
     assert.strictEqual(polyfillCatalog.providers.console.path, "Tools/Console/console.js");
-    assert.ok(polyfillCatalog.warnings.some(function (warning) {
-        return warning.path === "Number/Lib/constants.js" && warning.reason === "multiple-public-symbols";
-    }));
-    assert.ok(polyfillCatalog.warnings.some(function (warning) {
-        return warning.path === "Number/Lib/isSafeInteger.js" && warning.reason === "multiple-public-symbols";
-    }));
+    assert.deepStrictEqual(polyfillCatalog.warnings, []);
+    assert.strictEqual(polyfillCatalog.providers["Number.MAX_SAFE_INTEGER"].path,
+        "Number/Lib/MAX_SAFE_INTEGER.js");
+    assert.strictEqual(polyfillCatalog.providers["Number.MIN_SAFE_INTEGER"].path,
+        "Number/Lib/MIN_SAFE_INTEGER.js");
+    assert.strictEqual(polyfillCatalog.providers["Number.EPSILON"].path,
+        "Number/Lib/EPSILON.js");
+    assert.strictEqual(polyfillCatalog.providers["Number.isSafeInteger"].path,
+        "Number/Lib/isSafeInteger.js");
     assert.strictEqual(polyfillCatalog.providers["JSON.stringify"].path, "JSON/JSON.stringify.js");
     assert.strictEqual(polyfillCatalog.providers["JSON.parse"].path, "JSON/JSON.parse.js");
     assert.ok(!polyfillCatalog.warnings.some(function (warning) {
@@ -152,4 +205,4 @@ function link(source) {
     }), "local helper prototypes must not be treated as public Object APIs");
 }());
 
-console.log("Linker tests passed: 10");
+console.log("Linker tests passed: 12");

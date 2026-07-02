@@ -37,7 +37,9 @@ if (isNodeRuntime) {
         var fs = require("fs");
         var path = require("path");
         var filenames = [
-            "../Lib/constants.js",
+            "../Lib/MAX_SAFE_INTEGER.js",
+            "../Lib/MIN_SAFE_INTEGER.js",
+            "../Lib/EPSILON.js",
             "../Lib/isFinite.js",
             "../Lib/isInteger.js",
             "../Lib/isNaN.js",

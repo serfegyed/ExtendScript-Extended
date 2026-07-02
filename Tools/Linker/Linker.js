@@ -25,11 +25,13 @@ var repositoryRoot = path.resolve(__dirname, "..", "..");
 var catalogs = linker.loadDefaultCatalogs(__dirname);
 var result = linker.linkSource(fs.readFileSync(sourcePath, "utf8"), {
     sourcePath: sourcePath,
+    outputPath: outputPath,
     repositoryRoot: repositoryRoot,
     nativeCatalog: catalogs.nativeCatalog,
     polyfillCatalog: catalogs.polyfillCatalog
 });
 
+fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 fs.writeFileSync(outputPath, result.source, "utf8");
 console.log("Written: " + outputPath);
 console.log("Includes inserted: " + result.includes.length);
