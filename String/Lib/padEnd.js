@@ -9,20 +9,6 @@ if (!String.prototype.padEnd) {
     String.prototype.padEnd = function (targetLength, padString) {
         "use strict";
 
-        function typeError(message) {
-            var error = new TypeError(message);
-
-            error.name = "TypeError";
-            return error;
-        }
-
-        function rangeError(message) {
-            var error = new RangeError(message);
-
-            error.name = "RangeError";
-            return error;
-        }
-
         var string;
         var length;
         var number;
@@ -32,7 +18,7 @@ if (!String.prototype.padEnd) {
 
         if (this === null || this === undefined ||
                 (typeof $ !== "undefined" && $.global && this === $.global)) {
-            throw typeError("String.prototype.padEnd called on null or undefined");
+            throw new TypeError("String.prototype.padEnd called on null or undefined");
         }
 
         string = String(this);
@@ -57,7 +43,7 @@ if (!String.prototype.padEnd) {
 
         fillLength = length - string.length;
         if (fillLength >= (1 << 28)) {
-            throw rangeError("padEnd result exceeds maximum string size");
+            throw new RangeError("padEnd result exceeds maximum string size");
         }
         while (padding.length < fillLength) {
             padding += filler.slice(0, fillLength - padding.length);

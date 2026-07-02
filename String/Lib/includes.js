@@ -9,13 +9,6 @@ if (!String.prototype.includes) {
     String.prototype.includes = function (searchString, position) {
         "use strict";
 
-        function typeError(message) {
-            var error = new TypeError(message);
-
-            error.name = "TypeError";
-            return error;
-        }
-
         function isRegExp(value) {
             var matcher;
 
@@ -38,12 +31,12 @@ if (!String.prototype.includes) {
 
         if (this === null || this === undefined ||
                 (typeof $ !== "undefined" && $.global && this === $.global)) {
-            throw typeError("String.prototype.includes called on null or undefined");
+            throw new TypeError("String.prototype.includes called on null or undefined");
         }
 
         string = String(this);
         if (isRegExp(searchString)) {
-            throw typeError("First argument to String.prototype.includes must not be a regular expression");
+            throw new TypeError("First argument to String.prototype.includes must not be a regular expression");
         }
 
         search = String(searchString);

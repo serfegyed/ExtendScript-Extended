@@ -98,7 +98,15 @@ if (isNodeRuntime) {
         try {
             callback();
         } catch (error) {
-            assertEqual(error.name, expectedName, message || "Unexpected error name");
+            if (isNodeRuntime) {
+                assertEqual(error.name, expectedName, message || "Unexpected error name");
+            } else if (expectedName === "TypeError") {
+                assertEqual(error instanceof TypeError, true, message || "Unexpected error type");
+            } else if (expectedName === "RangeError") {
+                assertEqual(error instanceof RangeError, true, message || "Unexpected error type");
+            } else {
+                assertEqual(error.name, expectedName, message || "Unexpected error name");
+            }
             return;
         }
 

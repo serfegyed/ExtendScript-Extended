@@ -14,16 +14,9 @@ if (!String.prototype.at) {
     String.prototype.at = function (index) {
         "use strict";
 
-        function typeError(message) {
-            var error = new TypeError(message);
-
-            error.name = "TypeError";
-            return error;
-        }
-
         if (this === null || this === undefined ||
                 (typeof $ !== "undefined" && $.global && this === $.global)) {
-            throw typeError("String.prototype.at called on null or undefined");
+            throw new TypeError("String.prototype.at called on null or undefined");
         }
 
         var string = String(this);

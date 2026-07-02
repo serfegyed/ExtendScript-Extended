@@ -8,27 +8,13 @@ if (!String.prototype.repeat) {
     String.prototype.repeat = function (count) {
         "use strict";
 
-        function typeError(message) {
-            var error = new TypeError(message);
-
-            error.name = "TypeError";
-            return error;
-        }
-
-        function rangeError(message) {
-            var error = new RangeError(message);
-
-            error.name = "RangeError";
-            return error;
-        }
-
         var string;
         var number;
         var result = "";
 
         if (this === null || this === undefined ||
                 (typeof $ !== "undefined" && $.global && this === $.global)) {
-            throw typeError("String.prototype.repeat called on null or undefined");
+            throw new TypeError("String.prototype.repeat called on null or undefined");
         }
 
         string = String(this);
@@ -39,13 +25,13 @@ if (!String.prototype.repeat) {
             number = number < 0 ? Math.ceil(number) : Math.floor(number);
         }
         if (number < 0 || number === Infinity) {
-            throw rangeError("Invalid count value");
+            throw new RangeError("Invalid count value");
         }
         if (string.length === 0 || number === 0) {
             return "";
         }
         if (string.length * number >= (1 << 28)) {
-            throw rangeError("repeat count must not overflow maximum string size");
+            throw new RangeError("repeat count must not overflow maximum string size");
         }
 
         while (number > 0) {

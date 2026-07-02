@@ -8,13 +8,6 @@ if (!String.prototype.endsWith) {
     String.prototype.endsWith = function (searchString, position) {
         "use strict";
 
-        function typeError(message) {
-            var error = new TypeError(message);
-
-            error.name = "TypeError";
-            return error;
-        }
-
         function isRegExp(value) {
             var matcher;
 
@@ -38,11 +31,11 @@ if (!String.prototype.endsWith) {
 
         if (this === null || this === undefined ||
                 (typeof $ !== "undefined" && $.global && this === $.global)) {
-            throw typeError("String.prototype.endsWith called on null or undefined");
+            throw new TypeError("String.prototype.endsWith called on null or undefined");
         }
         string = String(this);
         if (isRegExp(searchString)) {
-            throw typeError("First argument to String.prototype.endsWith must not be a regular expression");
+            throw new TypeError("First argument to String.prototype.endsWith must not be a regular expression");
         }
         search = String(searchString);
         length = string.length;
