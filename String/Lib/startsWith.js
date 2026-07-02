@@ -28,8 +28,7 @@ if (!String.prototype.startsWith) {
         var start;
         var number;
 
-        if (this === null || this === undefined ||
-                (typeof $ !== "undefined" && $.global && this === $.global)) {
+        if (this === null || this === undefined) {
             throw new TypeError("String.prototype.startsWith called on null or undefined");
         }
         string = String(this);

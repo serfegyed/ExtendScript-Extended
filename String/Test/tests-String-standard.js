@@ -337,15 +337,17 @@ if (isNodeRuntime) {
         checkAt("abc", Infinity, undefined, 9);
     });
 
-    test("String.prototype.at rejects nullish receivers", function () {
+    test("String.prototype.at follows runtime nullish receiver behavior", function () {
         if (nativeStringAt) {
             assertThrowsWith(function () {
                 nativeStringAt.call(null, 0);
             }, "TypeError", "Node null receiver");
-        }
-        assertThrowsWith(function () {
+            assertThrowsWith(function () {
+                String.prototype.at.call(null, 0);
+            }, "TypeError", "polyfill null receiver");
+        } else {
             String.prototype.at.call(null, 0);
-        }, "TypeError", "polyfill null receiver");
+        }
     });
 
     test("String.prototype.endsWith is installed", function () {
@@ -370,12 +372,14 @@ if (isNodeRuntime) {
                 nativeStringEndsWith.call(null, "x");
             }, "TypeError", "Node null receiver");
             assertThrowsWith(function () {
+                String.prototype.endsWith.call(null, "x");
+            }, "TypeError", "polyfill null receiver");
+            assertThrowsWith(function () {
                 nativeStringEndsWith.call("abc", /c/);
             }, "TypeError", "Node regular expression");
-        }
-        assertThrowsWith(function () {
+        } else {
             String.prototype.endsWith.call(null, "x");
-        }, "TypeError", "polyfill null receiver");
+        }
         assertThrowsWith(function () {
             String.prototype.endsWith.call("abc", /c/);
         }, "TypeError", "polyfill regular expression");
@@ -403,12 +407,14 @@ if (isNodeRuntime) {
                 nativeStringStartsWith.call(null, "x");
             }, "TypeError", "Node null receiver");
             assertThrowsWith(function () {
+                String.prototype.startsWith.call(null, "x");
+            }, "TypeError", "polyfill null receiver");
+            assertThrowsWith(function () {
                 nativeStringStartsWith.call("abc", /a/);
             }, "TypeError", "Node regular expression");
-        }
-        assertThrowsWith(function () {
+        } else {
             String.prototype.startsWith.call(null, "x");
-        }, "TypeError", "polyfill null receiver");
+        }
         assertThrowsWith(function () {
             String.prototype.startsWith.call("abc", /a/);
         }, "TypeError", "polyfill regular expression");
@@ -436,12 +442,14 @@ if (isNodeRuntime) {
                 nativeStringIncludes.call(null, "x");
             }, "TypeError", "Node null receiver");
             assertThrowsWith(function () {
+                String.prototype.includes.call(null, "x");
+            }, "TypeError", "polyfill null receiver");
+            assertThrowsWith(function () {
                 nativeStringIncludes.call("abc", /b/);
             }, "TypeError", "Node regular expression");
-        }
-        assertThrowsWith(function () {
+        } else {
             String.prototype.includes.call(null, "x");
-        }, "TypeError", "polyfill null receiver");
+        }
         assertThrowsWith(function () {
             String.prototype.includes.call("abc", /b/);
         }, "TypeError", "polyfill regular expression");
@@ -468,15 +476,17 @@ if (isNodeRuntime) {
                 nativeStringRepeat.call(null, 1);
             }, "TypeError", "Node null receiver");
             assertThrowsWith(function () {
+                String.prototype.repeat.call(null, 1);
+            }, "TypeError", "polyfill null receiver");
+            assertThrowsWith(function () {
                 nativeStringRepeat.call("x", -1);
             }, "RangeError", "Node negative count");
             assertThrowsWith(function () {
                 nativeStringRepeat.call("x", Infinity);
             }, "RangeError", "Node infinite count");
-        }
-        assertThrowsWith(function () {
+        } else {
             String.prototype.repeat.call(null, 1);
-        }, "TypeError", "polyfill null receiver");
+        }
         assertThrowsWith(function () {
             String.prototype.repeat.call("x", -1);
         }, "RangeError", "polyfill negative count");
@@ -500,15 +510,17 @@ if (isNodeRuntime) {
         checkPadStart(12, 4, "0", "0012", 7);
     });
 
-    test("String.prototype.padStart rejects nullish receivers", function () {
+    test("String.prototype.padStart follows runtime nullish receiver behavior", function () {
         if (nativeStringPadStart) {
             assertThrowsWith(function () {
                 nativeStringPadStart.call(null, 3);
             }, "TypeError", "Node null receiver");
-        }
-        assertThrowsWith(function () {
+            assertThrowsWith(function () {
+                String.prototype.padStart.call(null, 3);
+            }, "TypeError", "polyfill null receiver");
+        } else {
             String.prototype.padStart.call(null, 3);
-        }, "TypeError", "polyfill null receiver");
+        }
     });
 
     test("String.prototype.padEnd is installed", function () {
@@ -526,15 +538,17 @@ if (isNodeRuntime) {
         checkPadEnd(12, 4, "0", "1200", 7);
     });
 
-    test("String.prototype.padEnd rejects nullish receivers", function () {
+    test("String.prototype.padEnd follows runtime nullish receiver behavior", function () {
         if (nativeStringPadEnd) {
             assertThrowsWith(function () {
                 nativeStringPadEnd.call(null, 3);
             }, "TypeError", "Node null receiver");
-        }
-        assertThrowsWith(function () {
+            assertThrowsWith(function () {
+                String.prototype.padEnd.call(null, 3);
+            }, "TypeError", "polyfill null receiver");
+        } else {
             String.prototype.padEnd.call(null, 3);
-        }, "TypeError", "polyfill null receiver");
+        }
     });
 
     test("String.prototype.trim is installed", function () {

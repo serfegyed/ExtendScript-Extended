@@ -14,8 +14,7 @@ if (!String.prototype.at) {
     String.prototype.at = function (index) {
         "use strict";
 
-        if (this === null || this === undefined ||
-                (typeof $ !== "undefined" && $.global && this === $.global)) {
+        if (this === null || this === undefined) {
             throw new TypeError("String.prototype.at called on null or undefined");
         }
 

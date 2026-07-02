@@ -16,8 +16,7 @@ if (!String.prototype.padEnd) {
         var fillLength;
         var padding = "";
 
-        if (this === null || this === undefined ||
-                (typeof $ !== "undefined" && $.global && this === $.global)) {
+        if (this === null || this === undefined) {
             throw new TypeError("String.prototype.padEnd called on null or undefined");
         }
 

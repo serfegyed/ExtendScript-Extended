@@ -12,8 +12,7 @@ if (!String.prototype.repeat) {
         var number;
         var result = "";
 
-        if (this === null || this === undefined ||
-                (typeof $ !== "undefined" && $.global && this === $.global)) {
+        if (this === null || this === undefined) {
             throw new TypeError("String.prototype.repeat called on null or undefined");
         }
 
