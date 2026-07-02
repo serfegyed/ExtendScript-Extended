@@ -17,7 +17,7 @@ Returns the Date value as a UTC ISO string with millisecond precision.
   affect the result.
 
 ```javascript
-#include "Lib/Date.toISOString.js"
+//@include "Lib/Date.toISOString.js"
 
 new Date(0).toISOString();
 // "1970-01-01T00:00:00.000Z"
@@ -36,8 +36,8 @@ Include `Date.toISOString.js` first when ExtendScript does not already provide
 that method.
 
 ```javascript
-#include "Lib/Date.toISOString.js"
-#include "Lib/Date.toJSON.js"
+//@include "Lib/Date.toISOString.js"
+//@include "Lib/Date.toJSON.js"
 
 new Date(0).toJSON();
 // "1970-01-01T00:00:00.000Z"
@@ -56,9 +56,9 @@ Converts the exact epoch-millisecond Date value to `Temporal.Instant`.
 called.
 
 ```javascript
-#include "../Temporal/Lib/Temporal-core.js"
-#include "../Temporal/Lib/Temporal.Instant.js"
-#include "Lib/Date.toTemporalInstant.js"
+//@include "../Temporal/Lib/Temporal-core.js"
+//@include "../Temporal/Lib/Temporal.Instant.js"
+//@include "Lib/Date.toTemporalInstant.js"
 
 new Date(0).toTemporalInstant().toString();
 // "1970-01-01T00:00:00Z"

@@ -62,6 +62,7 @@ if (isNodeRuntime) {
         var filenames = [
             path.join(__dirname, "../../Map/External/external.js"),
             path.join(__dirname, "../../Map/Map_basic.js"),
+            path.join(__dirname, "../../Map/Lib/forEach.js"),
             path.join(__dirname, "../../Map/Map_standard.js"),
             path.join(__dirname, "../../Set/external.js"),
             path.join(__dirname, "../../Set/Set_standard.js"),

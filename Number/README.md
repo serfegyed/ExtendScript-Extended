@@ -74,10 +74,10 @@ To use these polyfills, simply include this script in your ExtendScript project 
 
 ```javascript
 // Include the polyfills in your script
-#include "path/to/Number.isFinite.js"
-#include "path/to/Number.isInteger.js"
-#include "path/to/Number.isNaN.js"
-#include "path/to/Number.isSafeInteger.js"
+//@include "path/to/Number.isFinite.js"
+//@include "path/to/Number.isInteger.js"
+//@include "path/to/Number.isNaN.js"
+//@include "path/to/Number.isSafeInteger.js"
 ...
 ```
 

@@ -143,9 +143,9 @@ To use these polyfills, simply include this script in your ExtendScript project 
 
 ```javascript
 // Include the polyfills in your script
-#include "path/to/Math.cbrt.js"
-#include "path/to/Math.log10.js"
-#include "path/to/Math.trunc.js"
+//@include "path/to/Math.cbrt.js"
+//@include "path/to/Math.log10.js"
+//@include "path/to/Math.trunc.js"
 
 ...
 ```

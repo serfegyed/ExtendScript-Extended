@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Script Name: ExtendScript File Processor
  *
  * Description: This script automates the process of consolidating ExtendScript files and their dependencies into a single file. 
@@ -38,11 +38,10 @@
  * - String.startsWith polyfill
  * - Array.indexOf polyfill 
  */
-//@include "~/Extendscript/Github repo/Extendscript/console/console.js"
-//@includepath "D:\\OneDrive\\Extendscript\\Github Public\\ExtendScript-Extended\\Array\\Lib\\"
-//@include "indexOf.js"
-#include "D:/OneDrive/Extendscript/Github Public\\ExtendScript-Extended/String/Lib/startsWith.js"
-#include "D:/OneDrive/Extendscript/Github Public\\ExtendScript-Extended/String/Lib/repeat.js"
+//@include "../Console/console.js"
+//@include "../../Array/Lib/indexOf.js"
+//@include "../../String/Lib/startsWith.js"
+//@include "../../String/Lib/repeat.js"
 
 // Toggle these constants to change output
 const LOG = true;
