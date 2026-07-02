@@ -19,7 +19,7 @@ if (isNodeRuntime) {
 Date.prototype.toISOString = undefined;
 Date.prototype.toJSON = undefined;
 
-//@include "./JSON.js"
+//@include "./JSON.stringify.js"
 //@include "../Date/Lib/Date.toISOString.js"
 //@include "../Date/Lib/Date.toJSON.js"
 //@include "../Temporal/Lib/Temporal-core.js"
@@ -43,7 +43,7 @@ if (isNodeRuntime) {
             vm.runInThisContext(source, {filename: filename});
         }
 
-        load(__dirname + "/JSON.js");
+        load(__dirname + "/JSON.stringify.js");
         load(dateRoot + "Date.toISOString.js");
         load(dateRoot + "Date.toJSON.js");
         load(temporalRoot + "Temporal-core.js");

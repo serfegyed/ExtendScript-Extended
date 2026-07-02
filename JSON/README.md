@@ -15,11 +15,23 @@ If a host already provides either JSON method, that method is left unchanged.
 
 ## Installation
 
+Include only the method that is used:
+
+```javascript
+//@include "JSON.stringify.js"
+```
+
+```javascript
+//@include "JSON.parse.js"
+```
+
+The convenience bundle loads both standalone methods:
+
 ```javascript
 //@include "JSON.js"
 ```
 
-`JSON.js` is standalone. 
+`JSON.js` is include-only and contains no copied implementation bodies.
 
 ## Stringification
 
@@ -102,7 +114,7 @@ The optional reviver walks child values before their parents. Returning
 
 - Node.js saves the native JSON implementation as the behavior reference,
   disables it, loads the polyfill, and checks both results.
-- ExtendScript loads `Console/console.js` and `JSON.js` through include
+- ExtendScript loads `Console/console.js` and both standalone JSON files through include
   directives and executes the same fixed expectations.
 
 Node.js:

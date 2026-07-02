@@ -8,7 +8,8 @@
 //@debug 0
 
 //@include "../Tools/Console/console.js"
-//@include "./JSON.js"
+//@include "./JSON.stringify.js"
+//@include "./JSON.parse.js"
 
 const nativeJSON = (typeof process !== "undefined" && process.versions && process.versions.node)
     ? JSON
@@ -17,10 +18,14 @@ const nativeJSON = (typeof process !== "undefined" && process.versions && proces
 if (nativeJSON !== null) {
     const fs = require("fs");
     const vm = require("vm");
-    const jsonFilename = __dirname + "/JSON.js";
-    const jsonSource = fs.readFileSync(jsonFilename, "utf8");
+    const stringifyFilename = __dirname + "/JSON.stringify.js";
+    const parseFilename = __dirname + "/JSON.parse.js";
     global.JSON = undefined;
-    vm.runInThisContext(jsonSource, {filename: jsonFilename});
+    vm.runInThisContext(fs.readFileSync(stringifyFilename, "utf8"), {filename: stringifyFilename});
+    if (typeof JSON.stringify !== "function" || typeof JSON.parse !== "undefined") {
+        throw new Error("JSON.stringify.js must install only JSON.stringify");
+    }
+    vm.runInThisContext(fs.readFileSync(parseFilename, "utf8"), {filename: parseFilename});
 }
 
 (function () {
