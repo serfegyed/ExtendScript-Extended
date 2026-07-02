@@ -69,7 +69,7 @@ var Temporal = Temporal || {};
 			return num;
 		} else {
 			if (num < low || num > high) {
-				throw rangeError("Value out of range: " + num + ". Valid range: " + low + " to " + high);
+				throw new RangeError("Value out of range: " + num + ". Valid range: " + low + " to " + high);
 			}
 			return num;  
 		}
@@ -79,7 +79,7 @@ var Temporal = Temporal || {};
 		var number = Number(value);
 
 		if (isNaN(number) || !isFinite(number)) {
-			throw rangeError("Temporal error: Expected finite integer.");
+			throw new RangeError("Temporal error: Expected finite integer.");
 		}
 
 		return number < 0 ? Math.ceil(number) : Math.floor(number);
@@ -88,7 +88,7 @@ var Temporal = Temporal || {};
 	function formatISOMonthCode(month) {
 		month = toInteger(month);
 		if (month < 1 || month > 12) {
-			throw rangeError("Temporal error: Month code out of range.");
+			throw new RangeError("Temporal error: Month code out of range.");
 		}
 		return "M" + pad(month, 2);
 	}
@@ -98,7 +98,7 @@ var Temporal = Temporal || {};
 		var match = /^M(0[1-9]|1[0-2])$/.exec(value);
 
 		if (!match) {
-			throw rangeError("Temporal error: Month code out of range.");
+			throw new RangeError("Temporal error: Month code out of range.");
 		}
 
 		return parseInt(match[1], 10);
@@ -111,7 +111,7 @@ var Temporal = Temporal || {};
 		var monthFromCode = hasMonthCode ? parseISOMonthCode(fields.monthCode) : undefined;
 
 		if (hasMonth && hasMonthCode && month !== monthFromCode) {
-			throw rangeError("Temporal error: month and monthCode could not be resolved.");
+			throw new RangeError("Temporal error: month and monthCode could not be resolved.");
 		}
 
 		return hasMonth ? month : monthFromCode;
@@ -120,7 +120,7 @@ var Temporal = Temporal || {};
 	function normalizeOptions(options) {
 		if (options === undefined) return {};
 		if (options === null || typeof options !== "object") {
-			throw typeError("invalid_argument");
+			throw new TypeError("invalid_argument");
 		}
 		return options;
 	}
@@ -135,7 +135,7 @@ var Temporal = Temporal || {};
 		day = toInteger(day);
 
 		if (month <= 0 || day <= 0) {
-			throw rangeError("Temporal error: Expected positive integer.");
+			throw new RangeError("Temporal error: Expected positive integer.");
 		}
 		year = isBetween(year, MIN_YEAR, MAX_YEAR, "reject");
 		month = isBetween(month, 1, 12, param);
@@ -146,7 +146,7 @@ var Temporal = Temporal || {};
 
 		if ((year === MIN_YEAR && (month < 4 || (month === 4 && day < 19))) ||
 			(year === MAX_YEAR && (month > 9 || (month === 9 && day > 13)))) {
-			throw rangeError("Date is not within ISO date limits.");
+			throw new RangeError("Date is not within ISO date limits.");
 		}
 
 		return {year: year, month: month, day: day};
@@ -182,7 +182,7 @@ var Temporal = Temporal || {};
 
 		daySerial = Number(daySerial);
 		if (!isFinite(daySerial) || daySerial !== Math.floor(daySerial)) {
-			throw rangeError("Temporal error: Expected finite integer.");
+			throw new RangeError("Temporal error: Expected finite integer.");
 		}
 
 		shifted = daySerial + 719468;
@@ -205,11 +205,11 @@ var Temporal = Temporal || {};
 		var milliseconds = Number(value);
 
 		if (!isFinite(milliseconds) || milliseconds !== Math.floor(milliseconds)) {
-			throw rangeError("Temporal error: Expected finite integer.");
+			throw new RangeError("Temporal error: Expected finite integer.");
 		}
 		if (milliseconds < MIN_INSTANT_EPOCH_MILLISECONDS ||
 				milliseconds > MAX_INSTANT_EPOCH_MILLISECONDS) {
-			throw rangeError("Temporal error: Instant milliseconds are not within a valid epoch range.");
+			throw new RangeError("Temporal error: Instant milliseconds are not within a valid epoch range.");
 		}
 		return milliseconds;
 	}
@@ -252,7 +252,7 @@ var Temporal = Temporal || {};
 
 		match = /^([+-]\d{6}|\d{4})-(\d{2})-(\d{2})[Tt ](\d{2}):(\d{2})(?::(\d{2})(?:[.,](\d{1,9}))?)?([zZ]|([+-])(\d{2})(?::?(\d{2}))?)$/.exec(source);
 		if (!match) {
-			throw rangeError("Temporal error: Required fields missing from Instant string.");
+			throw new RangeError("Temporal error: Required fields missing from Instant string.");
 		}
 
 		var year = Number(match[1]);
@@ -270,7 +270,7 @@ var Temporal = Temporal || {};
 		validateDate(year, month, day, "reject");
 		if (hour < 0 || hour > 23 || minute < 0 || minute > 59 ||
 				second < 0 || second > 60 || offsetHour > 23 || offsetMinute > 59) {
-			throw rangeError("Temporal error: Invalid Instant time or offset.");
+			throw new RangeError("Temporal error: Invalid Instant time or offset.");
 		}
 		if (second === 60) second = 59;
 
@@ -285,7 +285,7 @@ var Temporal = Temporal || {};
 
 		if (epochMilliseconds === MAX_INSTANT_EPOCH_MILLISECONDS &&
 				hasNonZeroSubMillisecond(fraction)) {
-			throw rangeError("Temporal error: Instant milliseconds are not within a valid epoch range.");
+			throw new RangeError("Temporal error: Instant milliseconds are not within a valid epoch range.");
 		}
 		return validateInstantEpochMilliseconds(epochMilliseconds);
 	}
@@ -311,7 +311,7 @@ var Temporal = Temporal || {};
 		}
 
 		if (hasTimeZoneAnnotation) {
-			throw rangeError("Temporal error: A bracketed time-zone annotation requires Z or a numeric offset.");
+			throw new RangeError("Temporal error: A bracketed time-zone annotation requires Z or a numeric offset.");
 		}
 
 		return null;
@@ -368,7 +368,7 @@ var Temporal = Temporal || {};
 		var datePart = parseISODateString(dateTimeStr)// || { year: 0, month: 0, day: 0 };
 		var timePart = parseISOTimeString(dateTimeStr) || { hour: 0, minute: 0, second: 0, millisecond: 0 };
 		
-		if (!datePart) throw typeError('Invalid ISO DateTime string')
+		if (!datePart) throw new TypeError('Invalid ISO DateTime string')
 		
 		return {
 			year: datePart.year,
@@ -500,11 +500,11 @@ var Temporal = Temporal || {};
 		milliseconds = Number(milliseconds);
 		largestUnit = singularUnit(largestUnit);
 		if (!isFinite(milliseconds) || milliseconds !== Math.floor(milliseconds)) {
-			throw rangeError("Temporal error: Expected finite integer.");
+			throw new RangeError("Temporal error: Expected finite integer.");
 		}
 		if (largestUnit !== "hour" && largestUnit !== "minute" &&
 				largestUnit !== "second" && largestUnit !== "millisecond") {
-			throw rangeError("Temporal error: Fixed-time Duration requires a time unit.");
+			throw new RangeError("Temporal error: Fixed-time Duration requires a time unit.");
 		}
 
 		sign = milliseconds < 0 ? -1 : (milliseconds > 0 ? 1 : 0);
@@ -533,13 +533,13 @@ var Temporal = Temporal || {};
 		if (unit === "hour") maximum = 24;
 		else if (unit === "minute" || unit === "second") maximum = 60;
 		else if (unit === "millisecond") maximum = MILLISECONDS_PER_SECOND;
-		else throw rangeError("Temporal error: Fixed-time rounding requires a time unit.");
+		else throw new RangeError("Temporal error: Fixed-time rounding requires a time unit.");
 
 		if (!isFinite(increment) || increment < 1 || increment !== Math.floor(increment)) {
-			throw rangeError("Temporal error: roundingIncrement must be a positive integer.");
+			throw new RangeError("Temporal error: roundingIncrement must be a positive integer.");
 		}
 		if ((allowMaximum ? increment > maximum : increment >= maximum) || maximum % increment !== 0) {
-			throw rangeError("Temporal error: dividend is not divisible by roundingIncrement.");
+			throw new RangeError("Temporal error: dividend is not divisible by roundingIncrement.");
 		}
 		return increment;
 	}
@@ -612,18 +612,6 @@ var Temporal = Temporal || {};
 		return rounded * increment; // Scale back to the original increment
 	}
 
-	function rangeError(message) {
-		var error = new RangeError(message);
-		error.name = "RangeError";
-		return error;
-	};
-
-	function typeError(message) {
-		var error = new TypeError(message);
-		error.name = "TypeError";
-		return error;
-	};
-
 	function pad(value, length) {
 		var str = String(value);
 		while (str.length < length) {
@@ -667,14 +655,14 @@ var Temporal = Temporal || {};
 			}
 
 			if (unit === "year" || unit === "month" || unit === "week" || unit === "day") {
-				throw rangeError("Temporal error: Found date unit, expect time unit");
+				throw new RangeError("Temporal error: Found date unit, expect time unit");
 			}
 
 			if (unit === "hour") {
-				throw rangeError("Temporal error: smallestUnit must be a valid time unit.");
+				throw new RangeError("Temporal error: smallestUnit must be a valid time unit.");
 			}
 
-			throw rangeError("Value " + unit + " out of range for Temporal.DateTime.prototype.toString options property smallestUnit");
+			throw new RangeError("Value " + unit + " out of range for Temporal.DateTime.prototype.toString options property smallestUnit");
 		}
 
 		function validateRoundingMode(mode) {
@@ -683,7 +671,7 @@ var Temporal = Temporal || {};
 			}
 
 			if (!isValidRoundingMode(mode)) {
-				throw rangeError("Value " + mode + " out of range for Temporal.DateTime.prototype.toString options property roundingMode");
+				throw new RangeError("Value " + mode + " out of range for Temporal.DateTime.prototype.toString options property roundingMode");
 			}
 
 			return mode;
@@ -702,7 +690,7 @@ var Temporal = Temporal || {};
 				return Math.floor(value);
 			}
 
-			throw rangeError("fractionalSecondDigits value is out of range.");
+			throw new RangeError("fractionalSecondDigits value is out of range.");
 		}
 
 		function formatYear(year) {
@@ -842,7 +830,7 @@ var Temporal = Temporal || {};
 			return pad(fields.month, 2) + "-" + pad(fields.day, 2);
 		}
 
-		throw rangeError("Invalid ISO format kind: " + kind);
+		throw new RangeError("Invalid ISO format kind: " + kind);
 	};
 
 
@@ -890,8 +878,6 @@ var Temporal = Temporal || {};
 	Temporal.__copyFields__ = copyFields;
 	Temporal.__copyThisObject__ = copyFields;
 	Temporal.__roundField__ = roundField;
-	Temporal.__rangeError__ = rangeError;
-	Temporal.__typeError__ = typeError;
 	Temporal.__pad__ = pad;
 	Temporal.__singularUnit__ = singularUnit;
 	Temporal.__toInteger__ = toInteger;

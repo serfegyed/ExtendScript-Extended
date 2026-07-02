@@ -12,7 +12,7 @@ var Temporal = Temporal || {};
         var overflow = normalized.overflow === undefined ? "constrain" : normalized.overflow;
 
         if (overflow !== "constrain" && overflow !== "reject") {
-            throw Temporal.__rangeError__("Invalid overflow: " + overflow);
+            throw new RangeError("Invalid overflow: " + overflow);
         }
 
         return overflow;
@@ -38,7 +38,7 @@ var Temporal = Temporal || {};
         var calendar = fields.calendar;
 
         if (calendar !== undefined && String(calendar) !== "iso8601") {
-            throw Temporal.__rangeError__("Only the iso8601 calendar is supported");
+            throw new RangeError("Only the iso8601 calendar is supported");
         }
     }
 
@@ -67,7 +67,7 @@ var Temporal = Temporal || {};
 
         dateTimeMatch = /^(\d{4}|[-+]\d{6})-(\d{2})-(\d{2})(?:[Tt ](\d{2}):(\d{2})(?::(\d{2})(?:[.,]\d{1,9})?)?(?:[-+](\d{2}):?(\d{2})(?::?\d{2}(?:[.,]\d{1,9})?)?)?(?:\[[^\]]+\])*)?$/.exec(stringValue);
         if (!dateTimeMatch || dateTimeMatch[1] === "-000000") {
-            throw Temporal.__rangeError__("Invalid ISO PlainMonthDay string");
+            throw new RangeError("Invalid ISO PlainMonthDay string");
         }
 
         year = Number(dateTimeMatch[1]);
@@ -79,7 +79,7 @@ var Temporal = Temporal || {};
             (dateTimeMatch[6] !== undefined && Number(dateTimeMatch[6]) > 59) ||
             (dateTimeMatch[7] !== undefined &&
                 (Number(dateTimeMatch[7]) > 23 || Number(dateTimeMatch[8]) > 59)))) {
-            throw Temporal.__rangeError__("Invalid time in ISO PlainMonthDay string");
+            throw new RangeError("Invalid time in ISO PlainMonthDay string");
         }
 
         Temporal.__validateDate__(year, month, day, "reject");
@@ -88,7 +88,7 @@ var Temporal = Temporal || {};
 
     Temporal.PlainMonthDay = function (month, day) {
         if (!(this instanceof Temporal.PlainMonthDay)) {
-            throw Temporal.__typeError__("Temporal.PlainMonthDay constructor must be called with new");
+            throw new TypeError("Temporal.PlainMonthDay constructor must be called with new");
         }
 
         var checked = validateMonthDay(month, day, "reject");
@@ -120,7 +120,7 @@ var Temporal = Temporal || {};
         if (typeof thing === "object" && thing !== null) {
             validateISOCalendar(thing);
             if (!hasMonthDayFields(thing)) {
-                throw Temporal.__typeError__("Invalid PlainMonthDay object: missing required fields");
+                throw new TypeError("Invalid PlainMonthDay object: missing required fields");
             }
 
             month = Temporal.__resolveISOMonth__(thing);
@@ -128,7 +128,7 @@ var Temporal = Temporal || {};
             return createMonthDay(month, thing.day, overflow, referenceYear);
         }
 
-        throw Temporal.__typeError__("Invalid type for Temporal.PlainMonthDay.from");
+        throw new TypeError("Invalid type for Temporal.PlainMonthDay.from");
     };
 
     Temporal.PlainMonthDay.prototype.with = function (monthDayLike, options) {
@@ -138,13 +138,13 @@ var Temporal = Temporal || {};
         var referenceYear;
 
         if (monthDayLike === undefined || monthDayLike === null || typeof monthDayLike !== "object") {
-            throw Temporal.__typeError__("Invalid PlainMonthDay object");
+            throw new TypeError("Invalid PlainMonthDay object");
         }
         if (monthDayLike.calendar !== undefined || monthDayLike.timeZone !== undefined) {
-            throw Temporal.__typeError__("PlainMonthDay.with does not accept calendar or timeZone");
+            throw new TypeError("PlainMonthDay.with does not accept calendar or timeZone");
         }
         if (!hasPartialMonthDayFields(monthDayLike)) {
-            throw Temporal.__typeError__("PlainMonthDay.with requires at least one supported field");
+            throw new TypeError("PlainMonthDay.with requires at least one supported field");
         }
 
         overflow = normalizeOverflow(options);
@@ -170,17 +170,17 @@ var Temporal = Temporal || {};
     };
 
     Temporal.PlainMonthDay.prototype.valueOf = function () {
-        throw Temporal.__typeError__("Do not use Temporal.PlainMonthDay.prototype.valueOf; use Temporal.PlainMonthDay.prototype.equals for comparison.");
+        throw new TypeError("Do not use Temporal.PlainMonthDay.prototype.valueOf; use Temporal.PlainMonthDay.prototype.equals for comparison.");
     };
 
     Temporal.PlainMonthDay.prototype.toPlainDate = function (item) {
         var checked;
 
         if (item === undefined || item === null || typeof item !== "object") {
-            throw Temporal.__typeError__("PlainMonthDay.toPlainDate requires an object");
+            throw new TypeError("PlainMonthDay.toPlainDate requires an object");
         }
         if (item.year === undefined) {
-            throw Temporal.__typeError__("PlainMonthDay.toPlainDate requires a year field");
+            throw new TypeError("PlainMonthDay.toPlainDate requires a year field");
         }
 
         checked = Temporal.__validateDate__(item.year, this.month, this.day, "constrain");

@@ -15,7 +15,7 @@ var Temporal = Temporal || {};
         var overflow = normalized.overflow === undefined ? "constrain" : normalized.overflow;
 
         if (overflow !== "constrain" && overflow !== "reject") {
-            throw Temporal.__rangeError__("Invalid overflow: " + overflow);
+            throw new RangeError("Invalid overflow: " + overflow);
         }
 
         return overflow;
@@ -26,19 +26,19 @@ var Temporal = Temporal || {};
         month = Temporal.__toInteger__(month);
 
         if (month <= 0) {
-            throw Temporal.__rangeError__("Temporal error: Expected positive integer.");
+            throw new RangeError("Temporal error: Expected positive integer.");
         }
 
         if (overflow === "constrain" && month > 12) {
             month = 12;
         } else if (month > 12) {
-            throw Temporal.__rangeError__("Temporal error: month value is not in a valid range.");
+            throw new RangeError("Temporal error: month value is not in a valid range.");
         }
 
         if (year < Temporal.MIN_YEAR || year > Temporal.MAX_YEAR ||
             (year === Temporal.MIN_YEAR && month < 4) ||
             (year === Temporal.MAX_YEAR && month > 9)) {
-            throw Temporal.__rangeError__("Temporal error: Exceeded valid range.");
+            throw new RangeError("Temporal error: Exceeded valid range.");
         }
 
         return { year: year, month: month };
@@ -55,7 +55,7 @@ var Temporal = Temporal || {};
         var month;
 
         if (!match || match[1] === "-000000") {
-            throw Temporal.__rangeError__("Invalid ISO PlainYearMonth string");
+            throw new RangeError("Invalid ISO PlainYearMonth string");
         }
 
         year = Number(match[1]);
@@ -65,7 +65,7 @@ var Temporal = Temporal || {};
             if (match[4] !== undefined &&
                 (Number(match[4]) > 23 || Number(match[5]) > 59 ||
                 (match[6] !== undefined && Number(match[6]) > 59))) {
-                throw Temporal.__rangeError__("Invalid time in ISO PlainYearMonth string");
+                throw new RangeError("Invalid time in ISO PlainYearMonth string");
             }
 
             Temporal.__validateDate__(year, month, Number(match[3]), "reject");
@@ -181,7 +181,7 @@ var Temporal = Temporal || {};
 
         unit = Temporal.__singularUnit__(unit);
         if (!YEAR_MONTH_UNITS[unit]) {
-            throw Temporal.__rangeError__("Temporal error: Weeks and days are not allowed in this operation.");
+            throw new RangeError("Temporal error: Weeks and days are not allowed in this operation.");
         }
         return unit;
     }
@@ -190,7 +190,7 @@ var Temporal = Temporal || {};
         var increment = Number(value);
 
         if (isNaN(increment) || !isFinite(increment) || increment < 1 || increment !== Math.floor(increment)) {
-            throw Temporal.__rangeError__("Temporal error: Integer out of range.");
+            throw new RangeError("Temporal error: Integer out of range.");
         }
 
         return increment;
@@ -226,11 +226,11 @@ var Temporal = Temporal || {};
         var years = 0;
 
         if (!Temporal.__isValidRoundingMode__(roundingMode)) {
-            throw Temporal.__rangeError__("Invalid rounding mode: " + roundingMode);
+            throw new RangeError("Invalid rounding mode: " + roundingMode);
         }
 
         if (UNIT_RANK[smallestUnit] > UNIT_RANK[largestUnit]) {
-            throw Temporal.__rangeError__("Temporal error: smallestUnit was larger than largestunit in DifferenceeSettings");
+            throw new RangeError("Temporal error: smallestUnit was larger than largestunit in DifferenceeSettings");
         }
 
         months = monthIndex(end) - monthIndex(start);
@@ -256,7 +256,7 @@ var Temporal = Temporal || {};
 
     Temporal.PlainYearMonth = function (year, month) {
         if (!(this instanceof Temporal.PlainYearMonth)) {
-            throw Temporal.__typeError__("Temporal.PlainYearMonth constructor must be called with new");
+            throw new TypeError("Temporal.PlainYearMonth constructor must be called with new");
         }
 
         var checked = validateYearMonth(year, month, "reject");
@@ -284,19 +284,19 @@ var Temporal = Temporal || {};
                 return createYearMonth(projected.year, projected.month, "reject");
             }
             if (/Z$/i.test(thing)) {
-                throw Temporal.__rangeError__("UTC designator is not valid for PlainYearMonth parsing.");
+                throw new RangeError("UTC designator is not valid for PlainYearMonth parsing.");
             }
             return parseYearMonthString(thing);
         }
 
         if (typeof thing === "object" && thing !== null) {
             if (!hasYearMonthFields(thing)) {
-                throw Temporal.__typeError__("Invalid PlainYearMonth object: missing required fields");
+                throw new TypeError("Invalid PlainYearMonth object: missing required fields");
             }
             return createYearMonth(thing.year, thing.month, overflow);
         }
 
-        throw Temporal.__typeError__("Invalid type for Temporal.PlainYearMonth.from");
+        throw new TypeError("Invalid type for Temporal.PlainYearMonth.from");
     };
 
     Temporal.PlainYearMonth.compare = function (one, two) {
@@ -310,10 +310,10 @@ var Temporal = Temporal || {};
 
     Temporal.PlainYearMonth.prototype.with = function (yearMonthLike, options) {
         if (yearMonthLike === undefined || yearMonthLike === null || typeof yearMonthLike !== "object") {
-            throw Temporal.__typeError__("Invalid PlainYearMonth object");
+            throw new TypeError("Invalid PlainYearMonth object");
         }
         if (!hasPartialYearMonthFields(yearMonthLike)) {
-            throw Temporal.__typeError__("PlainYearMonth.with requires at least one year or month field");
+            throw new TypeError("PlainYearMonth.with requires at least one year or month field");
         }
 
         var overflow = normalizeOverflow(options);
@@ -372,20 +372,20 @@ var Temporal = Temporal || {};
     };
 
     Temporal.PlainYearMonth.prototype.valueOf = function () {
-        throw Temporal.__typeError__("Do not use Temporal.PlainYearMonth.prototype.valueOf; use Temporal.PlainYearMonth.compare for comparison.");
+        throw new TypeError("Do not use Temporal.PlainYearMonth.prototype.valueOf; use Temporal.PlainYearMonth.compare for comparison.");
     };
 
     Temporal.PlainYearMonth.prototype.toPlainDate = function (item) {
         if (item === undefined || item === null || typeof item !== "object") {
-            throw Temporal.__typeError__("PlainYearMonth.toPlainDate requires an object");
+            throw new TypeError("PlainYearMonth.toPlainDate requires an object");
         }
         if (item.day === undefined) {
-            throw Temporal.__typeError__("PlainYearMonth.toPlainDate requires a day field");
+            throw new TypeError("PlainYearMonth.toPlainDate requires a day field");
         }
 
         var day = Temporal.__toInteger__(item.day);
         if (day <= 0) {
-            throw Temporal.__rangeError__("Temporal error: Expected positive integer.");
+            throw new RangeError("Temporal error: Expected positive integer.");
         }
         if (day > this.daysInMonth) {
             day = this.daysInMonth;

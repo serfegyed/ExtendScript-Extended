@@ -16,7 +16,7 @@
         if (typeof value === "string" || (typeof value === "object" && value !== null)) {
             return createInstant(Temporal.__parseInstantString__(value));
         }
-        throw Temporal.__typeError__("Temporal error: Instant argument must be Instant or string.");
+        throw new TypeError("Temporal error: Instant argument must be Instant or string.");
     }
 
     function toInstantTimeUnit(value, defaultValue) {
@@ -24,9 +24,9 @@
 
         if (Temporal.__timeUnitToMilliseconds__(unit) === 0 || unit === "day") {
             if (unit === "year" || unit === "month" || unit === "week" || unit === "day") {
-                throw Temporal.__rangeError__("Temporal error: Found date unit, expect time unit");
+                throw new RangeError("Temporal error: Found date unit, expect time unit");
             }
-            throw Temporal.__rangeError__("Value " + unit + " is not a supported Instant time unit.");
+            throw new RangeError("Value " + unit + " is not a supported Instant time unit.");
         }
         return unit;
     }
@@ -35,7 +35,7 @@
         var duration = Temporal.Duration.from(value);
 
         if (duration.years !== 0 || duration.months !== 0 || duration.weeks !== 0 || duration.days !== 0) {
-            throw Temporal.__rangeError__("Temporal error: Largest unit cannot be a date unit");
+            throw new RangeError("Temporal error: Largest unit cannot be a date unit");
         }
         return duration.total({ unit: "millisecond" });
     }
@@ -52,7 +52,7 @@
 
     Temporal.Instant = function (epochMilliseconds) {
         if (!(this instanceof Temporal.Instant)) {
-            throw Temporal.__typeError__("Temporal.Instant constructor must be called with new");
+            throw new TypeError("Temporal.Instant constructor must be called with new");
         }
         this.epochMilliseconds = Temporal.__validateInstantEpochMilliseconds__(epochMilliseconds);
         return this;
@@ -91,12 +91,12 @@
         var smallestUnit = toInstantTimeUnit(options.smallestUnit, "millisecond");
         if (Temporal.__timeUnitToMilliseconds__(smallestUnit) >
                 Temporal.__timeUnitToMilliseconds__(largestUnit)) {
-            throw Temporal.__rangeError__("Temporal error: smallestUnit was larger than largestUnit.");
+            throw new RangeError("Temporal error: smallestUnit was larger than largestUnit.");
         }
 
         var roundingMode = options.roundingMode === undefined ? "trunc" : options.roundingMode;
         if (!Temporal.__isValidRoundingMode__(roundingMode)) {
-            throw Temporal.__rangeError__("Value " + roundingMode + " is not a valid roundingMode.");
+            throw new RangeError("Value " + roundingMode + " is not a valid roundingMode.");
         }
         var roundingIncrement = Temporal.__validateTimeRoundingIncrement__(
             options.roundingIncrement, smallestUnit, false
@@ -121,7 +121,7 @@
         var options;
 
         if (roundTo === undefined) {
-            throw Temporal.__typeError__("Temporal error: Must specify a roundTo parameter.");
+            throw new TypeError("Temporal error: Must specify a roundTo parameter.");
         }
         if (typeof roundTo === "string") {
             options = { smallestUnit: roundTo };
@@ -129,13 +129,13 @@
             options = Temporal.__normalizeOptions__(roundTo);
         }
         if (options.smallestUnit === undefined) {
-            throw Temporal.__rangeError__("Temporal error: smallestUnit is required.");
+            throw new RangeError("Temporal error: smallestUnit is required.");
         }
 
         var smallestUnit = toInstantTimeUnit(options.smallestUnit);
         var roundingMode = options.roundingMode === undefined ? "halfExpand" : options.roundingMode;
         if (!Temporal.__isValidRoundingMode__(roundingMode)) {
-            throw Temporal.__rangeError__("Value " + roundingMode + " is not a valid roundingMode.");
+            throw new RangeError("Value " + roundingMode + " is not a valid roundingMode.");
         }
         var roundingIncrement = Temporal.__validateTimeRoundingIncrement__(
             options.roundingIncrement, smallestUnit, true
@@ -165,7 +165,7 @@
     };
 
     Temporal.Instant.prototype.valueOf = function () {
-        throw Temporal.__typeError__(
+        throw new TypeError(
             "Do not use Temporal.Instant.prototype.valueOf; use Temporal.Instant.compare for comparison."
         );
     };

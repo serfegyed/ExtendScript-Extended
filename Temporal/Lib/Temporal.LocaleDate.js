@@ -22,7 +22,7 @@
 
     function requireFiniteInteger(value, name) {
         if (!isFinite(value) || value !== Math.floor(value)) {
-            throw Temporal.__rangeError__("Temporal host-local formatting error: Invalid " + name + ".");
+            throw new RangeError("Temporal host-local formatting error: Invalid " + name + ".");
         }
         return value;
     }
@@ -31,7 +31,7 @@
         var date = new Date(epochMilliseconds);
 
         if (date.getTime() !== epochMilliseconds) {
-            throw Temporal.__rangeError__("Temporal host-local formatting error: Native Date rejected epoch milliseconds.");
+            throw new RangeError("Temporal host-local formatting error: Native Date rejected epoch milliseconds.");
         }
 
         var year = requireFiniteInteger(date.getFullYear(), "year");
@@ -60,7 +60,7 @@
         date.setHours(value.hour, value.minute, value.second, value.millisecond);
 
         if (!isFinite(date.getTime())) {
-            throw Temporal.__rangeError__(
+            throw new RangeError(
                 "Temporal host-local formatting error: PlainDateTime is outside the native Date range."
             );
         }
@@ -73,19 +73,19 @@
 
         Constructor.prototype.toLocaleString = function () {
             if (!(this instanceof Constructor)) {
-                throw Temporal.__typeError__(name + ".prototype.toLocaleString called on incompatible receiver.");
+                throw new TypeError(name + ".prototype.toLocaleString called on incompatible receiver.");
             }
             return Temporal.__formatISO__(this, kind);
         };
     }
 
     if (typeof Temporal.Instant !== "function") {
-        throw Temporal.__typeError__("Temporal.LocaleDate requires Temporal.Instant to be loaded first.");
+        throw new TypeError("Temporal.LocaleDate requires Temporal.Instant to be loaded first.");
     }
 
     Temporal.Instant.prototype.toLocaleString = function () {
         if (!(this instanceof Temporal.Instant)) {
-            throw Temporal.__typeError__("Temporal.Instant.prototype.toLocaleString called on incompatible receiver.");
+            throw new TypeError("Temporal.Instant.prototype.toLocaleString called on incompatible receiver.");
         }
         return hostLocalISOString(this.epochMilliseconds);
     };
@@ -93,7 +93,7 @@
     if (typeof Temporal.PlainDateTime === "function") {
         Temporal.PlainDateTime.prototype.toLocaleString = function () {
             if (!(this instanceof Temporal.PlainDateTime)) {
-                throw Temporal.__typeError__(
+                throw new TypeError(
                     "Temporal.PlainDateTime.prototype.toLocaleString called on incompatible receiver."
                 );
             }

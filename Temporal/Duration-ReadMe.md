@@ -421,7 +421,7 @@ Node Temporal is a reference and test oracle, not a full API contract. Features 
 - With a date part, fractional-only seconds can disappear to match Node behavior: `P1Y2DT0.001S` -> `P1Y2D`.
 - Calendar unit comparison, totalization, and rounding are date-dependent, so `relativeTo` is required.
 - `weeks` is treated as a calendar unit in operations where week length is tied to calendar context.
-- Errors are created through `Temporal.__typeError__()` and `Temporal.__rangeError__()` so ExtendScript error names stay stable.
+- Errors use the native `TypeError` and `RangeError` constructors provided by ExtendScript.
 
 ## Quick Example
 

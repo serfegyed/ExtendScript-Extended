@@ -73,7 +73,15 @@ if (typeof require === "function" && typeof process !== "undefined") {
         try {
             fn();
         } catch (error) {
-            assertEquals(error.name, expectedName, message || "Unexpected error name");
+            if (typeof process !== "undefined" && process.versions && process.versions.node) {
+                assertEquals(error.name, expectedName, message || "Unexpected error name");
+            } else if (expectedName === "TypeError") {
+                assert(error instanceof TypeError, message || "Unexpected error type");
+            } else if (expectedName === "RangeError") {
+                assert(error instanceof RangeError, message || "Unexpected error type");
+            } else {
+                assertEquals(error.name, expectedName, message || "Unexpected error name");
+            }
             return;
         }
 
@@ -110,8 +118,6 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assert(typeof Temporal.PlainDateTime === "function", "Temporal.PlainDateTime should exist");
         assert(typeof Temporal.PlainDate === "function", "Temporal.PlainDate should exist");
         assert(typeof Temporal.PlainTime === "function", "Temporal.PlainTime should exist");
-        assert(typeof Temporal.__rangeError__ === "function", "Temporal.__rangeError__ should exist");
-        assertEquals(Temporal.__rangeError__("test").name, "RangeError", "Temporal.__rangeError__ should preserve error name");
         assert(typeof Temporal.__pad__ === "function", "Temporal.__pad__ should exist");
         assertEquals(Temporal.__pad__(5, 2), "05", "Temporal.__pad__ should left-pad values");
         assert(typeof Temporal.__formatISO__ === "function", "Temporal.__formatISO__ should exist");

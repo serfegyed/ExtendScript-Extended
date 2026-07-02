@@ -20,7 +20,7 @@
         options = Temporal.__normalizeOptions__(options);
         var overflow = options.overflow === undefined ? "constrain" : options.overflow;
         if (overflow !== "constrain" && overflow !== "reject") {
-            throw Temporal.__rangeError__("Invalid overflow: " + overflow);
+            throw new RangeError("Invalid overflow: " + overflow);
         }
         return overflow;
     }
@@ -41,12 +41,12 @@
 
     function parseTimeString(value) {
         if (/[zZ]$/.test(value) || /[+-]\d{2}:?\d{2}$/.test(value)) {
-            throw Temporal.__rangeError__("UTC designator or offset is not valid for PlainTime parsing.");
+            throw new RangeError("UTC designator or offset is not valid for PlainTime parsing.");
         }
 
         var match = value.match(/^(?:(?:([-+]?\d{4,6})-(\d{2})-(\d{2})[Tt ])|[Tt])?(\d{2})(?::(\d{2})(?::(\d{2})(?:[.,](\d{1,9}))?)?)?$/);
         if (!match) {
-            throw Temporal.__rangeError__("Invalid ISO time string");
+            throw new RangeError("Invalid ISO time string");
         }
 
         if (match[1] !== undefined) {
@@ -80,10 +80,10 @@
             ((unit === "millisecond") ? Temporal.__MILLISECONDS_PER_SECOND__ : 60);
 
         if (!isFinite(increment) || increment < 1 || increment !== Math.floor(increment)) {
-            throw Temporal.__rangeError__("Temporal error: roundingIncrement must be a positive integer.");
+            throw new RangeError("Temporal error: roundingIncrement must be a positive integer.");
         }
         if (increment >= maximum || maximum % increment !== 0) {
-            throw Temporal.__rangeError__("Temporal error: dividend is not divisible by roundingIncrement.");
+            throw new RangeError("Temporal error: dividend is not divisible by roundingIncrement.");
         }
         return increment;
     }
@@ -142,13 +142,13 @@
         if (largestUnit === "auto") largestUnit = "hour";
 
         if (unitRank(largestUnit) < 0 || unitRank(smallestUnit) < 0) {
-            throw Temporal.__rangeError__("Temporal error: PlainTime differences require time units.");
+            throw new RangeError("Temporal error: PlainTime differences require time units.");
         }
         if (unitRank(largestUnit) < unitRank(smallestUnit)) {
-            throw Temporal.__rangeError__("Temporal error: largestUnit must not be smaller than smallestUnit.");
+            throw new RangeError("Temporal error: largestUnit must not be smaller than smallestUnit.");
         }
         if (!Temporal.__isValidRoundingMode__(roundingMode)) {
-            throw Temporal.__rangeError__("Invalid roundingMode: " + roundingMode);
+            throw new RangeError("Invalid roundingMode: " + roundingMode);
         }
 
         var increment = validateRoundingIncrement(options.roundingIncrement, smallestUnit);
@@ -168,7 +168,7 @@
 
     Temporal.PlainTime = function (hour, minute, second, millisecond) {
         if (!(this instanceof Temporal.PlainTime)) {
-            throw Temporal.__typeError__("Temporal.PlainTime constructor must be called with new");
+            throw new TypeError("Temporal.PlainTime constructor must be called with new");
         }
 
         this.hour = normalizeField(hour === undefined ? 0 : hour, 23, "reject");
@@ -212,11 +212,11 @@
                 }
             }
             if (!found) {
-                throw Temporal.__typeError__("Temporal error: Must specify at least one time field.");
+                throw new TypeError("Temporal error: Must specify at least one time field.");
             }
             return createTime(values.hour, values.minute, values.second, values.millisecond, overflow);
         }
-        throw Temporal.__typeError__("Temporal error: Time-like argument must be object or string.");
+        throw new TypeError("Temporal error: Time-like argument must be object or string.");
     };
 
     Temporal.PlainTime.compare = function (one, two) {
@@ -231,19 +231,19 @@
         var fractionalSecondDigits = options.fractionalSecondDigits;
         var roundingMode = options.roundingMode === undefined ? "trunc" : options.roundingMode;
         if (!Temporal.__isValidRoundingMode__(roundingMode)) {
-            throw Temporal.__rangeError__("Invalid roundingMode: " + roundingMode);
+            throw new RangeError("Invalid roundingMode: " + roundingMode);
         }
         var increment = 1;
         if (smallestUnit !== undefined) {
             smallestUnit = Temporal.__singularUnit__(smallestUnit);
             if (smallestUnit !== "minute" && smallestUnit !== "second" && smallestUnit !== "millisecond") {
-                throw Temporal.__rangeError__("Invalid smallestUnit: " + smallestUnit);
+                throw new RangeError("Invalid smallestUnit: " + smallestUnit);
             }
             increment = Temporal.__timeUnitToMilliseconds__(smallestUnit);
         } else if (fractionalSecondDigits !== undefined && fractionalSecondDigits !== "auto") {
             if (typeof fractionalSecondDigits !== "number" || !isFinite(fractionalSecondDigits) ||
                     fractionalSecondDigits < 0 || fractionalSecondDigits >= 4) {
-                throw Temporal.__rangeError__("fractionalSecondDigits value is out of range for the millisecond subset.");
+                throw new RangeError("fractionalSecondDigits value is out of range for the millisecond subset.");
             }
             fractionalSecondDigits = Math.floor(fractionalSecondDigits);
             increment = fractionalSecondDigits === 0 ?
@@ -253,7 +253,7 @@
         if (smallestUnit !== undefined && fractionalSecondDigits !== undefined && fractionalSecondDigits !== "auto") {
             if (typeof fractionalSecondDigits !== "number" || !isFinite(fractionalSecondDigits) ||
                     fractionalSecondDigits < 0 || fractionalSecondDigits >= 4) {
-                throw Temporal.__rangeError__("fractionalSecondDigits value is out of range for the millisecond subset.");
+                throw new RangeError("fractionalSecondDigits value is out of range for the millisecond subset.");
             }
             fractionalSecondDigits = Math.floor(fractionalSecondDigits);
         }
@@ -280,7 +280,7 @@
     };
 
     Temporal.PlainTime.prototype.valueOf = function () {
-        throw Temporal.__typeError__("Do not use Temporal.PlainTime.prototype.valueOf; use Temporal.PlainTime.compare for comparison.");
+        throw new TypeError("Do not use Temporal.PlainTime.prototype.valueOf; use Temporal.PlainTime.compare for comparison.");
     };
 
     Temporal.PlainTime.prototype.equals = function (other) {
@@ -289,10 +289,10 @@
 
     Temporal.PlainTime.prototype.with = function (timeLike, options) {
         if (timeLike === null || typeof timeLike !== "object") {
-            throw Temporal.__typeError__("Invalid PlainTime object.");
+            throw new TypeError("Invalid PlainTime object.");
         }
         if (("calendar" in timeLike) || ("timeZone" in timeLike)) {
-            throw Temporal.__typeError__("PlainTime.with does not accept calendar or timeZone fields.");
+            throw new TypeError("PlainTime.with does not accept calendar or timeZone fields.");
         }
         var names = ["hour", "minute", "second", "millisecond"];
         var values = { hour: this.hour, minute: this.minute, second: this.second, millisecond: this.millisecond };
@@ -305,7 +305,7 @@
             }
         }
         if (!found) {
-            throw Temporal.__typeError__("Temporal.PlainTime.prototype.with requires at least one time field.");
+            throw new TypeError("Temporal.PlainTime.prototype.with requires at least one time field.");
         }
         return createTime(values.hour, values.minute, values.second, values.millisecond, normalizeOverflow(options));
     };
@@ -332,16 +332,16 @@
 
     Temporal.PlainTime.prototype.round = function (roundTo) {
         if (roundTo === undefined) {
-            throw Temporal.__typeError__("Temporal error: Must specify a roundTo parameter.");
+            throw new TypeError("Temporal error: Must specify a roundTo parameter.");
         }
         var options = typeof roundTo === "string" ? { smallestUnit: roundTo } : Temporal.__normalizeOptions__(roundTo);
         var smallestUnit = Temporal.__singularUnit__(options.smallestUnit);
         var roundingMode = options.roundingMode === undefined ? "halfExpand" : options.roundingMode;
         if (unitRank(smallestUnit) < 0) {
-            throw Temporal.__rangeError__("Temporal error: PlainTime.round requires a time unit.");
+            throw new RangeError("Temporal error: PlainTime.round requires a time unit.");
         }
         if (!Temporal.__isValidRoundingMode__(roundingMode)) {
-            throw Temporal.__rangeError__("Invalid roundingMode: " + roundingMode);
+            throw new RangeError("Invalid roundingMode: " + roundingMode);
         }
         var increment = validateRoundingIncrement(options.roundingIncrement, smallestUnit);
         return roundTime(this, smallestUnit, increment, roundingMode);

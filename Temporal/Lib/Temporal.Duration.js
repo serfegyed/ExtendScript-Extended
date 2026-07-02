@@ -82,12 +82,12 @@
 
 		if (!isValidDurationString(isoString)) {
 			if (isoString === "P" || isoString === "+P" || isoString === "-P") {
-				throw Temporal.__rangeError__("Temporal error: Parsing ended abruptly.");
+				throw new RangeError("Temporal error: Parsing ended abruptly.");
 			};
 			if (/T$/.test(isoString)) {
-				throw Temporal.__rangeError__("Temporal error: Invalid time duration designator.");
+				throw new RangeError("Temporal error: Invalid time duration designator.");
 			};
-			throw Temporal.__rangeError__('Temporal error: Invalid ISO 8601 duration string');
+			throw new RangeError('Temporal error: Invalid ISO 8601 duration string');
 		}
 		// Determine the sign
 		const sign = isoString.charAt(0) === ('-') ? -1 : 1;
@@ -135,7 +135,7 @@
 	 */
 	function isValidParameter(parameter, validKeysObj) {
 		if (parameter === null || validKeysObj === null) {
-			throw Temporal.__typeError__('Missing parameter'); // Handle empty inputs
+			throw new TypeError('Missing parameter'); // Handle empty inputs
 		};
 
 		for (var key in validKeysObj) {
@@ -157,7 +157,7 @@
 	 */
 	function isValidParameters(parametersObj, validKeysObj) {
 		if (parametersObj === null || validKeysObj === null) {
-			throw Temporal.__typeError__('Missing parameter'); // Handle empty inputs
+			throw new TypeError('Missing parameter'); // Handle empty inputs
 		};
 
 		for (var key in parametersObj) {
@@ -223,11 +223,11 @@
 	 */
 	function normalizeDurationLike(durationObj, nullMessage) {
 		if (typeof durationObj !== 'object' || durationObj === null) {
-			throw Temporal.__typeError__(nullMessage || "Temporal error: Duration argument must be Duration or string.");
+			throw new TypeError(nullMessage || "Temporal error: Duration argument must be Duration or string.");
 		};
 
 		if (!hasDurationField(durationObj)) {
-			throw Temporal.__typeError__("Temporal error: Did not provide any valid Duration fields.");
+			throw new TypeError("Temporal error: Did not provide any valid Duration fields.");
 		};
 
 		return normalizeDurationFields(durationObj, true, false);
@@ -250,10 +250,10 @@
 			var value = (hasField && !(undefinedIsZero && durationObj[field] === undefined)) ? Number(durationObj[field]) : 0;
 
 			if (value !== 0 && (isNaN(value) || !isFinite(value) || Math.floor(value) !== value)) {
-				throw Temporal.__rangeError__("Temporal error: Expected finite integer.");
+				throw new RangeError("Temporal error: Expected finite integer.");
 			};
 			if (value === 0 && hasField && (isNaN(value) || !isFinite(value))) {
-				throw Temporal.__rangeError__("Temporal error: Expected finite integer.");
+				throw new RangeError("Temporal error: Expected finite integer.");
 			};
 
 			normalized[field] = value || 0;
@@ -294,11 +294,11 @@
 		}
 
 		if (!allIntegers) {
-			throw Temporal.__rangeError__("Temporal error: Expected finite integer.");
+			throw new RangeError("Temporal error: Expected finite integer.");
 		}
 
 		if (hasNegative && hasPositive) {
-			throw Temporal.__rangeError__("Temporal error: Duration was not valid.");
+			throw new RangeError("Temporal error: Duration was not valid.");
 		}
 
 		thing.sign = thing.sign || ((hasNegative) ? -1 : ((hasPositive) ? 1 : 0));
@@ -320,7 +320,7 @@
 		var datePartDays = 0;
 
 		if (relativeTo === undefined && (dt.years !== 0 || dt.months !== 0)) {
-			throw Temporal.__rangeError__('Missing relativeTo')
+			throw new RangeError('Missing relativeTo')
 		};
 
 		if (dt.years !== 0 || dt.months !== 0) {
@@ -476,7 +476,7 @@
 	 */
 	Temporal.Duration = function (years, months, weeks, days, hours, minutes, seconds, milliseconds, sign, blank) {
 		if (!(this instanceof Temporal.Duration)) {
-			throw Temporal.__typeError__("Method invoked on an object that is not Temporal.Duration.");
+			throw new TypeError("Method invoked on an object that is not Temporal.Duration.");
 		};
 
 		var normalized = normalizeDurationFields({
@@ -575,7 +575,7 @@
 	Temporal.Duration.from = function (thing) {
 		// Empty
 		if (thing === undefined || thing === null) {
-			throw Temporal.__typeError__("Temporal error: Duration argument must be Duration or string.");
+			throw new TypeError("Temporal error: Duration argument must be Duration or string.");
 
 			// Temporal.Duration object
 		} else if (thing instanceof Temporal.Duration) {
@@ -590,7 +590,7 @@
 
 			// Any other cases
 		} else {
-			throw Temporal.__typeError__("Temporal error: Duration argument must be Duration or string.");
+			throw new TypeError("Temporal error: Duration argument must be Duration or string.");
 		};
 
 		const isBlank = (thing.years === 0 && thing.months === 0 && thing.weeks === 0 && thing.days === 0 &&
@@ -639,9 +639,9 @@
 				return 0;
 			};
 			if (options === null) {
-				throw Temporal.__typeError__("Temporal error: Option must be object: relativeTo.");
+				throw new TypeError("Temporal error: Option must be object: relativeTo.");
 			};
-			throw Temporal.__rangeError__("Temporal error: ");
+			throw new RangeError("Temporal error: ");
 		};
 
 		oneMs = signedDurationMilliseconds(oneD, relativeTo);
@@ -695,7 +695,7 @@
 		const thisD = Temporal.__copyFields__(this);
 		const toAddD = Temporal.__copyFields__(toAdd);
 		if (hasCalendarUnit(thisD, true) || hasCalendarUnit(toAddD, true)) {
-			throw Temporal.__rangeError__("Temporal error: Largest unit cannot be a calendar unit when adding two durations.");
+			throw new RangeError("Temporal error: Largest unit cannot be a calendar unit when adding two durations.");
 		};
 		const thisMs = signedDurationMilliseconds(thisD);
 		const toAddMs = signedDurationMilliseconds(toAddD);
@@ -773,9 +773,9 @@
 
 		// Process options.
 		if (roundTo === undefined) {
-			throw Temporal.__typeError__("Temporal error: Must specify a roundTo parameter.");
+			throw new TypeError("Temporal error: Must specify a roundTo parameter.");
 		} else if (roundTo === null) {
-			throw Temporal.__typeError__("Temporal error: roundTo must be an object.");
+			throw new TypeError("Temporal error: roundTo must be an object.");
 		} else if (typeof roundTo === "string") {
 			smallestUnit = normalizeDurationUnit(roundTo, "round", "smallestUnit");
 			largestUnit = "day";
@@ -783,7 +783,7 @@
 			roundingMode = "halfExpand";
 		} else if (typeof roundTo === "object" && roundTo !== null) {
 			if (!("smallestUnit" in roundTo) && !("largestUnit" in roundTo)) {
-				throw Temporal.__rangeError__("Temporal error: smallestUnit and largestUnit cannot both be None.");
+				throw new RangeError("Temporal error: smallestUnit and largestUnit cannot both be None.");
 			};
 			smallestUnit = ("smallestUnit" in roundTo) ? normalizeDurationUnit(roundTo.smallestUnit, "round", "smallestUnit") : "millisecond";
 			roundingIncrement = ("roundingIncrement" in roundTo) ? Number(roundTo.roundingIncrement) : 1;
@@ -794,26 +794,26 @@
 				largestUnit = largestUnitOfDuration(this, smallestUnit, allowedUnits);
 			};
 			if ((largestUnit === 'week' || largestUnit === 'month' || largestUnit === 'year') && roundTo.relativeTo === undefined) {
-				throw Temporal.__rangeError__("Temporal error: largestUnit when rounding Duration was not the largest provided unit");
+				throw new RangeError("Temporal error: largestUnit when rounding Duration was not the largest provided unit");
 			};
 			if (allowedUnits[smallestUnit] > allowedUnits[largestUnit]) {
-				throw Temporal.__rangeError__("Temporal error: smallestUnit is larger than largestUnit.");
+				throw new RangeError("Temporal error: smallestUnit is larger than largestUnit.");
 			};
 		} else {
-			throw Temporal.__typeError__("Temporal error: roundTo must be an object.");
+			throw new TypeError("Temporal error: roundTo must be an object.");
 		}
 
 		if (!allowedUnits[smallestUnit]) {
-			throw Temporal.__rangeError__("Value " + smallestUnit + " out of range for Temporal.Duration.prototype.round options property smallestUnit");
+			throw new RangeError("Value " + smallestUnit + " out of range for Temporal.Duration.prototype.round options property smallestUnit");
 		};
 		if (!Temporal.__isValidRoundingMode__(roundingMode)) {
-			throw Temporal.__rangeError__("Value " + roundingMode + " out of range for Temporal.Duration.prototype.round options property roundingMode");
+			throw new RangeError("Value " + roundingMode + " out of range for Temporal.Duration.prototype.round options property roundingMode");
 		};
 		if (isNaN(roundingIncrement) || !isFinite(roundingIncrement)) {
-			throw Temporal.__rangeError__("Temporal error: Expected finite integer.");
+			throw new RangeError("Temporal error: Expected finite integer.");
 		};
 		if (roundingIncrement !== Math.floor(roundingIncrement) || roundingIncrement < 1) {
-			throw Temporal.__rangeError__("Temporal error: Integer out of range.");
+			throw new RangeError("Temporal error: Integer out of range.");
 		};
 		validateRoundingIncrement(roundingIncrement, smallestUnit);
 
@@ -878,7 +878,7 @@
 				roundedQuotient = baseRound;
 			}
 		} else {
-			throw Temporal.__rangeError__("Invalid rounding mode: " + roundingMode);
+			throw new RangeError("Invalid rounding mode: " + roundingMode);
 		}
 
 		var roundedTotalMs = roundedQuotient * incrementMs;
@@ -964,7 +964,7 @@
 			return DURATION_UNIT_ALIASES[unit];
 		};
 
-		throw Temporal.__rangeError__("Value " + unit + " out of range for Temporal.Duration.prototype." + methodName + " options property " + propertyName);
+		throw new RangeError("Value " + unit + " out of range for Temporal.Duration.prototype." + methodName + " options property " + propertyName);
 	};
 
 	/**
@@ -1011,10 +1011,10 @@
 
 		if (maximum !== undefined) {
 			if (roundingIncrement > maximum) {
-				throw Temporal.__rangeError__("Temporal error: roundingIncrement exceeds maximum");
+				throw new RangeError("Temporal error: roundingIncrement exceeds maximum");
 			};
 			if (maximum % roundingIncrement !== 0) {
-				throw Temporal.__rangeError__("Temporal error: dividend is not divisible by roundingIncrement");
+				throw new RangeError("Temporal error: dividend is not divisible by roundingIncrement");
 			};
 		};
 	};
@@ -1092,13 +1092,13 @@
 		var rounded = duration;
 
 		if (smallestUnit === "hour" || smallestUnit === "minute") {
-			throw Temporal.__rangeError__("Temporal error: string rounding options cannot have hour or minute smallest unit.");
+			throw new RangeError("Temporal error: string rounding options cannot have hour or minute smallest unit.");
 		};
 
 		if (fractionalSecondDigits !== undefined && fractionalSecondDigits !== "auto") {
 			fractionalSecondDigits = Number(fractionalSecondDigits);
 			if (isNaN(fractionalSecondDigits) || !isFinite(fractionalSecondDigits) || Math.floor(fractionalSecondDigits) !== fractionalSecondDigits || fractionalSecondDigits < 0 || fractionalSecondDigits > 3) {
-				throw Temporal.__rangeError__("fractionalSecondDigits value is out of range.");
+				throw new RangeError("fractionalSecondDigits value is out of range.");
 			};
 		};
 
@@ -1267,15 +1267,15 @@
 		var result = 0;
 
 		if (totalOf === undefined) {
-			throw Temporal.__typeError__("Temporal error: Must specify a totalOf parameter");
+			throw new TypeError("Temporal error: Must specify a totalOf parameter");
 		};
 
 		if (totalOf === null) {
-			throw Temporal.__typeError__("Temporal error: totalOf must be an object.");
+			throw new TypeError("Temporal error: totalOf must be an object.");
 		};
 
 		if (typeof totalOf !== "string" && typeof totalOf !== "object") {
-			throw Temporal.__rangeError__("Value " + totalOf + " out of range for Temporal.Duration.prototype.total options property unit");
+			throw new RangeError("Value " + totalOf + " out of range for Temporal.Duration.prototype.total options property unit");
 		};
 
 		theUnit = normalizeDurationUnit((typeof totalOf === "string") ? totalOf : totalOf.unit, "total", "unit");
@@ -1285,11 +1285,11 @@
 		};
 
 		if ((theUnit === "year" || theUnit === "month") && relativeToCopy === undefined) {
-			throw Temporal.__rangeError__("Temporal error: ");
+			throw new RangeError("Temporal error: ");
 		};
 
 		if (hasCalendarUnit(thisD, true) && relativeToCopy === undefined) {
-			throw Temporal.__rangeError__("Temporal error: ");
+			throw new RangeError("Temporal error: ");
 		};
 
 		if (relativeToCopy !== undefined) {
@@ -1336,7 +1336,7 @@
 	 * @returns {never}
 	 */
 	Temporal.Duration.prototype.valueOf = function () {
-		throw Temporal.__typeError__('Cannot use valueOf')
+		throw new TypeError('Cannot use valueOf')
 	};
 
 })(Temporal);

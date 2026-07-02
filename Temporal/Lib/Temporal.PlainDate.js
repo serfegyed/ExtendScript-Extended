@@ -27,13 +27,13 @@ var Temporal = Temporal || {};
 
         if (params !== undefined) {
             if (typeof params !== "object" || params === null) {
-                throw Temporal.__typeError__("Invalid argument: 'params' must be an object.");
+                throw new TypeError("Invalid argument: 'params' must be an object.");
             }
             overflow = params.overflow === undefined ? "constrain" : params.overflow;
         }
 
         if (overflow !== "constrain" && overflow !== "reject") {
-            throw Temporal.__rangeError__("Invalid overflow: " + overflow);
+            throw new RangeError("Invalid overflow: " + overflow);
         }
 
         return overflow;
@@ -46,14 +46,14 @@ var Temporal = Temporal || {};
 
         unit = Temporal.__singularUnit__(unit);
         if (!DATE_UNITS[unit]) {
-            throw Temporal.__rangeError__("Value " + unit + " out of range for Temporal.PlainDate.prototype." + methodName + " options property " + propertyName);
+            throw new RangeError("Value " + unit + " out of range for Temporal.PlainDate.prototype." + methodName + " options property " + propertyName);
         }
         return unit;
     }
 
     function validateRoundingMode(mode, methodName) {
         if (!Temporal.__isValidRoundingMode__(mode)) {
-            throw Temporal.__rangeError__("Value " + mode + " out of range for Temporal.PlainDate.prototype." + methodName + " options property roundingMode");
+            throw new RangeError("Value " + mode + " out of range for Temporal.PlainDate.prototype." + methodName + " options property roundingMode");
         }
     }
 
@@ -67,11 +67,11 @@ var Temporal = Temporal || {};
 
     function validateRoundingIncrement(increment, unit) {
         if (isNaN(increment) || !isFinite(increment) || increment < 1) {
-            throw Temporal.__rangeError__("Temporal error: Integer out of range.");
+            throw new RangeError("Temporal error: Integer out of range.");
         }
 
         if (increment !== Math.floor(increment)) {
-            throw Temporal.__rangeError__("Temporal error: Integer out of range.");
+            throw new RangeError("Temporal error: Integer out of range.");
         }
 
     }
@@ -79,7 +79,7 @@ var Temporal = Temporal || {};
     function createDate(year, month, day, overflow) {
         var checked = Temporal.__validateDate__(Number(year), Number(month), Number(day), overflow);
         if (!checked) {
-            throw Temporal.__rangeError__("Invalid PlainDate");
+            throw new RangeError("Invalid PlainDate");
         }
         return new Temporal.PlainDate(checked.year, checked.month, checked.day);
     }
@@ -88,12 +88,12 @@ var Temporal = Temporal || {};
         var match = value.match(/^(\d{4}|[-+]\d{6})-(\d{2})-(\d{2})(?:[Tt ](\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,9})?)?)?$/);
 
         if (!match || match[1] === "-000000") {
-            throw Temporal.__rangeError__("Invalid ISO PlainDate string");
+            throw new RangeError("Invalid ISO PlainDate string");
         }
 
         if (match[4] !== undefined &&
             (Number(match[4]) > 23 || Number(match[5]) > 59 || (match[6] !== undefined && Number(match[6]) > 59))) {
-            throw Temporal.__rangeError__("Invalid time in ISO PlainDate string");
+            throw new RangeError("Invalid time in ISO PlainDate string");
         }
 
         return createDate(Number(match[1]), Number(match[2]), Number(match[3]), "reject");
@@ -334,12 +334,12 @@ var Temporal = Temporal || {};
 
     Temporal.PlainDate = function (year, month, day) {
         if (!(this instanceof Temporal.PlainDate)) {
-            throw Temporal.__typeError__("Temporal.PlainDate constructor must be called with new");
+            throw new TypeError("Temporal.PlainDate constructor must be called with new");
         }
 
         var checkedDate = Temporal.__validateDate__(Number(year), Number(month), Number(day), "reject");
         if (!checkedDate) {
-            throw Temporal.__rangeError__("Invalid PlainDate");
+            throw new RangeError("Invalid PlainDate");
         }
 
         var isoWeek;
@@ -380,20 +380,20 @@ var Temporal = Temporal || {};
                 return createDate(projected.year, projected.month, projected.day, "reject");
             }
             if (/T.*Z$/i.test(thing)) {
-                throw Temporal.__rangeError__("Temporal error: UTC designator is not valid for PlainDate parsing.");
+                throw new RangeError("Temporal error: UTC designator is not valid for PlainDate parsing.");
             }
             return parsePlainDateString(thing);
         }
 
         if (typeof thing === "object" && thing !== null) {
             if (!hasDateFields(thing)) {
-                throw Temporal.__typeError__("Invalid PlainDate object: missing required fields");
+                throw new TypeError("Invalid PlainDate object: missing required fields");
             }
 
             return createDate(thing.year, Temporal.__resolveISOMonth__(thing), thing.day, overflow);
         }
 
-        throw Temporal.__typeError__("Invalid type for Temporal.PlainDate.from");
+        throw new TypeError("Invalid type for Temporal.PlainDate.from");
     };
 
     Temporal.PlainDate.compare = function (one, two) {
@@ -411,7 +411,7 @@ var Temporal = Temporal || {};
     };
 
     Temporal.PlainDate.prototype.valueOf = function () {
-        throw Temporal.__typeError__("Do not use Temporal.PlainDate.prototype.valueOf; use Temporal.PlainDate.compare for comparison.");
+        throw new TypeError("Do not use Temporal.PlainDate.prototype.valueOf; use Temporal.PlainDate.compare for comparison.");
     };
 
     Temporal.PlainDate.prototype.equals = function (other) {
@@ -420,11 +420,11 @@ var Temporal = Temporal || {};
 
     Temporal.PlainDate.prototype.with = function (dateLike, params) {
         if (dateLike === undefined || dateLike === null || typeof dateLike !== "object") {
-            throw Temporal.__typeError__("Invalid PlainDate object");
+            throw new TypeError("Invalid PlainDate object");
         }
 
         if (!hasPartialDateFields(dateLike)) {
-            throw Temporal.__typeError__("PlainDate.with requires at least one date field");
+            throw new TypeError("PlainDate.with requires at least one date field");
         }
 
         var overflow = normalizeOverflow(params);
@@ -456,7 +456,7 @@ var Temporal = Temporal || {};
         var end = Temporal.PlainDate.from(other);
 
         if (options !== undefined && (options === null || typeof options !== "object")) {
-            throw Temporal.__typeError__("invalid_argument");
+            throw new TypeError("invalid_argument");
         }
 
         options = options || {};
@@ -474,7 +474,7 @@ var Temporal = Temporal || {};
         }
 
         if (UNIT_RANK[smallestUnit] > UNIT_RANK[largestUnit]) {
-            throw Temporal.__rangeError__("Temporal error: smallestUnit was larger than largestunit in DifferenceeSettings");
+            throw new RangeError("Temporal error: smallestUnit was larger than largestunit in DifferenceeSettings");
         }
 
         if (Temporal.PlainDate.compare(this, end) === 0) {

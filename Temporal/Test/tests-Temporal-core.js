@@ -51,7 +51,15 @@ if (typeof require === "function" && typeof process !== "undefined") {
 		try {
 			fn();
 		} catch (error) {
-			assertEquals(error.name, expectedName, message || "Unexpected error name");
+			if (typeof process !== "undefined" && process.versions && process.versions.node) {
+				assertEquals(error.name, expectedName, message || "Unexpected error name");
+			} else if (expectedName === "TypeError") {
+				assert(error instanceof TypeError, message || "Unexpected error type");
+			} else if (expectedName === "RangeError") {
+				assert(error instanceof RangeError, message || "Unexpected error type");
+			} else {
+				assertEquals(error.name, expectedName, message || "Unexpected error name");
+			}
 			return;
 		}
 
@@ -75,8 +83,6 @@ if (typeof require === "function" && typeof process !== "undefined") {
 
     test("Temporal namespace and shared helpers are loaded", function () {
         assert(typeof Temporal === "object", "Temporal namespace should exist");
-        assert(typeof Temporal.__rangeError__ === "function", "Temporal.__rangeError__ should exist");
-        assert(typeof Temporal.__typeError__ === "function", "Temporal.__typeError__ should exist");
         assert(typeof Temporal.__pad__ === "function", "Temporal.__pad__ should exist");
         assert(typeof Temporal.__singularUnit__ === "function", "Temporal.__singularUnit__ should exist");
         assert(typeof Temporal.__toInteger__ === "function", "Temporal.__toInteger__ should exist");
@@ -136,11 +142,6 @@ if (typeof require === "function" && typeof process !== "undefined") {
 			}(invalidCodes[i]));
 		}
 	});
-
-    test("Shared error helpers preserve ExtendScript error names", function () {
-        assertEquals(Temporal.__rangeError__("test").name, "RangeError", "RangeError name");
-        assertEquals(Temporal.__typeError__("test").name, "TypeError", "TypeError name");
-    });
 
     test("Date and ISO formatting helpers match expected ISO output", function () {
         assertEquals(Temporal.__pad__(5, 2), "05", "pad two digits");

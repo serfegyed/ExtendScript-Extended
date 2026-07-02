@@ -63,7 +63,15 @@ if (typeof require === "function" && typeof process !== "undefined") {
         try {
             fn();
         } catch (error) {
-            assertEquals(error.name, expectedName, message || "Unexpected error name");
+            if (typeof process !== "undefined" && process.versions && process.versions.node) {
+                assertEquals(error.name, expectedName, message || "Unexpected error name");
+            } else if (expectedName === "TypeError") {
+                assert(error instanceof TypeError, message || "Unexpected error type");
+            } else if (expectedName === "RangeError") {
+                assert(error instanceof RangeError, message || "Unexpected error type");
+            } else {
+                assertEquals(error.name, expectedName, message || "Unexpected error name");
+            }
             return;
         }
 

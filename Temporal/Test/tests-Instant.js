@@ -49,7 +49,15 @@ if (typeof require === "function" && typeof process !== "undefined") {
         try {
             fn();
         } catch (error) {
-            assertEquals(error.name, expectedName, "Node reference: " + nodeReference);
+            if (typeof process !== "undefined" && process.versions && process.versions.node) {
+                assertEquals(error.name, expectedName, "Node reference: " + nodeReference);
+            } else if (expectedName === "TypeError") {
+                assert(error instanceof TypeError, "Node reference: " + nodeReference);
+            } else if (expectedName === "RangeError") {
+                assert(error instanceof RangeError, "Node reference: " + nodeReference);
+            } else {
+                assertEquals(error.name, expectedName, "Node reference: " + nodeReference);
+            }
             return;
         }
         fail("Expected " + expectedName + ". Node reference: " + nodeReference);

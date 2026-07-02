@@ -548,7 +548,7 @@ Node Temporal is a reference and test oracle, not a full API contract. The docum
 - Property bag input defaults to `overflow: "constrain"`; invalid ISO string dates throw, matching Node Temporal.
 - `toString()` can emit microsecond/nanosecond-length output padded with zeros, but there is no internal precision beyond milliseconds.
 - `until()` / `since()` with calendar units as `smallestUnit` is not fully supported and should be avoided.
-- TypeError/RangeError values are created through the shared `Temporal.__typeError__()` / `Temporal.__rangeError__()` helpers.
+- TypeError/RangeError values use the native constructors provided by ExtendScript.
 
 When the optional `Lib/Temporal.LocaleDate.js` adapter is loaded last, `toLocaleString()` interprets the PlainDateTime fields as host-local wall time and returns `YYYY-MM-DDTHH:mm:ss.sss+HH:mm`. Native Date resolves DST gaps and overlaps; no IANA zone is selectable.
 

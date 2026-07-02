@@ -9,7 +9,7 @@
 // v9 Fix `subtract` to delegate to `add` through a negated Duration
 // v10 Use internal __copyFields__ helper name
 // v11 Add PlainDate/PlainTime conversion helpers for PlainDateTime
-// v12 Use shared Temporal.__rangeError__ helper from Temporal-core4.js
+// v12 Use RangeError for invalid Temporal values
 // v13 Align PlainDateTime.from edge cases with Node Temporal
 // v14 Use shared core error helpers consistently
 // v15 Align PlainDateTime.with edge cases with Node Temporal
@@ -71,17 +71,17 @@
 
         if (params !== undefined) {
             if (typeof params !== 'object' || params === null) {
-                throw Temporal.__typeError__("Invalid argument: 'params' must be an object.");
+                throw new TypeError("Invalid argument: 'params' must be an object.");
             }
 
             overflow = params.overflow === undefined ? 'constrain' : params.overflow;
             if (!validOverflow[overflow]) {
-                throw Temporal.__rangeError__("Invalid overflow: " + overflow);
+                throw new RangeError("Invalid overflow: " + overflow);
             };
         };
 
         if (thing === undefined || thing === null || typeof thing === "number" || typeof thing === "boolean") {
-            throw Temporal.__typeError__("Temporal error: DateTime argument must be object or string.");
+            throw new TypeError("Temporal error: DateTime argument must be object or string.");
         } else if (thing instanceof Temporal.PlainDateTime) {
             return new Temporal.PlainDateTime(thing.year, thing.month, thing.day, thing.hour, thing.minute, thing.second, thing.millisecond)
         } else if (typeof thing === "string") {
@@ -98,13 +98,13 @@
                 );
             }
             if (thing.indexOf("Z") !== -1) {
-                throw Temporal.__rangeError__("Temporal error: UTC designator is not valid for DateTime parsing.");
+                throw new RangeError("Temporal error: UTC designator is not valid for DateTime parsing.");
             }
 
             try {
                 var parts = Temporal.__parseISOString__(thing);
             } catch (error) {
-                throw Temporal.__rangeError__(error.message);
+                throw new RangeError(error.message);
             }
 
             var checkedDate = Temporal.__validateDate__(
@@ -127,7 +127,7 @@
             if (thing.year === undefined ||
                 (thing.month === undefined && thing.monthCode === undefined) ||
                 thing.day === undefined) {
-                throw Temporal.__typeError__("Invalid PlainDateTime object: missing required fields");
+                throw new TypeError("Invalid PlainDateTime object: missing required fields");
             }
             var checkedDate = Temporal.__validateDate__(
                 parseInt(thing.year, 10),
@@ -145,7 +145,7 @@
                 thing.millisecond ? Temporal.__isBetween__(thing.millisecond, 0, 999, overflow) : 0
             );
         } else {
-            throw Temporal.__typeError__('Invalid type for Temporal.PlainDateTime.from');
+            throw new TypeError('Invalid type for Temporal.PlainDateTime.from');
         };
     };
 
@@ -177,17 +177,17 @@
         // Check params
         if (params !== undefined) {
             if (typeof params !== 'object' || params === null) {
-                throw Temporal.__typeError__("Invalid argument: 'params' must be an object.");
+                throw new TypeError("Invalid argument: 'params' must be an object.");
             }
 
             overflow = params.overflow === undefined ? 'constrain' : params.overflow;
             if (!validOverflow[overflow]) {
-                throw Temporal.__rangeError__("Invalid overflow: " + overflow);
+                throw new RangeError("Invalid overflow: " + overflow);
             };
         };
 
         if (typeof dateTimeLike !== 'object' || dateTimeLike === null) {
-            throw Temporal.__typeError__("Temporal error: Argument to with() must contain some date/time fields.");
+            throw new TypeError("Temporal error: Argument to with() must contain some date/time fields.");
         }
 
         const validated = {};
@@ -207,7 +207,7 @@
         }
 
         if (!hasField) {
-            throw Temporal.__typeError__("Temporal error: Must specify at least one calendar field.");
+            throw new TypeError("Temporal error: Must specify at least one calendar field.");
         }
 
         // Copy this
@@ -256,12 +256,12 @@
         // Check params
         if (params !== undefined) {
             if (typeof params !== 'object' || params === null) {
-                throw Temporal.__typeError__("Invalid argument: 'params' must be an object.");
+                throw new TypeError("Invalid argument: 'params' must be an object.");
             }
 
             overflow = params.overflow === undefined ? 'constrain' : params.overflow;
             if (!validOverflow[overflow]) {
-                throw Temporal.__rangeError__("Invalid overflow: " + overflow);
+                throw new RangeError("Invalid overflow: " + overflow);
             }
         };
 
@@ -307,7 +307,7 @@
         var methodName = (arguments.length > 2 && arguments[2] === "since") ? "since" : "until";
 
         if (options !== undefined && (options === null || typeof options !== "object")) {
-            throw Temporal.__typeError__("invalid_argument");
+            throw new TypeError("invalid_argument");
         }
 
         options = options || {};
@@ -324,25 +324,25 @@
         var validSmallestUnit = { day: true, hour: true, minute: true, second: true, millisecond: true };
 
         if (!validLargestUnit[largestUnit]) {
-            throw Temporal.__rangeError__("Value " + largestUnit + " out of range for Temporal.PlainDateTime.prototype." + methodName + " options property largestUnit");
+            throw new RangeError("Value " + largestUnit + " out of range for Temporal.PlainDateTime.prototype." + methodName + " options property largestUnit");
         }
         if (!validSmallestUnit[smallestUnit]) {
             if (smallestUnit === "year" || smallestUnit === "month" || smallestUnit === "week") {
                 return new Temporal.Duration();
             }
-            throw Temporal.__rangeError__("Value " + smallestUnit + " out of range for Temporal.PlainDateTime.prototype." + methodName + " options property smallestUnit");
+            throw new RangeError("Value " + smallestUnit + " out of range for Temporal.PlainDateTime.prototype." + methodName + " options property smallestUnit");
         }
         if (unitRank[smallestUnit] > unitRank[largestUnit]) {
-            throw Temporal.__rangeError__("Temporal error: smallestUnit was larger than largestunit in DifferenceeSettings");
+            throw new RangeError("Temporal error: smallestUnit was larger than largestunit in DifferenceeSettings");
         }
         if (smallestUnit === "week") {
             return new Temporal.Duration();
         }
         if (!Temporal.__isValidRoundingMode__(roundingMode)) {
-            throw Temporal.__rangeError__("Value " + roundingMode + " out of range for Temporal.PlainDateTime.prototype." + methodName + " options property roundingMode");
+            throw new RangeError("Value " + roundingMode + " out of range for Temporal.PlainDateTime.prototype." + methodName + " options property roundingMode");
         }
         if (isNaN(roundingIncrement) || !isFinite(roundingIncrement) || roundingIncrement < 1) {
-            throw Temporal.__rangeError__("Temporal error: Integer out of range.");
+            throw new RangeError("Temporal error: Integer out of range.");
         }
         roundingIncrement = Math.floor(roundingIncrement);
         validateRoundingIncrement(roundingIncrement, smallestUnit);
@@ -384,10 +384,10 @@
 
             if (maximum !== undefined) {
                 if (increment >= maximum) {
-                    throw Temporal.__rangeError__("Temporal error: roundingIncrement exceeds maximum");
+                    throw new RangeError("Temporal error: roundingIncrement exceeds maximum");
                 }
                 if (maximum % increment !== 0) {
-                    throw Temporal.__rangeError__("Temporal error: dividend is not divisible by roundingIncrement");
+                    throw new RangeError("Temporal error: dividend is not divisible by roundingIncrement");
                 }
             }
         }
@@ -505,7 +505,7 @@
         var smallestUnit, roundingMode, roundingIncrement;
 
         if (roundTo === undefined) {
-            throw Temporal.__typeError__("Temporal error: Must specify a roundTo parameter.");
+            throw new TypeError("Temporal error: Must specify a roundTo parameter.");
         }
 
         if (typeof roundTo === "string") {
@@ -514,13 +514,13 @@
             roundingIncrement = 1;
         } else if (typeof roundTo === "object" && roundTo !== null) {
             if (!roundTo.hasOwnProperty("smallestUnit")) {
-                throw Temporal.__rangeError__("Value undefined out of range for Temporal.PlainDateTime.prototype.round options property smallestUnit");
+                throw new RangeError("Value undefined out of range for Temporal.PlainDateTime.prototype.round options property smallestUnit");
             }
             smallestUnit = roundTo.smallestUnit;
             roundingMode = roundTo.roundingMode || "halfExpand";
             roundingIncrement = (typeof roundTo.roundingIncrement === "number") ? roundTo.roundingIncrement : 1;
         } else {
-            throw Temporal.__typeError__("Temporal error: roundTo must be an object.");
+            throw new TypeError("Temporal error: roundTo must be an object.");
         }
 
         smallestUnit = Temporal.__singularUnit__(smallestUnit);
@@ -534,23 +534,23 @@
         };
         if (!validUnits[smallestUnit]) {
             if (smallestUnit === "year" || smallestUnit === "month" || smallestUnit === "week") {
-                throw Temporal.__rangeError__("Temporal error: Found date unit, expect time unit");
+                throw new RangeError("Temporal error: Found date unit, expect time unit");
             }
-            throw Temporal.__rangeError__("Value " + smallestUnit + " out of range for Temporal.PlainDateTime.prototype.round options property smallestUnit");
+            throw new RangeError("Value " + smallestUnit + " out of range for Temporal.PlainDateTime.prototype.round options property smallestUnit");
         }
 
         if (!Temporal.__isValidRoundingMode__(roundingMode)) {
-            throw Temporal.__rangeError__("Value " + roundingMode + " out of range for Temporal.PlainDateTime.prototype.round options property roundingMode");
+            throw new RangeError("Value " + roundingMode + " out of range for Temporal.PlainDateTime.prototype.round options property roundingMode");
         }
 
         if (typeof roundingIncrement !== "number" || roundingIncrement < 1 || roundingIncrement % 1 !== 0) {
-            throw Temporal.__rangeError__("Temporal error: Integer out of range.");
+            throw new RangeError("Temporal error: Integer out of range.");
         }
 
         var smallestUnitMilliseconds = Temporal.__timeUnitToMilliseconds__(smallestUnit);
         if (smallestUnitMilliseconds &&
                 Temporal.__timeUnitToMilliseconds__("day") % (smallestUnitMilliseconds * roundingIncrement) !== 0) {
-            throw Temporal.__rangeError__("Temporal error: dividend is not divisible by roundingIncrement");
+            throw new RangeError("Temporal error: dividend is not divisible by roundingIncrement");
         }
 
         var totalMilliseconds = Temporal.__timeToMilliseconds__(this);
@@ -578,7 +578,7 @@
     };
 
     Temporal.PlainDateTime.prototype.valueOf = function () {
-        throw Temporal.__typeError__('Do not use Temporal.PlainDateTime.prototype.valueOf; use Temporal.PlainDateTime.prototype.compare for comparison.');
+        throw new TypeError('Do not use Temporal.PlainDateTime.prototype.valueOf; use Temporal.PlainDateTime.prototype.compare for comparison.');
     };
 
     Temporal.PlainDateTime.prototype.toPlainDate = function () {
