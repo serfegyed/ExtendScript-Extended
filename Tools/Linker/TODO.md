@@ -1,18 +1,6 @@
 # Linker TODO
 
-## Type analysis
+There are no active development items. macOS discovery is implemented and
+covered by synthetic path tests, but remains unverified on a physical Mac.
 
-- [ ] Read JSDoc type hints from application sources for variables, parameters,
-  receiver types, and function return values.
-- [ ] Resolve computed member access when the property key is statically known,
-  such as `value["method"]`.
-- [ ] Infer return types from user-defined functions.
-
-## Adobe host catalogs
-
-- [ ] Optionally request or mine a dynamic OMV directly when no existing cache
-  is available. The current Linker never launches a host application.
-- [ ] Add and test macOS discovery paths for Adobe dictionaries and ESTK OMV
-  caches.
-- [ ] Validate catalog generation against additional Adobe hosts and document
-  host-specific differences.
+No further analyzer or JSDoc expansion is currently planned.

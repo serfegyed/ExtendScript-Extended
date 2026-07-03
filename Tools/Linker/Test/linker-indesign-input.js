@@ -2,7 +2,12 @@
 //@target indesign
 #targetengine "session"
 
-var document = app.documents.add();
+/** @returns {Document} */
+function createDocument() {
+    return app.documents.add();
+}
+
+var document = createDocument();
 var page = document.pages.item(0);
 var frame = page.textFrames.add();
 var text = frame.texts.item(0);

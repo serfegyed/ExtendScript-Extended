@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const tokenizer = require("./tokenizer");
+const jsdocTypes = require("./jsdocTypes");
 
 const slash = value => value.split(path.sep).join("/");
 const has = (list, value) => Array.isArray(list) && list.includes(value);
@@ -38,13 +39,15 @@ function matchingPairs(tokens) {
     return pairs;
 }
 
-function buildScopes(tokens, pairs) {
+function buildScopes(tokens, pairs, hints) {
     const globalScope = {
         start: -1,
         end: tokens.length,
         parent: null,
         declarations: {},
-        types: {}
+        types: {},
+        explicitTypes: new Set(),
+        functionReturns: {}
     };
     const scopes = [globalScope];
 
@@ -76,20 +79,26 @@ function buildScopes(tokens, pairs) {
             end: pairs[bodyOpen],
             parent,
             declarations: {},
-            types: {}
+            types: {},
+            explicitTypes: new Set(),
+            functionReturns: {}
         };
         scopes.push(functionScope);
+
+        const functionHint = hints.functions.get(tokens[index].start);
 
         if (nameIndex !== -1) {
             const name = tokens[nameIndex].value;
             parent.declarations[name] = true;
             functionScope.declarations[name] = true;
+            if (functionHint?.returns) parent.functionReturns[name] = functionHint.returns;
         }
         for (let parameterIndex = parameterOpen + 1; parameterIndex < parameterClose; parameterIndex++) {
             if (tokens[parameterIndex].type === "identifier") {
                 const name = tokens[parameterIndex].value;
                 functionScope.declarations[name] = true;
-                functionScope.types[name] = null;
+                functionScope.types[name] = functionHint?.params.get(name) || null;
+                if (functionHint?.params.has(name)) functionScope.explicitTypes.add(name);
             }
         }
     }
@@ -109,7 +118,13 @@ function buildScopes(tokens, pairs) {
             }
             if (expectName && type === "identifier") {
                 declarationScope.declarations[value] = true;
-                if (!Object.hasOwn(declarationScope.types, value)) declarationScope.types[value] = null;
+                const hintedType = hints.variables.get(tokens[declarationIndex].start);
+                if (hintedType) {
+                    declarationScope.types[value] = hintedType;
+                    declarationScope.explicitTypes.add(value);
+                } else if (!Object.hasOwn(declarationScope.types, value)) {
+                    declarationScope.types[value] = null;
+                }
                 expectName = false;
             }
             if (has(["(", "[", "{"], value)) depth++;
@@ -169,13 +184,19 @@ function includeInsertionOffset(source) {
     while ((directive = /^#(?:target|targetengine)\b[^\r\n]*(?:\r\n|\r|\n)?/i.exec(source.slice(offset)))) {
         offset = firstCodeOffset(source, offset + directive[0].length);
     }
+    const jsdocStart = source.lastIndexOf("/**", offset);
+    if (jsdocStart !== -1) {
+        const jsdocEnd = source.indexOf("*/", jsdocStart);
+        if (jsdocEnd !== -1 && /^\s*$/.test(source.slice(jsdocEnd + 2, offset))) return jsdocStart;
+    }
     return offset;
 }
 
 function analyze(source, nativeCatalog, polyfillCatalog) {
     const tokens = tokenizer.tokenize(source);
     const pairs = matchingPairs(tokens);
-    const scopeModel = buildScopes(tokens, pairs);
+    const hints = jsdocTypes.parse(source, tokens);
+    const scopeModel = buildScopes(tokens, pairs, hints);
     const dependencies = [];
     const diagnostics = [];
     const report = [];
@@ -193,9 +214,18 @@ function analyze(source, nativeCatalog, polyfillCatalog) {
     const isDeclared = (scope, name) => declarationScope(scope, name) !== null;
     const getVariableType = (scope, name) => declarationScope(scope, name)?.types[name] || null;
 
+    function getFunctionReturnType(scope, name) {
+        while (scope) {
+            if (scope.functionReturns[name]) return scope.functionReturns[name];
+            scope = scope.parent;
+        }
+        return null;
+    }
+
     function setVariableType(scope, name, type) {
         const owner = declarationScope(scope, name) || scopeModel.globalScope;
         owner.declarations[name] = true;
+        if (owner.explicitTypes.has(name)) return;
         owner.types[name] = type || null;
     }
 
@@ -236,6 +266,10 @@ function analyze(source, nativeCatalog, polyfillCatalog) {
             const openIndex = pairs[tokenIndex];
             const callee = tokens[openIndex - 1];
             if (!callee) return null;
+            const hintedReturn = callee.type === "identifier"
+                ? getFunctionReturnType(scopeModel.scopeAt(openIndex - 1), callee.value)
+                : null;
+            if (hintedReturn) return {type: hintedReturn, mode: "prototype"};
             if (callee.type === "identifier" && tokens[openIndex - 2]?.value === "new" &&
                     !isDeclared(scopeModel.scopeAt(openIndex - 1), callee.value)) {
                 return {type: callee.value, mode: "prototype"};
@@ -258,10 +292,13 @@ function analyze(source, nativeCatalog, polyfillCatalog) {
             info = {type: "Array", mode: "prototype"};
             if (pairs[position] !== undefined) position = pairs[position];
         } else if (tokens[position + 1]?.value === "(" && pairs[position + 1] !== undefined) {
+            const close = pairs[position + 1];
             if (tokens[startIndex]?.value === "new") {
                 info = {type: tokens[position].value, mode: "prototype"};
+            } else {
+                info = receiverInfoAt(close);
             }
-            position = pairs[position + 1];
+            position = close;
         }
         while (tokens[position + 1]?.value === "." && tokens[position + 2]) {
             position += 2;

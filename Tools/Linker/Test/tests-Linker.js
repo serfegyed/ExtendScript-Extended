@@ -9,6 +9,7 @@ var builder = require("../Lib/buildPolyfillIndex");
 var omvBuilder = require("../Lib/buildOmvCatalog");
 var discovery = require("../Lib/discoverOmvCatalogs");
 var catalogManager = require("../Lib/catalogManager");
+var jsdocTypes = require("../Lib/jsdocTypes");
 var linker = require("../Lib/linker");
 
 var linkerRoot = path.resolve(__dirname, "..");
@@ -338,6 +339,33 @@ function slash(value) {
     fs.rmSync(root, {recursive: true, force: true});
 }());
 
+(function testMacOsAdobeDiscoveryCandidates() {
+    var home = "/Users/tester";
+    assert.deepStrictEqual(discovery.dictionaryRootCandidates({platform: "darwin", home: home}), [
+        "/Library/Application Support/Adobe/Scripting Dictionaries CC",
+        "/Users/tester/Library/Application Support/Adobe/Scripting Dictionaries CC"
+    ]);
+    assert.deepStrictEqual(discovery.cacheRootCandidates({platform: "darwin", home: home}), [
+        "/Users/tester/Library/Preferences/Adobe/ExtendScript Toolkit",
+        "/Users/tester/Library/Application Support/Adobe/ExtendScript Toolkit"
+    ]);
+}());
+
+(function testStaticHostDiscoveryUsesInstalledDictionaryLabels() {
+    var root = fs.mkdtempSync(path.join(os.tmpdir(), "linker-static-omv-"));
+    var illustrator = path.join(root, "Illustrator 2026");
+    var photoshop = path.join(root, "photoshop");
+    fs.mkdirSync(illustrator);
+    fs.mkdirSync(photoshop);
+    fs.writeFileSync(path.join(illustrator, "omv.xml"), "illustrator", "utf8");
+    fs.writeFileSync(path.join(photoshop, "omv.xml"), "photoshop", "utf8");
+
+    var options = {dictionaryRoots: [root], cacheRoots: []};
+    assert.strictEqual(discovery.targetSource("illustrator", options).version, "2026");
+    assert.strictEqual(discovery.targetSource("photoshop", options).version, "static");
+    fs.rmSync(root, {recursive: true, force: true});
+}());
+
 (function testIncludesFollowTargetDirectives() {
     var result = link([
         "// header",
@@ -364,4 +392,104 @@ function slash(value) {
     assert.ok(result.source.indexOf("//@include") < result.source.indexOf("var values"));
 }());
 
-console.log("Linker tests passed: 20");
+(function testJsdocTypeHintResolvesUnknownInitializer() {
+    var hostCatalog = omvBuilder.parse([
+        "<dictionary><package>",
+        "<classdef name=\"Document\"><elements type=\"instance\">",
+        "<property name=\"pages\"><datatype><type>Pages</type></datatype></property>",
+        "</elements></classdef>",
+        "<classdef name=\"Pages\"><elements type=\"instance\">",
+        "<method name=\"item\"><datatype><type>Page</type></datatype></method>",
+        "</elements></classdef>",
+        "<classdef name=\"Page\"><elements type=\"instance\"></elements></classdef>",
+        "</package></dictionary>"
+    ].join(""));
+    var result = linker.linkSource([
+        "/** @type {Document} */",
+        "var doc = fetchDocument();",
+        "doc.pages.item(0);"
+    ].join("\n"), {
+        sourcePath: sourcePath,
+        repositoryRoot: repositoryRoot,
+        nativeCatalog: catalogManager.mergeCatalogs([nativeCatalog, hostCatalog]),
+        polyfillCatalog: polyfillCatalog
+    });
+    assert.deepStrictEqual(result.diagnostics, []);
+    assert.ok(result.report.some(function (item) {
+        return item.symbol === "Document.prototype.pages" && item.status === "native";
+    }));
+}());
+
+(function testJsdocParamHintResolvesFunctionParameter() {
+    var hostCatalog = omvBuilder.parse([
+        "<dictionary><package>",
+        "<classdef name=\"Document\"><elements type=\"instance\">",
+        "<property name=\"pages\"><datatype><type>Pages</type></datatype></property>",
+        "</elements></classdef>",
+        "<classdef name=\"Pages\"><elements type=\"instance\">",
+        "<method name=\"item\"><datatype><type>Page</type></datatype></method>",
+        "</elements></classdef>",
+        "</package></dictionary>"
+    ].join(""));
+    var result = linker.linkSource([
+        "/**",
+        " * @param {Document} doc",
+        " */",
+        "function firstPage(doc) {",
+        "    return doc.pages.item(0);",
+        "}"
+    ].join("\n"), {
+        sourcePath: sourcePath,
+        repositoryRoot: repositoryRoot,
+        nativeCatalog: catalogManager.mergeCatalogs([nativeCatalog, hostCatalog]),
+        polyfillCatalog: polyfillCatalog
+    });
+    assert.deepStrictEqual(result.diagnostics, []);
+    assert.ok(result.report.some(function (item) {
+        return item.symbol === "Pages.prototype.item" && item.status === "native";
+    }));
+}());
+
+(function testJsdocReturnHintPropagatesFromUserFunction() {
+    var hostCatalog = omvBuilder.parse([
+        "<dictionary><package>",
+        "<classdef name=\"Document\"><elements type=\"instance\">",
+        "<property name=\"pages\"><datatype><type>Pages</type></datatype></property>",
+        "</elements></classdef>",
+        "<classdef name=\"Pages\"><elements type=\"instance\">",
+        "<method name=\"item\"><datatype><type>Page</type></datatype></method>",
+        "</elements></classdef>",
+        "</package></dictionary>"
+    ].join(""));
+    var result = linker.linkSource([
+        "/** @returns {Document} */",
+        "function fetchDocument() { return null; }",
+        "var doc = fetchDocument();",
+        "doc.pages.item(0);"
+    ].join("\n"), {
+        sourcePath: sourcePath,
+        repositoryRoot: repositoryRoot,
+        nativeCatalog: catalogManager.mergeCatalogs([nativeCatalog, hostCatalog]),
+        polyfillCatalog: polyfillCatalog
+    });
+    assert.deepStrictEqual(result.diagnostics, []);
+    assert.strictEqual(jsdocTypes.normalizeType("Array.<String>"), "Array");
+    assert.ok(result.report.some(function (item) {
+        return item.symbol === "Document.prototype.pages" && item.status === "native";
+    }));
+}());
+
+(function testGeneratedIncludesDoNotSplitJsdocFromDeclaration() {
+    var result = link([
+        "//@target indesign",
+        "/** @returns {Array} */",
+        "function values() { return []; }",
+        "values().at(0);",
+        ""
+    ].join("\n"));
+    assert.ok(result.source.indexOf("//@target indesign") < result.source.indexOf("//@include"));
+    assert.ok(result.source.indexOf("//@include") < result.source.indexOf("/** @returns {Array} */"));
+    assert.ok(result.source.indexOf("/** @returns {Array} */") < result.source.indexOf("function values"));
+}());
+
+console.log("Linker tests passed: 26");

@@ -1,6 +1,7 @@
 "use strict";
 
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 
 const exists = item => {
@@ -63,14 +64,31 @@ function targetFromSource(source) {
     return null;
 }
 
-const defaultDictionaryRoots = () => existing([
-    process.env.ProgramFiles && path.join(process.env.ProgramFiles, "Common Files", "Adobe", "Scripting Dictionaries CC"),
-    process.env["ProgramFiles(x86)"] && path.join(process.env["ProgramFiles(x86)"], "Common Files", "Adobe", "Scripting Dictionaries CC")
-].filter(Boolean));
+function dictionaryRootCandidates({platform = process.platform, env = process.env, home = os.homedir()} = {}) {
+    if (platform === "darwin") {
+        return [
+            "/Library/Application Support/Adobe/Scripting Dictionaries CC",
+            path.posix.join(home, "Library", "Application Support", "Adobe", "Scripting Dictionaries CC")
+        ];
+    }
+    return [
+        env.ProgramFiles && path.join(env.ProgramFiles, "Common Files", "Adobe", "Scripting Dictionaries CC"),
+        env["ProgramFiles(x86)"] && path.join(env["ProgramFiles(x86)"], "Common Files", "Adobe", "Scripting Dictionaries CC")
+    ].filter(Boolean);
+}
 
-const defaultCacheRoots = () => existing([
-    process.env.APPDATA && path.join(process.env.APPDATA, "Adobe", "ExtendScript Toolkit")
-].filter(Boolean));
+function cacheRootCandidates({platform = process.platform, env = process.env, home = os.homedir()} = {}) {
+    if (platform === "darwin") {
+        return [
+            path.posix.join(home, "Library", "Preferences", "Adobe", "ExtendScript Toolkit"),
+            path.posix.join(home, "Library", "Application Support", "Adobe", "ExtendScript Toolkit")
+        ];
+    }
+    return [env.APPDATA && path.join(env.APPDATA, "Adobe", "ExtendScript Toolkit")].filter(Boolean);
+}
+
+const defaultDictionaryRoots = () => existing(dictionaryRootCandidates());
+const defaultCacheRoots = () => existing(cacheRootCandidates());
 
 function commonSources(options = {}) {
     const result = new Set();
@@ -111,9 +129,10 @@ function staticTargetSources(target, options = {}) {
             if (!entry.isDirectory() || normalizeTarget(entry.name.replace(/\s+/g, "-")) !== target) continue;
             const file = path.join(root, entry.name, "omv.xml");
             if (exists(file)) {
+                const version = /([0-9]+(?:\.[0-9]+)*)\s*$/.exec(entry.name)?.[1] || "static";
                 result.push({
                     file,
-                    version: entry.name.replace(/^.*?([0-9]+(?:\.[0-9]+)*)\s*$/, "$1")
+                    version
                 });
             }
         }
@@ -122,13 +141,15 @@ function staticTargetSources(target, options = {}) {
 }
 
 function targetSource(target, options = {}) {
-    return dynamicTargetSources(target, options)[0] || staticTargetSources(target, options)[0] || null;
+    return staticTargetSources(target, options)[0] || dynamicTargetSources(target, options)[0] || null;
 }
 
 module.exports = {
     compareVersions,
     normalizeTarget,
     targetFromSource,
+    dictionaryRootCandidates,
+    cacheRootCandidates,
     commonSources,
     targetSource
 };

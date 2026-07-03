@@ -13,6 +13,23 @@ constructor calls, `new` expressions, simple assignments, direct member
 accesses, property chains, and chained calls whose return type is known by a
 catalog. Unknown receiver types are reported instead of guessed.
 
+Application sources may provide missing type information with JSDoc `@type`,
+`@param`, and `@returns` tags. These hints participate in the same native,
+polyfill, and host-object analysis as inferred types:
+
+```javascript
+/** @type {Document} */
+var document = acquireDocument();
+
+/**
+ * @param {Document} source
+ * @returns {Page}
+ */
+function firstPage(source) {
+    return source.pages.item(0);
+}
+```
+
 `var` and ExtendScript `const` declarations use function scope. Function
 parameters and nested function scopes shadow outer variables and built-in
 names during type analysis.
@@ -80,6 +97,29 @@ by ExtendScript Toolkit.
   source-level directive such as `#target indesign` or `//@target indesign`
   may launch or select it.
 
+### Discovery platforms
+
+Windows discovery checks the 32-bit and 64-bit Adobe shared-dictionary folders
+and the user's ESTK cache under `%APPDATA%`. macOS discovery checks Adobe's
+shared dictionaries under `/Library/Application Support`, plus legacy ESTK
+caches under the user's `Library/Preferences` and `Library/Application
+Support` folders. The macOS paths are covered by platform-independent unit
+tests but have not been verified on a physical Mac.
+
+### Validated hosts
+
+The catalog builder has been validated against these locally installed Adobe
+dictionaries:
+
+| Host | OMV source | Result | Host-specific note |
+| --- | --- | --- | --- |
+| InDesign 2026 | Dynamic ESTK cache, DOM 21.3 | Passed | Several compatibility DOM versions are cached; the Linker selects the newest non-empty version. |
+| Illustrator 2026 | Static installed `omv.xml` | Passed | The installed dictionary is available without launching Illustrator. |
+| Photoshop 2026 | Static installed `omv.xml` | Passed | The installed XML identifies itself as the Photoshop CC 2015.5 Object Library, so newer DOM additions may be absent. |
+
+Host validation confirms catalog generation and type-chain resolution. It does
+not claim that every member of an Adobe DOM has been exercised at runtime.
+
 ## Linking a source
 
 ```text
@@ -134,6 +174,9 @@ are mutually exclusive.
 
 ## Deliberate limits of this checkpoint
 
-Deferred analyzer and host-catalog improvements are tracked in `TODO.md`.
+The analyzer intentionally stops at the documented `@type`, `@param`, and
+`@returns` support. Computed properties, unannotated user-function return
+inference, and advanced JSDoc constructs are outside the current scope.
 Unsupported cases remain visible as diagnostics rather than being linked on a
-guess.
+guess. `TODO.md` records that no further development items are currently
+active.
