@@ -1,102 +1,77 @@
 "use strict";
 
-function isIdentifierStart(character) {
-    return /[A-Za-z_$]/.test(character);
-}
-
-function isIdentifierPart(character) {
-    return /[A-Za-z0-9_$]/.test(character);
-}
+const isIdentifierStart = character => /[A-Za-z_$]/.test(character);
+const isIdentifierPart = character => /[A-Za-z0-9_$]/.test(character);
 
 function tokenize(source) {
-    var tokens = [];
-    var index = 0;
-    var lineStart = 0;
-    var length = source.length;
+    const tokens = [];
+    const length = source.length;
+    let index = 0;
+    let lineStart = 0;
 
-    function add(type, value, start, end, tokenLineStart) {
-        tokens.push({
-            type: type,
-            value: value,
-            start: start,
-            end: end,
-            lineStart: tokenLineStart
-        });
-    }
+    const add = (type, value, start, end) => {
+        tokens.push({type, value, start, end, lineStart});
+    };
 
     while (index < length) {
-        var character = source.charAt(index);
-        var start;
-        var quote;
+        let character = source[index];
 
         if (character === "\r" || character === "\n") {
-            if (character === "\r" && source.charAt(index + 1) === "\n") index++;
-            index++;
-            lineStart = index;
+            if (character === "\r" && source[index + 1] === "\n") index++;
+            lineStart = ++index;
             continue;
         }
-
         if (/\s/.test(character)) {
             index++;
             continue;
         }
-
-        if (character === "/" && source.charAt(index + 1) === "/") {
+        if (source.slice(index, index + 2) === "//") {
             index += 2;
-            while (index < length && source.charAt(index) !== "\r" && source.charAt(index) !== "\n") index++;
+            while (index < length && !/[\r\n]/.test(source[index])) index++;
             continue;
         }
-
-        if (character === "/" && source.charAt(index + 1) === "*") {
+        if (source.slice(index, index + 2) === "/*") {
             index += 2;
-            while (index < length && !(source.charAt(index) === "*" && source.charAt(index + 1) === "/")) {
-                if (source.charAt(index) === "\n") lineStart = index + 1;
+            while (index < length && source.slice(index, index + 2) !== "*/") {
+                if (source[index] === "\n") lineStart = index + 1;
                 index++;
             }
             index = Math.min(index + 2, length);
             continue;
         }
-
         if (character === "\"" || character === "'") {
-            start = index;
-            quote = character;
+            const start = index;
+            const quote = character;
             index++;
             while (index < length) {
-                character = source.charAt(index);
-                if (character === "\\") {
-                    index += 2;
-                } else if (character === quote) {
+                character = source[index];
+                if (character === "\\") index += 2;
+                else if (character === quote) {
                     index++;
                     break;
-                } else {
-                    index++;
-                }
+                } else index++;
             }
-            add("string", source.slice(start, index), start, index, lineStart);
+            add("string", source.slice(start, index), start, index);
             continue;
         }
-
         if (isIdentifierStart(character)) {
-            start = index++;
-            while (index < length && isIdentifierPart(source.charAt(index))) index++;
-            add("identifier", source.slice(start, index), start, index, lineStart);
+            const start = index++;
+            while (index < length && isIdentifierPart(source[index])) index++;
+            add("identifier", source.slice(start, index), start, index);
+            continue;
+        }
+        if (/[0-9]/.test(character) || (character === "." && /[0-9]/.test(source[index + 1]))) {
+            const start = index++;
+            while (index < length && /[0-9A-Fa-fxX.eE+-]/.test(source[index])) index++;
+            add("number", source.slice(start, index), start, index);
             continue;
         }
 
-        if (/[0-9]/.test(character) || (character === "." && /[0-9]/.test(source.charAt(index + 1)))) {
-            start = index++;
-            while (index < length && /[0-9A-Fa-fxX.eE+-]/.test(source.charAt(index))) index++;
-            add("number", source.slice(start, index), start, index, lineStart);
-            continue;
-        }
-
-        add("punctuator", character, index, index + 1, lineStart);
+        add("punctuator", character, index, index + 1);
         index++;
     }
 
     return tokens;
 }
 
-module.exports = {
-    tokenize: tokenize
-};
+module.exports = {tokenize};

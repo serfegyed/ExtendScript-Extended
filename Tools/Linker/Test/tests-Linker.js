@@ -6,6 +6,9 @@ var fs = require("fs");
 var os = require("os");
 var path = require("path");
 var builder = require("../Lib/buildPolyfillIndex");
+var omvBuilder = require("../Lib/buildOmvCatalog");
+var discovery = require("../Lib/discoverOmvCatalogs");
+var catalogManager = require("../Lib/catalogManager");
 var linker = require("../Lib/linker");
 
 var linkerRoot = path.resolve(__dirname, "..");
@@ -254,4 +257,111 @@ function slash(value) {
     }), "local helper prototypes must not be treated as public Object APIs");
 }());
 
-console.log("Linker tests passed: 15");
+(function testOmvCatalogBuilderExtractsMembersAndTypes() {
+    var catalog = omvBuilder.parse([
+        "<dictionary><package>",
+        "<classdef name=\"Application\"><elements type=\"instance\">",
+        "<property name=\"activeDocument\"><datatype><type>Document</type></datatype></property>",
+        "</elements></classdef>",
+        "<classdef name=\"Document\"><elements type=\"instance\">",
+        "<property name=\"pages\"><datatype><type>Pages</type></datatype></property>",
+        "</elements></classdef>",
+        "<classdef name=\"Pages\"><elements type=\"instance\">",
+        "<method name=\"item\"><parameters><parameter name=\"index\"><datatype><type>number</type></datatype></parameter></parameters>",
+        "<datatype><type>Page</type></datatype></method>",
+        "</elements></classdef>",
+        "<classdef name=\"Page\"><elements type=\"instance\">",
+        "<property name=\"textFrames\"><datatype><type>TextFrames</type></datatype></property>",
+        "</elements></classdef>",
+        "<classdef name=\"TextFrames\"><elements type=\"instance\">",
+        "<method name=\"item\"><datatype><type>TextFrame</type></datatype></method>",
+        "</elements></classdef>",
+        "<classdef name=\"TextFrame\"><elements type=\"instance\">",
+        "<property name=\"contents\"><datatype><type>string</type></datatype></property>",
+        "</elements></classdef>",
+        "</package></dictionary>"
+    ].join(""), {runtime: "Test OMV"});
+
+    assert.strictEqual(catalog.globalTypes.app, "Application");
+    assert.ok(catalog.types.Application.prototype.indexOf("activeDocument") !== -1);
+    assert.strictEqual(catalog.returns["Application.prototype.activeDocument"], "Document");
+    assert.strictEqual(catalog.returns["Pages.prototype.item"], "Page");
+    assert.strictEqual(catalog.returns["TextFrame.prototype.contents"], "String");
+
+    var merged = catalogManager.mergeCatalogs([nativeCatalog, catalog]);
+    var result = linker.linkSource([
+        "#target indesign",
+        "var doc = app.activeDocument;",
+        "var frame = doc.pages.item(0).textFrames.item(0);",
+        "var text = frame.contents;",
+        ""
+    ].join("\n"), {
+        sourcePath: sourcePath,
+        repositoryRoot: repositoryRoot,
+        nativeCatalog: merged,
+        polyfillCatalog: polyfillCatalog
+    });
+    assert.deepStrictEqual(result.diagnostics, []);
+    assert.ok(result.report.some(function (item) {
+        return item.symbol === "Application.prototype.activeDocument" && item.status === "native";
+    }));
+    assert.ok(result.report.some(function (item) {
+        return item.symbol === "TextFrames.prototype.item" && item.status === "native";
+    }));
+}());
+
+(function testTargetDetectionIgnoresCommentsAndNormalizesVersions() {
+    assert.strictEqual(discovery.targetFromSource([
+        "/*",
+        "#target photoshop",
+        "*/",
+        "// header",
+        "#target \"indesign-21.064\"",
+        "var value = 1;"
+    ].join("\n")), "indesign");
+    assert.strictEqual(discovery.targetFromSource([
+        "// header",
+        "//@target indesign",
+        "var value = 1;"
+    ].join("\n")), "indesign");
+    assert.strictEqual(discovery.targetFromSource("var value = 1;\n#target indesign\n"), null);
+}());
+
+(function testOmvDiscoveryChoosesLatestNonEmptyDom() {
+    var root = fs.mkdtempSync(path.join(os.tmpdir(), "linker-omv-"));
+    fs.writeFileSync(path.join(root, "omv$indesign-21.064$20.4.xml"), "old", "utf8");
+    fs.writeFileSync(path.join(root, "omv$indesign-21.064$21.2.xml"), "", "utf8");
+    fs.writeFileSync(path.join(root, "omv$indesign-21.064$21.3.xml"), "new", "utf8");
+    var found = discovery.targetSource("indesign", {cacheRoots: [root], dictionaryRoots: []});
+    assert.strictEqual(found.version, "21.3");
+    assert.strictEqual(path.basename(found.file), "omv$indesign-21.064$21.3.xml");
+    fs.rmSync(root, {recursive: true, force: true});
+}());
+
+(function testIncludesFollowTargetDirectives() {
+    var result = link([
+        "// header",
+        "#target indesign",
+        "#targetengine \"session\"",
+        "var values = [];",
+        "values.at(0);",
+        ""
+    ].join("\n"));
+    assert.ok(result.source.indexOf("#target indesign") < result.source.indexOf("#targetengine"));
+    assert.ok(result.source.indexOf("#targetengine") < result.source.indexOf("//@include"));
+    assert.ok(result.source.indexOf("//@include") < result.source.indexOf("var values"));
+}());
+
+(function testIncludesFollowCommentStyleTargetDirective() {
+    var result = link([
+        "// header",
+        "//@target indesign",
+        "var values = [];",
+        "values.at(0);",
+        ""
+    ].join("\n"));
+    assert.ok(result.source.indexOf("//@target indesign") < result.source.indexOf("//@include"));
+    assert.ok(result.source.indexOf("//@include") < result.source.indexOf("var values"));
+}());
+
+console.log("Linker tests passed: 20");

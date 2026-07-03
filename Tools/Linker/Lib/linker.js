@@ -1,85 +1,33 @@
 "use strict";
 
-var fs = require("fs");
-var path = require("path");
-var tokenizer = require("./tokenizer");
+const fs = require("fs");
+const path = require("path");
+const tokenizer = require("./tokenizer");
 
-function slash(value) {
-    return value.split(path.sep).join("/");
-}
-
-function has(list, value) {
-    return Array.isArray(list) && list.indexOf(value) !== -1;
-}
+const slash = value => value.split(path.sep).join("/");
+const has = (list, value) => Array.isArray(list) && list.includes(value);
 
 function lineAndColumn(source, offset) {
-    var before = source.slice(0, offset);
-    var lines = before.split(/\r\n|\r|\n/);
-    return { line: lines.length, column: lines[lines.length - 1].length + 1 };
+    const lines = source.slice(0, offset).split(/\r\n|\r|\n/);
+    return {line: lines.length, column: lines.at(-1).length + 1};
 }
 
 function returnTypeFor(symbol, nativeCatalog, polyfillCatalog) {
-    if (nativeCatalog.returns && nativeCatalog.returns[symbol]) {
-        return nativeCatalog.returns[symbol];
-    }
-    if (polyfillCatalog.providers[symbol]) {
-        return polyfillCatalog.providers[symbol].returnType || null;
-    }
-    return null;
-}
-
-function expressionType(tokens, index, scope, getVariableType, isDeclared, nativeCatalog, polyfillCatalog) {
-    var token = tokens[index];
-    var baseType = null;
-    var mode = "prototype";
-    if (!token) return null;
-    if (token.value === "[") baseType = "Array";
-    if (token.type === "string") baseType = "String";
-    if (token.type === "number") baseType = "Number";
-    if (token.value === "true" || token.value === "false") baseType = "Boolean";
-    if (token.value === "new" && tokens[index + 1] && tokens[index + 1].type === "identifier" &&
-            !isDeclared(scope, tokens[index + 1].value)) {
-        return tokens[index + 1].value;
-    }
-    if (token.type === "identifier" && tokens[index + 1] && tokens[index + 1].value === "(" &&
-            !isDeclared(scope, token.value)) {
-        if (/^(Array|String|Number|Boolean|Date|RegExp|Object)$/.test(token.value)) return token.value;
-    }
-    if (token.type === "identifier" && isDeclared(scope, token.value)) {
-        baseType = getVariableType(scope, token.value);
-    }
-    if (token.type === "identifier" && nativeCatalog.types[token.value] &&
-            !isDeclared(scope, token.value)) {
-        baseType = token.value;
-        mode = "static";
-    }
-    if (token.type === "identifier" && /^(JSON|Temporal|Map|Set)$/.test(token.value) &&
-            !isDeclared(scope, token.value)) {
-        baseType = token.value;
-        mode = "static";
-    }
-    if (baseType && tokens[index + 1] && tokens[index + 1].value === "." &&
-            tokens[index + 2] && tokens[index + 2].type === "identifier" &&
-            tokens[index + 3] && tokens[index + 3].value === "(") {
-        return returnTypeFor(
-            baseType + (mode === "prototype" ? ".prototype." : ".") + tokens[index + 2].value,
-            nativeCatalog,
-            polyfillCatalog
-        );
-    }
-    return baseType;
+    return nativeCatalog.returns?.[symbol]
+        || polyfillCatalog.providers[symbol]?.returnType
+        || null;
 }
 
 function matchingPairs(tokens) {
-    var pairs = {};
-    var stack = [];
-    var opening = {"(": ")", "[": "]", "{": "}"};
-    var index;
-    for (index = 0; index < tokens.length; index++) {
+    const pairs = {};
+    const stack = [];
+    const opening = {"(": ")", "[": "]", "{": "}"};
+
+    for (let index = 0; index < tokens.length; index++) {
         if (opening[tokens[index].value]) {
             stack.push(index);
         } else if (/^[\])}]$/.test(tokens[index].value) && stack.length) {
-            var start = stack[stack.length - 1];
+            const start = stack.at(-1);
             if (opening[tokens[start].value] === tokens[index].value) {
                 stack.pop();
                 pairs[index] = start;
@@ -91,144 +39,148 @@ function matchingPairs(tokens) {
 }
 
 function buildScopes(tokens, pairs) {
-    var globalScope = {
+    const globalScope = {
         start: -1,
         end: tokens.length,
         parent: null,
         declarations: {},
         types: {}
     };
-    var scopes = [globalScope];
-    var index;
+    const scopes = [globalScope];
 
     function scopeAt(tokenIndex) {
-        var result = globalScope;
-        var i;
-        for (i = 1; i < scopes.length; i++) {
-            if (tokenIndex > scopes[i].start && tokenIndex < scopes[i].end &&
-                    scopes[i].end - scopes[i].start < result.end - result.start) {
-                result = scopes[i];
+        let result = globalScope;
+        for (const scope of scopes.slice(1)) {
+            if (tokenIndex > scope.start && tokenIndex < scope.end &&
+                    scope.end - scope.start < result.end - result.start) {
+                result = scope;
             }
         }
         return result;
     }
 
-    for (index = 0; index < tokens.length; index++) {
+    for (let index = 0; index < tokens.length; index++) {
         if (tokens[index].value !== "function") continue;
-        var nameIndex = tokens[index + 1] && tokens[index + 1].type === "identifier" ? index + 1 : -1;
-        var parameterOpen = nameIndex === -1 ? index + 1 : index + 2;
-        if (!tokens[parameterOpen] || tokens[parameterOpen].value !== "(" || pairs[parameterOpen] === undefined) continue;
-        var parameterClose = pairs[parameterOpen];
-        var bodyOpen = parameterClose + 1;
-        if (!tokens[bodyOpen] || tokens[bodyOpen].value !== "{" || pairs[bodyOpen] === undefined) continue;
 
-        var parent = scopeAt(index);
-        var functionScope = {
+        const nameIndex = tokens[index + 1]?.type === "identifier" ? index + 1 : -1;
+        const parameterOpen = nameIndex === -1 ? index + 1 : index + 2;
+        if (tokens[parameterOpen]?.value !== "(" || pairs[parameterOpen] === undefined) continue;
+
+        const parameterClose = pairs[parameterOpen];
+        const bodyOpen = parameterClose + 1;
+        if (tokens[bodyOpen]?.value !== "{" || pairs[bodyOpen] === undefined) continue;
+
+        const parent = scopeAt(index);
+        const functionScope = {
             start: bodyOpen,
             end: pairs[bodyOpen],
-            parent: parent,
+            parent,
             declarations: {},
             types: {}
         };
         scopes.push(functionScope);
 
         if (nameIndex !== -1) {
-            parent.declarations[tokens[nameIndex].value] = true;
-            functionScope.declarations[tokens[nameIndex].value] = true;
+            const name = tokens[nameIndex].value;
+            parent.declarations[name] = true;
+            functionScope.declarations[name] = true;
         }
-
-        var parameterIndex;
-        for (parameterIndex = parameterOpen + 1; parameterIndex < parameterClose; parameterIndex++) {
+        for (let parameterIndex = parameterOpen + 1; parameterIndex < parameterClose; parameterIndex++) {
             if (tokens[parameterIndex].type === "identifier") {
-                functionScope.declarations[tokens[parameterIndex].value] = true;
-                functionScope.types[tokens[parameterIndex].value] = null;
+                const name = tokens[parameterIndex].value;
+                functionScope.declarations[name] = true;
+                functionScope.types[name] = null;
             }
         }
     }
 
-    for (index = 0; index < tokens.length; index++) {
-        if (tokens[index].value !== "var" && tokens[index].value !== "const") continue;
-        var declarationScope = scopeAt(index);
-        var depth = 0;
-        var expectName = true;
-        var declarationIndex;
-        for (declarationIndex = index + 1; declarationIndex < tokens.length; declarationIndex++) {
-            var value = tokens[declarationIndex].value;
+    for (let index = 0; index < tokens.length; index++) {
+        if (!has(["var", "const"], tokens[index].value)) continue;
+
+        const declarationScope = scopeAt(index);
+        let depth = 0;
+        let expectName = true;
+        for (let declarationIndex = index + 1; declarationIndex < tokens.length; declarationIndex++) {
+            const {value, type} = tokens[declarationIndex];
             if (depth === 0 && value === ";") break;
             if (depth === 0 && value === ",") {
                 expectName = true;
                 continue;
             }
-            if (expectName && tokens[declarationIndex].type === "identifier") {
+            if (expectName && type === "identifier") {
                 declarationScope.declarations[value] = true;
-                if (!declarationScope.types.hasOwnProperty(value)) declarationScope.types[value] = null;
+                if (!Object.hasOwn(declarationScope.types, value)) declarationScope.types[value] = null;
                 expectName = false;
             }
-            if (value === "(" || value === "[" || value === "{") depth++;
-            if (value === ")" || value === "]" || value === "}") depth--;
+            if (has(["(", "[", "{"], value)) depth++;
+            if (has([")", "]", "}"], value)) depth--;
         }
     }
 
-    return {
-        globalScope: globalScope,
-        scopeAt: scopeAt
-    };
+    return {globalScope, scopeAt};
 }
 
 function existingIncludes(source, sourcePath, repositoryRoot) {
-    var included = {};
-    var expression = /^\s*(?:\/\/@|#)include\s+["']([^"']+)["']/gm;
-    var match;
-    while ((match = expression.exec(source))) {
-        included[slash(path.relative(repositoryRoot, path.resolve(path.dirname(sourcePath), match[1])))] = true;
+    const included = new Set();
+    const expression = /^\s*(?:\/\/@|#)include\s+["']([^"']+)["']/gm;
+    for (const match of source.matchAll(expression)) {
+        included.add(slash(path.relative(
+            repositoryRoot,
+            path.resolve(path.dirname(sourcePath), match[1])
+        )));
     }
     return included;
 }
 
 function relocateExistingIncludes(source, sourcePath, outputPath) {
     if (path.dirname(sourcePath) === path.dirname(outputPath)) return source;
-    var expression = /^(\s*(?:\/\/@|#)include\s+["'])([^"']+)(["'].*)$/gm;
-    return source.replace(expression, function (line, prefix, includePath, suffix) {
-        if (path.isAbsolute(includePath) || /^[A-Za-z]:[\\\/]/.test(includePath)) return line;
-        var target = path.resolve(path.dirname(sourcePath), includePath);
-        var relative = slash(path.relative(path.dirname(outputPath), target));
-        if (relative.charAt(0) !== ".") relative = "./" + relative;
-        return prefix + relative + suffix;
+    const expression = /^(\s*(?:\/\/@|#)include\s+["'])([^"']+)(["'].*)$/gm;
+    return source.replace(expression, (line, prefix, includePath, suffix) => {
+        if (path.isAbsolute(includePath) || /^[A-Za-z]:[\\/]/.test(includePath)) return line;
+        const target = path.resolve(path.dirname(sourcePath), includePath);
+        let relative = slash(path.relative(path.dirname(outputPath), target));
+        if (!relative.startsWith(".")) relative = `./${relative}`;
+        return `${prefix}${relative}${suffix}`;
     });
 }
 
-function firstCodeOffset(source) {
-    var index = source.charCodeAt(0) === 0xFEFF ? 1 : 0;
-    var length = source.length;
-
-    while (index < length) {
-        if (/\s/.test(source.charAt(index))) {
+function firstCodeOffset(source, start) {
+    let index = start || (source.charCodeAt(0) === 0xFEFF ? 1 : 0);
+    while (index < source.length) {
+        if (/\s/.test(source[index])) {
             index++;
-        } else if (source.charAt(index) === "/" && source.charAt(index + 1) === "/") {
+        } else if (source.slice(index, index + 2) === "//") {
             index += 2;
-            while (index < length && source.charAt(index) !== "\r" && source.charAt(index) !== "\n") index++;
-        } else if (source.charAt(index) === "/" && source.charAt(index + 1) === "*") {
+            while (index < source.length && !/[\r\n]/.test(source[index])) index++;
+        } else if (source.slice(index, index + 2) === "/*") {
             index += 2;
-            while (index < length && !(source.charAt(index) === "*" && source.charAt(index + 1) === "/")) index++;
-            index = Math.min(index + 2, length);
+            while (index < source.length && source.slice(index, index + 2) !== "*/") index++;
+            index = Math.min(index + 2, source.length);
         } else {
             break;
         }
     }
-
     return index;
 }
 
+function includeInsertionOffset(source) {
+    let offset = firstCodeOffset(source);
+    let directive;
+    while ((directive = /^#(?:target|targetengine)\b[^\r\n]*(?:\r\n|\r|\n)?/i.exec(source.slice(offset)))) {
+        offset = firstCodeOffset(source, offset + directive[0].length);
+    }
+    return offset;
+}
+
 function analyze(source, nativeCatalog, polyfillCatalog) {
-    var tokens = tokenizer.tokenize(source);
-    var pairs = matchingPairs(tokens);
-    var scopeModel = buildScopes(tokens, pairs);
-    var dependencies = [];
-    var diagnostics = [];
-    var report = [];
-    var seenDiagnostic = {};
-    var seenReport = {};
-    var index;
+    const tokens = tokenizer.tokenize(source);
+    const pairs = matchingPairs(tokens);
+    const scopeModel = buildScopes(tokens, pairs);
+    const dependencies = [];
+    const diagnostics = [];
+    const report = [];
+    const seenDiagnostic = new Set();
+    const seenReport = new Set();
 
     function declarationScope(scope, name) {
         while (scope) {
@@ -238,124 +190,121 @@ function analyze(source, nativeCatalog, polyfillCatalog) {
         return null;
     }
 
-    function isDeclared(scope, name) {
-        return declarationScope(scope, name) !== null;
-    }
-
-    function getVariableType(scope, name) {
-        var owner = declarationScope(scope, name);
-        return owner ? owner.types[name] || null : null;
-    }
+    const isDeclared = (scope, name) => declarationScope(scope, name) !== null;
+    const getVariableType = (scope, name) => declarationScope(scope, name)?.types[name] || null;
 
     function setVariableType(scope, name, type) {
-        var owner = declarationScope(scope, name) || scopeModel.globalScope;
+        const owner = declarationScope(scope, name) || scopeModel.globalScope;
         owner.declarations[name] = true;
         owner.types[name] = type || null;
     }
 
-    function receiverTypeAt(tokenIndex) {
-        var receiver = tokens[tokenIndex];
-        var receiverScope = scopeModel.scopeAt(tokenIndex);
+    const previousMember = tokenIndex =>
+        tokens[tokenIndex - 1]?.value === "." && Boolean(tokens[tokenIndex - 2]);
+
+    function receiverInfoAt(tokenIndex) {
+        const receiver = tokens[tokenIndex];
+        const receiverScope = scopeModel.scopeAt(tokenIndex);
         if (!receiver) return null;
-        if (receiver.type === "string") return "String";
-        if (receiver.type === "number") return "Number";
+        if (receiver.type === "string") return {type: "String", mode: "prototype"};
+        if (receiver.type === "number") return {type: "Number", mode: "prototype"};
+
         if (receiver.type === "identifier" && isDeclared(receiverScope, receiver.value)) {
-            return getVariableType(receiverScope, receiver.value);
+            const type = getVariableType(receiverScope, receiver.value);
+            return type ? {type, mode: "prototype"} : null;
+        }
+        if (receiver.type === "identifier" && previousMember(tokenIndex)) {
+            const info = receiverInfoAt(tokenIndex - 2);
+            if (!info) return null;
+            const symbol = `${info.type}${info.mode === "static" ? "." : ".prototype."}${receiver.value}`;
+            const type = returnTypeFor(symbol, nativeCatalog, polyfillCatalog);
+            return type ? {type, mode: "prototype"} : null;
+        }
+        if (receiver.type === "identifier" && nativeCatalog.globalTypes?.[receiver.value]) {
+            return {type: nativeCatalog.globalTypes[receiver.value], mode: "prototype"};
+        }
+        if (receiver.type === "identifier" && nativeCatalog.types[receiver.value]) {
+            return {type: receiver.value, mode: "static"};
         }
         if (receiver.value === "]" && pairs[tokenIndex] !== undefined) {
-            var beforeArray = tokens[pairs[tokenIndex] - 1];
-            if (!beforeArray || /^(=|\(|\[|\{|,|:|;|return)$/.test(beforeArray.value)) return "Array";
+            const beforeArray = tokens[pairs[tokenIndex] - 1];
+            if (!beforeArray || /^(=|\(|\[|\{|,|:|;|return)$/.test(beforeArray.value)) {
+                return {type: "Array", mode: "prototype"};
+            }
         }
         if (receiver.value === ")" && pairs[tokenIndex] !== undefined) {
-            var openIndex = pairs[tokenIndex];
-            var callee = tokens[openIndex - 1];
+            const openIndex = pairs[tokenIndex];
+            const callee = tokens[openIndex - 1];
             if (!callee) return null;
-            if (callee.type === "identifier" && tokens[openIndex - 2] && tokens[openIndex - 2].value === "new" &&
+            if (callee.type === "identifier" && tokens[openIndex - 2]?.value === "new" &&
                     !isDeclared(scopeModel.scopeAt(openIndex - 1), callee.value)) {
-                return callee.value;
+                return {type: callee.value, mode: "prototype"};
             }
             if (callee.type === "identifier" && /^(Array|String|Number|Boolean|Date|RegExp|Object)$/.test(callee.value) &&
                     !isDeclared(scopeModel.scopeAt(openIndex - 1), callee.value)) {
-                return callee.value;
+                return {type: callee.value, mode: "prototype"};
             }
-            if (callee.type === "identifier" && tokens[openIndex - 2] && tokens[openIndex - 2].value === ".") {
-                var baseIndex = openIndex - 3;
-                var base = tokens[baseIndex];
-                var mode = "prototype";
-                var baseType = receiverTypeAt(baseIndex);
-                var baseScope = scopeModel.scopeAt(baseIndex);
-                if (base && base.type === "identifier" && nativeCatalog.types[base.value] &&
-                        !isDeclared(baseScope, base.value)) {
-                    baseType = base.value;
-                    mode = "static";
-                } else if (base && base.type === "identifier" && /^(JSON|Temporal|Map|Set)$/.test(base.value) &&
-                        !isDeclared(baseScope, base.value)) {
-                    baseType = base.value;
-                    mode = "static";
-                }
-                if (!baseType) return null;
-                return returnTypeFor(
-                    baseType + (mode === "prototype" ? ".prototype." : ".") + callee.value,
-                    nativeCatalog,
-                    polyfillCatalog
-                );
-            }
+            if (callee.type === "identifier") return receiverInfoAt(openIndex - 1);
         }
         return null;
     }
 
+    function expressionResultType(startIndex) {
+        let position = startIndex;
+        if (tokens[position]?.value === "new") position++;
+        let info = receiverInfoAt(position);
+
+        if (tokens[position]?.value === "[") {
+            info = {type: "Array", mode: "prototype"};
+            if (pairs[position] !== undefined) position = pairs[position];
+        } else if (tokens[position + 1]?.value === "(" && pairs[position + 1] !== undefined) {
+            if (tokens[startIndex]?.value === "new") {
+                info = {type: tokens[position].value, mode: "prototype"};
+            }
+            position = pairs[position + 1];
+        }
+        while (tokens[position + 1]?.value === "." && tokens[position + 2]) {
+            position += 2;
+            info = receiverInfoAt(position);
+            if (tokens[position + 1]?.value === "(" && pairs[position + 1] !== undefined) {
+                position = pairs[position + 1];
+            }
+            if (!info) break;
+        }
+        return info?.type || null;
+    }
+
+    function record(status, symbol, token, provider = null) {
+        const key = `${status}:${symbol}`;
+        if (seenReport.has(key)) return;
+        seenReport.add(key);
+        const {line, column} = lineAndColumn(source, token.start);
+        report.push({status, symbol, line, column, provider});
+    }
+
     function diagnose(kind, symbol, token, message) {
-        var key = kind + ":" + symbol + ":" + token.start;
-        if (seenDiagnostic[key]) return;
-        seenDiagnostic[key] = true;
-        var location = lineAndColumn(source, token.start);
-        diagnostics.push({
-            kind: kind,
-            symbol: symbol,
-            line: location.line,
-            column: location.column,
-            message: message
-        });
+        const key = `${kind}:${symbol}:${token.start}`;
+        if (seenDiagnostic.has(key)) return;
+        seenDiagnostic.add(key);
+        const {line, column} = lineAndColumn(source, token.start);
+        diagnostics.push({kind, symbol, line, column, message});
         record(kind === "missing" ? "unresolved" : "unknown", symbol, token);
     }
 
-    function record(status, symbol, token, provider) {
-        var key = status + ":" + symbol;
-        if (seenReport[key]) return;
-        seenReport[key] = true;
-        var location = lineAndColumn(source, token.start);
-        report.push({
-            status: status,
-            symbol: symbol,
-            line: location.line,
-            column: location.column,
-            provider: provider || null
-        });
-    }
+    for (let index = 0; index < tokens.length; index++) {
+        const token = tokens[index];
+        const previous = tokens[index - 1];
+        const next = tokens[index + 1];
+        const afterNext = tokens[index + 2];
+        const currentScope = scopeModel.scopeAt(index);
 
-    for (index = 0; index < tokens.length; index++) {
-        var token = tokens[index];
-        var previous = tokens[index - 1];
-        var next = tokens[index + 1];
-        var afterNext = tokens[index + 2];
-        var currentScope = scopeModel.scopeAt(index);
-
-        if ((token.value === "var" || token.value === "const" ||
-                (token.type === "identifier" && next && next.value === "=" &&
-                (!previous || previous.value !== "."))) && next) {
-            var isDeclaration = token.value === "var" || token.value === "const";
-            var nameToken = isDeclaration ? next : token;
-            var equalsIndex = isDeclaration ? index + 2 : index + 1;
-            if (tokens[equalsIndex] && tokens[equalsIndex].value === "=") {
-                var inferred = expressionType(
-                    tokens,
-                    equalsIndex + 1,
-                    currentScope,
-                    getVariableType,
-                    isDeclared,
-                    nativeCatalog,
-                    polyfillCatalog
-                );
+        if ((has(["var", "const"], token.value) ||
+                (token.type === "identifier" && next?.value === "=" && previous?.value !== ".")) && next) {
+            const isDeclaration = has(["var", "const"], token.value);
+            const nameToken = isDeclaration ? next : token;
+            const equalsIndex = isDeclaration ? index + 2 : index + 1;
+            if (tokens[equalsIndex]?.value === "=") {
+                let inferred = expressionResultType(equalsIndex + 1);
                 if (!inferred && tokens[equalsIndex + 1] &&
                         isDeclared(currentScope, tokens[equalsIndex + 1].value)) {
                     inferred = getVariableType(currentScope, tokens[equalsIndex + 1].value);
@@ -364,131 +313,113 @@ function analyze(source, nativeCatalog, polyfillCatalog) {
             }
         }
 
-        if (!next || next.value !== "." || !afterNext || afterNext.type !== "identifier") continue;
-        if (previous && previous.value === ".") continue;
-        if (tokens[index + 3] && tokens[index + 3].value === "=") continue;
+        if (next?.value !== "." || afterNext?.type !== "identifier") continue;
+        if (tokens[index + 3]?.value === "=") continue;
 
-        var member = afterNext.value;
-        var receiverType = null;
-        var mode = "prototype";
-        var symbol;
-
-        receiverType = receiverTypeAt(index);
-        if (token.type === "identifier" && nativeCatalog.types[token.value] &&
-                !isDeclared(currentScope, token.value)) {
-            receiverType = token.value;
-            mode = "static";
-        }
+        const member = afterNext.value;
+        const receiverInfo = receiverInfoAt(index);
+        const receiverType = receiverInfo?.type || null;
+        const mode = receiverInfo?.mode || "prototype";
 
         if (token.type === "identifier" && token.value === "console" &&
                 !isDeclared(currentScope, "console")) {
             if (has(nativeCatalog.globals, "console")) {
-                record("native", "console." + member, token);
-                continue;
-            }
-            if (polyfillCatalog.providers.console) {
-                dependencies.push({ symbol: "console", provider: polyfillCatalog.providers.console, offset: token.lineStart });
-                record("polyfill", "console." + member, token, polyfillCatalog.providers.console.path);
+                record("native", `console.${member}`, token);
+            } else if (polyfillCatalog.providers.console) {
+                const provider = polyfillCatalog.providers.console;
+                dependencies.push({symbol: "console", provider, offset: token.lineStart});
+                record("polyfill", `console.${member}`, token, provider.path);
             } else {
                 diagnose("missing", "console", token, "console is not provided by ESTK or the polyfill catalog.");
             }
             continue;
         }
 
+        let symbol;
         if (!receiverType) {
             if (token.type === "identifier" && /^(JSON|Temporal|Map|Set)$/.test(token.value) &&
                     !isDeclared(currentScope, token.value)) {
-                symbol = token.value + "." + member;
-                if (polyfillCatalog.providers[symbol]) {
-                    dependencies.push({ symbol: symbol, provider: polyfillCatalog.providers[symbol], offset: token.lineStart });
-                    record("polyfill", symbol, token, polyfillCatalog.providers[symbol].path);
+                symbol = `${token.value}.${member}`;
+                const provider = polyfillCatalog.providers[symbol];
+                if (provider) {
+                    dependencies.push({symbol, provider, offset: token.lineStart});
+                    record("polyfill", symbol, token, provider.path);
                 } else {
-                    diagnose("missing", symbol, token, symbol + " is not provided by ESTK or the polyfill catalog.");
+                    diagnose("missing", symbol, token, `${symbol} is not provided by ESTK or the polyfill catalog.`);
                 }
-            } else if (token.type === "identifier" && tokens[index + 3] && tokens[index + 3].value === "(" &&
+            } else if (token.type === "identifier" && tokens[index + 3]?.value === "(" &&
                     !isDeclared(currentScope, token.value)) {
-                diagnose("unknown-receiver", token.value + "." + member, token,
-                    "The receiver type of " + token.value + "." + member + " could not be inferred.");
+                symbol = `${token.value}.${member}`;
+                diagnose("unknown-receiver", symbol, token, `The receiver type of ${symbol} could not be inferred.`);
             }
             continue;
         }
 
         if (member === "prototype") continue;
-        symbol = receiverType + (mode === "prototype" ? ".prototype." : ".") + member;
-        var nativeType = nativeCatalog.types[receiverType] || { "static": [], "prototype": [] };
+        symbol = `${receiverType}${mode === "prototype" ? ".prototype." : "."}${member}`;
+        const nativeType = nativeCatalog.types[receiverType] || {static: [], prototype: []};
         if (has(nativeType[mode], member)) {
             record("native", symbol, token);
-            continue;
-        }
-        if (polyfillCatalog.providers[symbol]) {
-            dependencies.push({ symbol: symbol, provider: polyfillCatalog.providers[symbol], offset: token.lineStart });
-            record("polyfill", symbol, token, polyfillCatalog.providers[symbol].path);
+        } else if (polyfillCatalog.providers[symbol]) {
+            const provider = polyfillCatalog.providers[symbol];
+            dependencies.push({symbol, provider, offset: token.lineStart});
+            record("polyfill", symbol, token, provider.path);
         } else {
-            diagnose("missing", symbol, token, symbol + " is not provided by ESTK or the polyfill catalog.");
+            diagnose("missing", symbol, token, `${symbol} is not provided by ESTK or the polyfill catalog.`);
         }
     }
 
-    return { dependencies: dependencies, diagnostics: diagnostics, report: report };
+    return {dependencies, diagnostics, report};
 }
 
 function linkSource(source, options) {
-    var nativeCatalog = options.nativeCatalog;
-    var polyfillCatalog = options.polyfillCatalog;
-    var repositoryRoot = path.resolve(options.repositoryRoot);
-    var sourcePath = path.resolve(options.sourcePath);
-    var outputPath = path.resolve(options.outputPath || options.sourcePath);
-    var analysis = analyze(source, nativeCatalog, polyfillCatalog);
-    var alreadyIncluded = existingIncludes(source, sourcePath, repositoryRoot);
-    var scheduled = {};
-    var scheduledFiles = [];
+    const {nativeCatalog, polyfillCatalog} = options;
+    const repositoryRoot = path.resolve(options.repositoryRoot);
+    const sourcePath = path.resolve(options.sourcePath);
+    const outputPath = path.resolve(options.outputPath || options.sourcePath);
+    const analysis = analyze(source, nativeCatalog, polyfillCatalog);
+    const alreadyIncluded = existingIncludes(source, sourcePath, repositoryRoot);
+    const scheduled = new Set();
+    const scheduledFiles = [];
 
-    function scheduleFile(file) {
-        if (alreadyIncluded[file]) return;
-        if (scheduled[file]) return;
-        scheduled[file] = true;
-        scheduledFiles.push(file);
-    }
-
-    analysis.dependencies.forEach(function (dependency) {
-        scheduleFile(dependency.provider.path);
-    });
-
-    var output = relocateExistingIncludes(source, sourcePath, outputPath);
-    var includeDirectives = [];
-    if (scheduledFiles.length) {
-        var offset = firstCodeOffset(output);
-        var block = scheduledFiles.map(function (file) {
-            var absolute = path.join(repositoryRoot, file.split("/").join(path.sep));
-            var relative = slash(path.relative(path.dirname(outputPath), absolute));
-            if (relative.charAt(0) !== ".") relative = "./" + relative;
-            return "//@include \"" + relative + "\"";
-        });
-        includeDirectives = block.slice();
-        block = block.join("\n") + "\n";
-        if (offset > 0 && output.charAt(offset - 1) !== "\n" && output.charAt(offset - 1) !== "\r") {
-            block = "\n" + block;
+    const scheduleFile = file => {
+        if (!alreadyIncluded.has(file) && !scheduled.has(file)) {
+            scheduled.add(file);
+            scheduledFiles.push(file);
         }
-        output = output.slice(0, offset) + block + output.slice(offset);
+    };
+    for (const {provider} of analysis.dependencies) scheduleFile(provider.path);
+
+    let output = relocateExistingIncludes(source, sourcePath, outputPath);
+    let includeDirectives = [];
+    if (scheduledFiles.length) {
+        const offset = includeInsertionOffset(output);
+        includeDirectives = scheduledFiles.map(file => {
+            const absolute = path.join(repositoryRoot, file.split("/").join(path.sep));
+            let relative = slash(path.relative(path.dirname(outputPath), absolute));
+            if (!relative.startsWith(".")) relative = `./${relative}`;
+            return `//@include "${relative}"`;
+        });
+        let block = `${includeDirectives.join("\n")}\n`;
+        if (offset > 0 && !/[\r\n]/.test(output[offset - 1])) block = `\n${block}`;
+        output = `${output.slice(0, offset)}${block}${output.slice(offset)}`;
     }
 
     return {
         source: output,
         includes: scheduledFiles,
-        includeDirectives: includeDirectives,
+        includeDirectives,
         diagnostics: analysis.diagnostics,
         report: analysis.report
     };
 }
 
 function loadDefaultCatalogs(linkerRoot) {
+    const read = name => JSON.parse(fs.readFileSync(path.join(linkerRoot, "Catalog", name), "utf8"));
     return {
-        nativeCatalog: JSON.parse(fs.readFileSync(path.join(linkerRoot, "Catalog", "estk-3.json"), "utf8")),
-        polyfillCatalog: JSON.parse(fs.readFileSync(path.join(linkerRoot, "Catalog", "polyfills.json"), "utf8"))
+        nativeCatalog: read("estk-3.json"),
+        polyfillCatalog: read("polyfills.json")
     };
 }
 
-module.exports = {
-    analyze: analyze,
-    linkSource: linkSource,
-    loadDefaultCatalogs: loadDefaultCatalogs
-};
+module.exports = {analyze, linkSource, loadDefaultCatalogs};

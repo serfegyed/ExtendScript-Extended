@@ -3,23 +3,35 @@
 ## Current checkpoint
 
 The Linker is a conservative build-time tool. It examines an ExtendScript
-source file, distinguishes known ESTK APIs from indexed polyfills, inserts each
-required `//@include` once in a shared header block before the first
-non-comment source token, and reports unresolved APIs.
+source file, distinguishes known ESTK and Adobe host APIs from indexed
+polyfills, inserts each required `//@include` once in a shared header block,
+and reports unresolved APIs. `#target` and `#targetengine` directives remain
+before the generated includes.
 
 The current analyzer recognizes primitive and array literals, direct
 constructor calls, `new` expressions, simple assignments, direct member
-accesses, and chained calls whose return type is known by a catalog. Unknown
-receiver types are reported instead of guessed.
+accesses, property chains, and chained calls whose return type is known by a
+catalog. Unknown receiver types are reported instead of guessed.
 
 `var` and ExtendScript `const` declarations use function scope. Function
 parameters and nested function scopes shadow outer variables and built-in
 names during type analysis.
 
+## Requirements
+
+The Linker tooling requires Node.js 18 or newer. Its Node-side implementation
+uses modern JavaScript syntax, while generated application sources and
+polyfills remain compatible with Adobe ExtendScript.
+
 ## Catalogs
 
 - `Catalog/estk-3.json` is the preliminary, versioned native ESTK baseline.
 - `build-index.js` rebuilds `Catalog/polyfills.json` from atomic polyfill files.
+- `Catalog/Generated` contains ignored local catalogs built from the installed
+  Adobe OMV XML files. It is created on demand.
+- Common ExtendScript OMV data is loaded when available. A source-level
+  `#target indesign` or `//@target indesign` directive selects the matching
+  host automatically; no host command-line option is required.
 - Files exposing several public API symbols are listed under `warnings` and are
   excluded as providers until they are split.
 - Bundle files are not providers.
@@ -32,6 +44,41 @@ Rebuild the polyfill catalog from this directory:
 ```text
 node build-index.js
 ```
+
+Build or refresh the Common OMV catalog explicitly:
+
+```text
+node build-catalogs.js
+```
+
+Build or refresh one host catalog explicitly:
+
+```text
+node build-catalogs.js indesign
+```
+
+The normal Linker command performs the same work lazily. It processes only the
+latest available catalog for the source's target and rebuilds a generated
+catalog when its source XML changes.
+
+### Host application and OMV cache
+
+The Linker itself does not require the target Adobe application to be running.
+It reads an existing static OMV XML file or an OMV XML cache previously created
+by ExtendScript Toolkit.
+
+- Static dictionaries, such as an installed Illustrator `omv.xml`, can be used
+  without launching the host application.
+- Dynamic dictionaries, such as InDesign's DOM, can be used without a running
+  host after ESTK has generated the corresponding `omv$...xml` cache once.
+- After installing a new host version, ESTK may need to connect to that host
+  once to create or refresh its OMV cache.
+- The current Linker does not launch a host or request its DOM automatically.
+  If no matching OMV source is available, it prints a warning and continues
+  without that host catalog.
+- Running the linked ExtendScript still requires its target application. A
+  source-level directive such as `#target indesign` or `//@target indesign`
+  may launch or select it.
 
 ## Linking a source
 
@@ -48,6 +95,12 @@ For a manual smoke test covering several native and polyfilled APIs:
 
 ```text
 node Linker.js Test/linker-smoke-input.js
+```
+
+For an InDesign host-object report using the installed OMV catalog:
+
+```text
+node Linker.js Test/linker-indesign-input.js --report
 ```
 
 Validate without writing an output file:
@@ -81,6 +134,6 @@ are mutually exclusive.
 
 ## Deliberate limits of this checkpoint
 
-This version does not yet implement computed properties, user-function return
-analysis, or JSDoc type hints in application sources. Those cases remain
-visible as diagnostics rather than being linked on a guess.
+Deferred analyzer and host-catalog improvements are tracked in `TODO.md`.
+Unsupported cases remain visible as diagnostics rather than being linked on a
+guess.
