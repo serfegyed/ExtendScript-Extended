@@ -316,6 +316,42 @@ if (isNodeRuntime) {
             "existing undefined unchanged");
     });
 
+    test("Map getOrInsert methods avoid redundant lookups", function () {
+        var map = new Map([["existing", 1]]);
+        var originalFindEntry = map._findEntry;
+        var calls = 0;
+
+        map._findEntry = function (key) {
+            calls++;
+            return originalFindEntry.call(this, key);
+        };
+
+        assertEqual(map.getOrInsert("existing", 9), 1,
+            "getOrInsert existing value");
+        assertEqual(calls, 1, "getOrInsert existing lookup count");
+
+        calls = 0;
+        assertEqual(map.getOrInsert("missing", 2), 2,
+            "getOrInsert missing value");
+        assertEqual(calls, 1, "getOrInsert missing lookup count");
+
+        calls = 0;
+        assertEqual(map.getOrInsertComputed("existing", function () {
+            fail("existing computed callback should not run");
+        }), 1, "getOrInsertComputed existing value");
+        assertEqual(calls, 1, "getOrInsertComputed existing lookup count");
+
+        calls = 0;
+        assertEqual(map.getOrInsertComputed("computed", function (key) {
+            map.set(key, "intermediate");
+            return "final";
+        }), "final", "getOrInsertComputed missing value");
+        assertEqual(calls, 3,
+            "getOrInsertComputed reentrant lookup count");
+        assertEqual(map.get("computed"), "final",
+            "getOrInsertComputed replaces reentrant value");
+    });
+
     test("Map getOrInsertComputed follows callback and reentrant rules", function () {
         var map = new Map([["existing", 1]]);
         var calls = 0;

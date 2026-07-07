@@ -6,9 +6,12 @@
  * @return {*} The existing or inserted value.
  */
 Map.prototype.getOrInsert = function (key, value) {
-    if (this.has(key)) {
-        return this.get(key);
+    var index = this._findEntry(key);
+
+    if (index !== -1) {
+        return this._entries[index][1];
     }
-    this.set(key, value);
+
+    this._setEntryAt(index, key, value);
     return value;
 };

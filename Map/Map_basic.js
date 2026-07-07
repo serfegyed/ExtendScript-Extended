@@ -52,6 +52,15 @@ Map.prototype._findIndex = function (value) {
     return -1;
 };
 
+Map.prototype._setEntryAt = function (index, key, value) {
+    if (index === -1) {
+        this._entries.push([key, value]);
+        this.size = this._entries.length;
+    } else {
+        this._entries[index][1] = value;
+    }
+};
+
 /**
  * Sets the value of a key in the data object.
  *
@@ -60,12 +69,7 @@ Map.prototype._findIndex = function (value) {
  */
 Map.prototype.set = function (key, value) {
     var index = this._findEntry(key);
-    if (index === -1) {
-        this._entries.push([key, value]);
-        this.size = this._entries.length;
-    } else {
-        this._entries[index][1] = value;
-    }
+    this._setEntryAt(index, key, value);
     return this;
 };
 

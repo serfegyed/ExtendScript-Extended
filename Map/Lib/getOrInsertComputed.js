@@ -6,6 +6,7 @@
  * @return {*} The existing or computed value.
  */
 Map.prototype.getOrInsertComputed = function (key, callback) {
+    var index;
     var value;
 
     if (typeof callback !== "function") {
@@ -13,11 +14,14 @@ Map.prototype.getOrInsertComputed = function (key, callback) {
             "Map.prototype.getOrInsertComputed: callback must be a function."
         );
     }
-    if (this.has(key)) {
-        return this.get(key);
+
+    index = this._findEntry(key);
+    if (index !== -1) {
+        return this._entries[index][1];
     }
 
     value = callback.call(undefined, key);
-    this.set(key, value);
+    index = this._findEntry(key);
+    this._setEntryAt(index, key, value);
     return value;
 };
