@@ -13,11 +13,11 @@
             }
 
             bound = function () {
-                var args = boundArgs.concat(Array.prototype.slice.call(arguments));
+                var callArguments = boundArgs.concat(Array.prototype.slice.call(arguments));
                 var result;
 
                 if (this instanceof bound) {
-                    result = target.apply(this, args);
+                    result = target.apply(this, callArguments);
                     if (result !== null &&
                             (typeof result === "object" ||
                                 typeof result === "function")) {
@@ -26,7 +26,7 @@
                     return this;
                 }
 
-                return target.apply(thisArg, args);
+                return target.apply(thisArg, callArguments);
             };
 
             if (target.prototype &&
