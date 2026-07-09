@@ -65,7 +65,7 @@
         return this;
     };
 
-    Temporal.PlainDateTime.from = function (thing, params) {
+    Temporal.PlainDateTime.from = function (value, params) {
         const validOverflow = { constrain: true, reject: true };
         var overflow = 'constrain';
 
@@ -80,12 +80,12 @@
             };
         };
 
-        if (thing === undefined || thing === null || typeof thing === "number" || typeof thing === "boolean") {
+        if (value === undefined || value === null || typeof value === "number" || typeof value === "boolean") {
             throw new TypeError("Temporal error: DateTime argument must be object or string.");
-        } else if (thing instanceof Temporal.PlainDateTime) {
-            return new Temporal.PlainDateTime(thing.year, thing.month, thing.day, thing.hour, thing.minute, thing.second, thing.millisecond)
-        } else if (typeof thing === "string") {
-            var projected = Temporal.__projectOffsetISOStringToUTCFields__(thing);
+        } else if (value instanceof Temporal.PlainDateTime) {
+            return new Temporal.PlainDateTime(value.year, value.month, value.day, value.hour, value.minute, value.second, value.millisecond)
+        } else if (typeof value === "string") {
+            var projected = Temporal.__projectOffsetISOStringToUTCFields__(value);
             if (projected !== null) {
                 return new Temporal.PlainDateTime(
                     projected.year,
@@ -97,12 +97,12 @@
                     projected.millisecond
                 );
             }
-            if (thing.indexOf("Z") !== -1) {
+            if (value.indexOf("Z") !== -1) {
                 throw new RangeError("Temporal error: UTC designator is not valid for DateTime parsing.");
             }
 
             try {
-                var parts = Temporal.__parseISOString__(thing);
+                var parts = Temporal.__parseISOString__(value);
             } catch (error) {
                 throw new RangeError(error.message);
             }
@@ -122,27 +122,27 @@
                 parts.second ? Temporal.__isBetween__(parseInt(parts.second, 10), 0, 59, overflow) : 0,
                 parts.millisecond ? Temporal.__isBetween__(parts.millisecond, 0, 999, overflow) : 0
             );
-        } else if (typeof thing === "object" && thing !== null) {
+        } else if (typeof value === "object" && value !== null) {
             // Check for required fields
-            if (thing.year === undefined ||
-                (thing.month === undefined && thing.monthCode === undefined) ||
-                thing.day === undefined) {
+            if (value.year === undefined ||
+                (value.month === undefined && value.monthCode === undefined) ||
+                value.day === undefined) {
                 throw new TypeError("Invalid PlainDateTime object: missing required fields");
             }
             var checkedDate = Temporal.__validateDate__(
-                parseInt(thing.year, 10),
-                Temporal.__resolveISOMonth__(thing),
-                parseInt(thing.day, 10),
+                parseInt(value.year, 10),
+                Temporal.__resolveISOMonth__(value),
+                parseInt(value.day, 10),
                 overflow
             );
             return new Temporal.PlainDateTime(
                 checkedDate.year,
                 checkedDate.month,
                 checkedDate.day,
-                Temporal.__isBetween__(parseInt(thing.hour, 10), 0, 23, overflow),
-                thing.minute ? Temporal.__isBetween__(parseInt(thing.minute, 10), 0, 59, overflow) : 0,
-                thing.second ? Temporal.__isBetween__(parseInt(thing.second, 10), 0, 59, overflow) : 0,
-                thing.millisecond ? Temporal.__isBetween__(thing.millisecond, 0, 999, overflow) : 0
+                Temporal.__isBetween__(parseInt(value.hour, 10), 0, 23, overflow),
+                value.minute ? Temporal.__isBetween__(parseInt(value.minute, 10), 0, 59, overflow) : 0,
+                value.second ? Temporal.__isBetween__(parseInt(value.second, 10), 0, 59, overflow) : 0,
+                value.millisecond ? Temporal.__isBetween__(value.millisecond, 0, 999, overflow) : 0
             );
         } else {
             throw new TypeError('Invalid type for Temporal.PlainDateTime.from');
