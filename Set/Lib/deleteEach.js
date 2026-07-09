@@ -14,7 +14,7 @@ Set.prototype.deleteEach = function (callback, thisArg) {
         throw new TypeError("Set.prototype.deleteEach: callback must be a function.");
     }
 
-    originalData = this.toArray();
+    originalData = this._data.slice();
     for (i = 0; i < originalData.length; i++) {
         value = originalData[i];
         if (callback.call(thisArg, value, i, this)) {
