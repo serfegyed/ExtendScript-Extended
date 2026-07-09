@@ -4,14 +4,14 @@
  * @return {string} A string representation of the contents of the object.
  */
 Set.prototype.toString = function () {
-    var str = "";
+    var result = "";
     for (var i = 0; i < this._data.length; i++) {
-        if (str !== "") {
-            str += ", ";
+        if (result !== "") {
+            result += ", ";
         }
-        str += typeof this._data[i] === "string" ?
+        result += typeof this._data[i] === "string" ?
             '"' + this._data[i] + '"' : this._data[i];
     }
 
-    return "{" + str + "}";
+    return "{" + result + "}";
 };
