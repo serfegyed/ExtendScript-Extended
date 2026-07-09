@@ -1,10 +1,10 @@
 /**
  * Defines or modifies a property on an object.
  *
- * @param {Object} obj - The object on which to define or modify the property.
- * @param {string} prop - The name or Symbol of the property to be defined or modified.
+ * @param {Object} object - The object on which to define or modify the property.
+ * @param {string} property - The name or Symbol of the property to be defined or modified.
  * @param {Object} descriptor - The descriptor for the property being defined or modified.
- * @throws {TypeError} If obj is not an object or is null.
+ * @throws {TypeError} If object is not an object or is null.
  * @throws {TypeError} If descriptor is not an object or is null.
  * @return {Object} The object that was passed to the function.
  */

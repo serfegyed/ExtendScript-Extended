@@ -1,12 +1,12 @@
 /**
  * Deeply compares two objects for equality.
  *
- * @param {any} obj1 - The first object to compare.
- * @param {any} obj2 - The second object to compare.
+ * @param {any} value - The first value to compare.
+ * @param {any} other - The second value to compare.
  * @return {boolean} Returns true if the objects are deeply equal, false otherwise.
  */
 if (!Object.isEquals) {
-    Object.isEquals = function (obj1, obj2) {
+    Object.isEquals = function (value, other) {
         var alreadyCompared = [];
 
         function sameValueZero(a, b) {
@@ -76,6 +76,6 @@ if (!Object.isEquals) {
 
             return countA === countB;
         }
-        return innerCompare(obj1, obj2);
+        return innerCompare(value, other);
     };
 }

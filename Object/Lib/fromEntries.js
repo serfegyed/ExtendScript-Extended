@@ -10,17 +10,17 @@ if (!Object.fromEntries) {
             throw new TypeError("Object.fromEntries requires an array as input");
         }
 
-        var obj = {};
+        var result = {};
         for (var i = 0; i < entries.length; i++) {
             var entry = entries[i];
 
             if (Array.isArray(entry) && entry.length === 2) {
                 var key = entry[0];
                 var value = entry[1];
-                obj[key] = value;
+                result[key] = value;
             }
         }
 
-        return obj;
+        return result;
     };
 };

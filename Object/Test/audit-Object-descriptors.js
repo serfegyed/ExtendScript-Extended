@@ -5,8 +5,6 @@
  * records native runtime behavior before deciding whether a descriptor
  * polyfill is useful in ExtendScript.
  */
-//@debug 0
-
 //@include "../../Tools/Console/console.js"
 
 (function () {

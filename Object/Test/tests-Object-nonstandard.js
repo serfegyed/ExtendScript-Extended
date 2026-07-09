@@ -4,8 +4,6 @@
  * ExtendScript processes include directives. Node.js disables the tested
  * extension and loads the same project file explicitly.
  */
-//@debug 0
-
 //@include "../../Tools/Console/console.js"
 
 var isNodeRuntime = typeof process !== "undefined" &&

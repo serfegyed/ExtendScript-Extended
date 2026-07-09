@@ -1,7 +1,7 @@
 /**
  * Returns an array containing the enumerable property names of an object.
  *
- * @param {object} obj - The object to retrieve the property names from.
+ * @param {object} value - The object to retrieve the property names from.
  * @return {Array} An array containing the property names of the object.
  */
 if (!Object.keys) {

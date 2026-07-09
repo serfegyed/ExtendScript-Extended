@@ -1,17 +1,17 @@
 /**
  * Flattens the given object into a single-level object.
  *
- * @param {object} obj - The object to be flattened
+ * @param {object} object - The object to be flattened
  * @return {object} The flattened object
  * @dependency Object.isCyclic()
  */
 if (!Object.flat) {
-    Object.flat = function (obj) {
+    Object.flat = function (object) {
         var result = {};
         var key;
 
-        if (obj === null || typeof obj !== "object") return obj;
-        if (Object.isCyclic(obj)) {
+        if (object === null || typeof object !== "object") return object;
+        if (Object.isCyclic(object)) {
             throw new TypeError("Object.flat: cyclic reference.");
         }
 
@@ -34,9 +34,9 @@ if (!Object.flat) {
             }
         }
 
-        for (key in obj) {
-            if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                flatten(key, obj[key], "");
+        for (key in object) {
+            if (Object.prototype.hasOwnProperty.call(object, key)) {
+                flatten(key, object[key], "");
             }
         }
 

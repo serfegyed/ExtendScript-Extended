@@ -1,11 +1,11 @@
 /**
  * Detects cyclic references in an object.
  *
- * @param {Object} obj - The object to check for cyclic references.
+ * @param {Object} object - The object to check for cyclic references.
  * @return {boolean} True if the object contains cyclic references, false otherwise.
  */
 if (!Object.isCyclic) {
-    Object.isCyclic = function (obj) {
+    Object.isCyclic = function (object) {
         var stack = [];
 
         function detect(value) {
@@ -32,6 +32,6 @@ if (!Object.isCyclic) {
             return false;
         }
 
-        return detect(obj);
+        return detect(object);
     };
 }

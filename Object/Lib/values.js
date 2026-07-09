@@ -1,7 +1,7 @@
 /**
  * Returns an array of all the values in the given object.
  *
- * @param {Object} obj - The object to extract values from.
+ * @param {Object} value - The object to extract values from.
  * @return {Array} An array of all the values in the object.
  */
 if (!Object.values) {

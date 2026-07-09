@@ -1,7 +1,7 @@
 /**
  * Returns an array of key-value pairs representing the properties of an object.
  *
- * @param {Object} obj - The object to extract the properties from.
+ * @param {Object} value - The object to extract the properties from.
  * @return {Array} An array of key-value pairs representing the properties of the object.
  */
 if (!Object.entries) {

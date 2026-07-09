@@ -4,8 +4,6 @@
  * ExtendScript processes include directives. Node.js preserves native methods
  * as references, disables them, and loads the same project files explicitly.
  */
-//@debug 0
-
 //@include "../../Tools/Console/console.js"
 //@include "../../Map/Map_standard.js"
 //@include "../../Set/Set_standard.js"

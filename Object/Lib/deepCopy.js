@@ -1,11 +1,11 @@
 /**
  * Copies an object deeply, including nested objects, arrays, and Date objects.
  *
- * @param {object} obj - The object to be copied.
+ * @param {object} object - The object to be copied.
  * @return {object} The deep copy of the object.
  */
 if (!Object.deepCopy) {
-    Object.deepCopy = function (obj) {
+    Object.deepCopy = function (object) {
         var stack = [];
 
         function isRegExp(value) {
@@ -51,6 +51,6 @@ if (!Object.deepCopy) {
             return cloned;
         }
 
-        return clone(obj);
+        return clone(object);
     };
 }

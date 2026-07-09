@@ -2,7 +2,7 @@
  * Returns the enumerable own property names visible to ExtendScript.
  * Non-enumerable properties cannot be discovered through ES3 `for...in`.
  *
- * @param {object} obj - The object to retrieve the property names from.
+ * @param {object} value - The object to retrieve the property names from.
  * @return {array} An array of property names.
  */
 if (!Object.getOwnPropertyNames) {
