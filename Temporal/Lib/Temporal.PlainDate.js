@@ -363,34 +363,34 @@ var Temporal = Temporal || {};
         return this;
     };
 
-    Temporal.PlainDate.from = function (thing, params) {
+    Temporal.PlainDate.from = function (value, params) {
         var overflow = normalizeOverflow(params);
 
-        if (thing instanceof Temporal.PlainDate) {
-            return new Temporal.PlainDate(thing.year, thing.month, thing.day);
+        if (value instanceof Temporal.PlainDate) {
+            return new Temporal.PlainDate(value.year, value.month, value.day);
         }
 
-        if (typeof Temporal.PlainDateTime === "function" && thing instanceof Temporal.PlainDateTime) {
-            return new Temporal.PlainDate(thing.year, thing.month, thing.day);
+        if (typeof Temporal.PlainDateTime === "function" && value instanceof Temporal.PlainDateTime) {
+            return new Temporal.PlainDate(value.year, value.month, value.day);
         }
 
-        if (typeof thing === "string") {
-            var projected = Temporal.__projectOffsetISOStringToUTCFields__(thing);
+        if (typeof value === "string") {
+            var projected = Temporal.__projectOffsetISOStringToUTCFields__(value);
             if (projected !== null) {
                 return createDate(projected.year, projected.month, projected.day, "reject");
             }
-            if (/T.*Z$/i.test(thing)) {
+            if (/T.*Z$/i.test(value)) {
                 throw new RangeError("Temporal error: UTC designator is not valid for PlainDate parsing.");
             }
-            return parsePlainDateString(thing);
+            return parsePlainDateString(value);
         }
 
-        if (typeof thing === "object" && thing !== null) {
-            if (!hasDateFields(thing)) {
+        if (typeof value === "object" && value !== null) {
+            if (!hasDateFields(value)) {
                 throw new TypeError("Invalid PlainDate object: missing required fields");
             }
 
-            return createDate(thing.year, Temporal.__resolveISOMonth__(thing), thing.day, overflow);
+            return createDate(value.year, Temporal.__resolveISOMonth__(value), value.day, overflow);
         }
 
         throw new TypeError("Invalid type for Temporal.PlainDate.from");

@@ -271,29 +271,29 @@ var Temporal = Temporal || {};
         return this;
     };
 
-    Temporal.PlainYearMonth.from = function (thing, options) {
+    Temporal.PlainYearMonth.from = function (value, options) {
         var overflow = normalizeOverflow(options);
 
-        if (thing instanceof Temporal.PlainYearMonth) {
-            return new Temporal.PlainYearMonth(thing.year, thing.month);
+        if (value instanceof Temporal.PlainYearMonth) {
+            return new Temporal.PlainYearMonth(value.year, value.month);
         }
 
-        if (typeof thing === "string") {
-            var projected = Temporal.__projectOffsetISOStringToUTCFields__(thing);
+        if (typeof value === "string") {
+            var projected = Temporal.__projectOffsetISOStringToUTCFields__(value);
             if (projected !== null) {
                 return createYearMonth(projected.year, projected.month, "reject");
             }
-            if (/Z$/i.test(thing)) {
+            if (/Z$/i.test(value)) {
                 throw new RangeError("UTC designator is not valid for PlainYearMonth parsing.");
             }
-            return parseYearMonthString(thing);
+            return parseYearMonthString(value);
         }
 
-        if (typeof thing === "object" && thing !== null) {
-            if (!hasYearMonthFields(thing)) {
+        if (typeof value === "object" && value !== null) {
+            if (!hasYearMonthFields(value)) {
                 throw new TypeError("Invalid PlainYearMonth object: missing required fields");
             }
-            return createYearMonth(thing.year, thing.month, overflow);
+            return createYearMonth(value.year, value.month, overflow);
         }
 
         throw new TypeError("Invalid type for Temporal.PlainYearMonth.from");
