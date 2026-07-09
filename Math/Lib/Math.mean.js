@@ -35,19 +35,19 @@ Math.mean = function (/*values, dimension*/) {
         return result;
     }
 
-    var args = Array.prototype.slice.call(arguments);
+    var argumentList = Array.prototype.slice.call(arguments);
 
-    if (args.length === 2 && args[0] instanceof Array && typeof args[1] === 'number') { // Array and dimension
+    if (argumentList.length === 2 && argumentList[0] instanceof Array && typeof argumentList[1] === 'number') { // Array and dimension
         // Check the array uniformity and dimensions
-        const info = Array.info(args[0]);
+        const info = Array.info(argumentList[0]);
         if (!info.isUniform) {
             throw new Error('Array is not uniform.');
         } else if (info.maxDepth > 1) { //maxDepth is zero-based
             throw new Error('Array has too many dimensions.');
         };
-        return meanAcrossDimension(args[0], args[1]);
+        return meanAcrossDimension(argumentList[0], argumentList[1]);
     } else { // Array to flatten or value list
-        var values = args[0] instanceof Array ? args[0] : args;
+        var values = argumentList[0] instanceof Array ? argumentList[0] : argumentList;
         var flattened = values.flat(Infinity);
         return meanOfArray(flattened);
     }

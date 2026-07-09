@@ -3,7 +3,7 @@
  * If an array is provided, the function will recursively flatten before computing the sum. 
  * Non-numeric values are ignored in the sum calculation.
  * 
- * @param {...(number|Array<number>)} arguments - A comma-separated list of numbers or a single array. 
+ * @param {...(number|Array<number>)} values - A comma-separated list of numbers or a single array. 
  * @returns {number} The sum of the provided numbers.
  */
 if (!Math.sum) {
@@ -30,8 +30,8 @@ if (!Math.sum) {
             return flattenAndSum(arguments[0]);
         } else {
             // Handle multiple numeric arguments by treating them as a flat array
-            var args = Array.prototype.slice.call(arguments);
-            return flattenAndSum(args);
+            var argumentList = Array.prototype.slice.call(arguments);
+            return flattenAndSum(argumentList);
         }
     };
 }
