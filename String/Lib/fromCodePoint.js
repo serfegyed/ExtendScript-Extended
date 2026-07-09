@@ -1,7 +1,7 @@
 /**
  * Generates a string from the given Unicode code points.
  *
- * @param {number} arguments - The Unicode code points to convert into a string.
+ * @param {...number} codePoints - The Unicode code points to convert into a string.
  * @throws {RangeError} If an invalid code point is provided.
  * @return {string} The generated string.
  * @example
