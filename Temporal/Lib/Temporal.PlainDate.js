@@ -122,17 +122,17 @@ var Temporal = Temporal || {};
         };
     }
 
-    function hasDateFields(thing) {
-        return thing.year !== undefined &&
-            (thing.month !== undefined || thing.monthCode !== undefined) &&
-            thing.day !== undefined;
+    function hasDateFields(fields) {
+        return fields.year !== undefined &&
+            (fields.month !== undefined || fields.monthCode !== undefined) &&
+            fields.day !== undefined;
     }
 
-    function hasPartialDateFields(thing) {
-        return thing.year !== undefined ||
-            thing.month !== undefined ||
-            thing.monthCode !== undefined ||
-            thing.day !== undefined;
+    function hasPartialDateFields(fields) {
+        return fields.year !== undefined ||
+            fields.month !== undefined ||
+            fields.monthCode !== undefined ||
+            fields.day !== undefined;
     }
 
     function getDateDuration(duration) {

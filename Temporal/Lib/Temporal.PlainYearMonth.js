@@ -74,12 +74,12 @@ var Temporal = Temporal || {};
         return createYearMonth(year, month, "reject");
     }
 
-    function hasYearMonthFields(thing) {
-        return thing.year !== undefined && thing.month !== undefined;
+    function hasYearMonthFields(fields) {
+        return fields.year !== undefined && fields.month !== undefined;
     }
 
-    function hasPartialYearMonthFields(thing) {
-        return thing.year !== undefined || thing.month !== undefined;
+    function hasPartialYearMonthFields(fields) {
+        return fields.year !== undefined || fields.month !== undefined;
     }
 
     function monthIndex(yearMonth) {
