@@ -613,11 +613,11 @@ var Temporal = Temporal || {};
 	}
 
 	function pad(value, length) {
-		var str = String(value);
-		while (str.length < length) {
-			str = "0" + str;
+		var text = String(value);
+		while (text.length < length) {
+			text = "0" + text;
 		}
-		return str;
+		return text;
 	};
 
 	function singularUnit(unit) {
