@@ -552,16 +552,16 @@ var Temporal = Temporal || {};
 
 	// Helper: Round a numeric value to the nearest multiple of the given increment.
     // This function is used to round the "total" value for the field.
-	function roundField(n, increment, mode) {
+	function roundField(value, increment, mode) {
 		if (increment <= 0) throw new Error("Increment must be positive"); // Already checked, maybe can be deleted
 
-		const scaled = n / increment; // Scale the number to a base of 1
+		const scaled = value / increment; // Scale the number to a base of 1
 		var rounded;
 		
 		// Math.trunc helper
-		const trunc = function (v) {
-			if (isNaN(v)) { return NaN; }
-			return v < 0 ? Math.ceil(v) : Math.floor(v);
+		const truncateTowardZero = function (value) {
+			if (isNaN(value)) { return NaN; }
+			return value < 0 ? Math.ceil(value) : Math.floor(value);
 		};
 
 		switch (mode) {
@@ -575,7 +575,7 @@ var Temporal = Temporal || {};
 				rounded = scaled > 0 ? Math.ceil(scaled) : Math.floor(scaled);
 				break;
 			case "trunc": // Toward 0
-				rounded = trunc(scaled);
+				rounded = truncateTowardZero(scaled);
 				break;
 			case "halfCeil": // Ties toward +âˆž
 				rounded = (scaled % 1 === 0.5 || scaled % 1 === -0.5) ? Math.ceil(scaled) : Math.round(scaled);
