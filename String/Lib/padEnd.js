@@ -10,6 +10,7 @@ if (!String.prototype.padEnd) {
         "use strict";
 
         var string;
+        var stringLength;
         var length;
         var number;
         var filler;
@@ -21,6 +22,7 @@ if (!String.prototype.padEnd) {
         }
 
         string = String(this);
+        stringLength = string.length;
         number = Number(targetLength);
         if (number !== number || number <= 0) {
             length = 0;
@@ -31,7 +33,7 @@ if (!String.prototype.padEnd) {
             length = Math.min(length, 9007199254740991);
         }
 
-        if (length <= string.length) {
+        if (length <= stringLength) {
             return string;
         }
 
@@ -40,7 +42,7 @@ if (!String.prototype.padEnd) {
             return string;
         }
 
-        fillLength = length - string.length;
+        fillLength = length - stringLength;
         if (fillLength >= (1 << 28)) {
             throw new RangeError("padEnd result exceeds maximum string size");
         }

@@ -8,6 +8,7 @@ if (!String.prototype.isWellFormed) {
         "use strict";
 
         var string;
+        var length;
         var i;
         var code;
         var next;
@@ -17,10 +18,11 @@ if (!String.prototype.isWellFormed) {
         }
 
         string = String(this);
-        for (i = 0; i < string.length; i++) {
+        length = string.length;
+        for (i = 0; i < length; i++) {
             code = string.charCodeAt(i);
             if (code >= 0xd800 && code <= 0xdbff) {
-                if (i + 1 >= string.length) {
+                if (i + 1 >= length) {
                     return false;
                 }
                 next = string.charCodeAt(i + 1);
