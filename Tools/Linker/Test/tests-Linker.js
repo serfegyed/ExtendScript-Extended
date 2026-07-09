@@ -136,7 +136,7 @@ function slash(value) {
         "String/Lib/padStart.js",
         "String/Lib/includes.js",
         "Date/Lib/Date.toISOString.js",
-        "Math/Math.cbrt.js",
+        "Math/Lib/Math.cbrt.js",
         "Number/Lib/isInteger.js",
         "JSON/JSON.stringify.js",
         "JSON/JSON.parse.js",
@@ -278,8 +278,15 @@ function slash(value) {
         "<method name=\"item\"><datatype><type>TextFrame</type></datatype></method>",
         "</elements></classdef>",
         "<classdef name=\"TextFrame\"><elements type=\"instance\">",
-        "<property name=\"contents\"><datatype><type>string</type></datatype></property>",
+        "<property name=\"contents\" rwaccess=\"readonly\"><shortdesc>The contents. Can return: String, TextFrameContents enumerator or SpecialCharacters enumerator.</shortdesc><datatype><type>varies=any</type></datatype></property>",
+        "<property name=\"parent\" rwaccess=\"readonly\"><shortdesc>The parent of the TextFrame (a Story or TextBox).</shortdesc><datatype><type>varies=any</type></datatype></property>",
         "</elements></classdef>",
+        "<classdef name=\"Story\"><elements type=\"instance\"></elements></classdef>",
+        "<classdef name=\"TextBox\"><elements type=\"instance\"></elements></classdef>",
+        "<classdef name=\"TextFrameContents\" enumeration=\"true\"><elements type=\"class\"></elements></classdef>",
+        "<classdef name=\"SpecialCharacters\" enumeration=\"true\"><elements type=\"class\"></elements></classdef>",
+        "<classdef name=\"Preference\"><elements type=\"instance\"></elements></classdef>",
+        "<classdef name=\"TextFramePreference\"><superclass>Preference</superclass><elements type=\"instance\"></elements></classdef>",
         "</package></dictionary>"
     ].join(""), {runtime: "Test OMV"});
 
@@ -287,7 +294,17 @@ function slash(value) {
     assert.ok(catalog.types.Application.prototype.indexOf("activeDocument") !== -1);
     assert.strictEqual(catalog.returns["Application.prototype.activeDocument"], "Document");
     assert.strictEqual(catalog.returns["Pages.prototype.item"], "Page");
-    assert.strictEqual(catalog.returns["TextFrame.prototype.contents"], "String");
+    assert.strictEqual(catalog.returns["TextFrame.prototype.contents"], undefined);
+    assert.strictEqual(catalog.members["Application.prototype.activeDocument"].kind, "property");
+    assert.strictEqual(catalog.members["Pages.prototype.item"].kind, "method");
+    assert.strictEqual(catalog.members["Pages.prototype.item"].parameters[0].name, "index");
+    assert.deepStrictEqual(catalog.members["TextFrame.prototype.contents"].returnTypes,
+        ["String", "TextFrameContents", "SpecialCharacters"]);
+    assert.strictEqual(catalog.members["TextFrame.prototype.contents"].access, "readonly");
+    assert.deepStrictEqual(catalog.members["TextFrame.prototype.parent"].returnTypes,
+        ["Story", "TextBox"]);
+    assert.strictEqual(catalog.classes.TextFramePreference.superclass, "Preference");
+    assert.strictEqual(catalog.classes.TextFrameContents.enumeration, true);
 
     var merged = catalogManager.mergeCatalogs([nativeCatalog, catalog]);
     var result = linker.linkSource([

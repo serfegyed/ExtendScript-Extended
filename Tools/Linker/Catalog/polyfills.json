@@ -363,6 +363,11 @@
       ],
       "returnType": null
     },
+    "Date.now": {
+      "path": "Date/Lib/Date.now.js",
+      "dependencies": [],
+      "returnType": null
+    },
     "Date.prototype.toISOString": {
       "path": "Date/Lib/Date.toISOString.js",
       "dependencies": [],
@@ -529,17 +534,47 @@
       "returnType": "Object"
     },
     "Math.cbrt": {
-      "path": "Math/Math.cbrt.js",
+      "path": "Math/Lib/Math.cbrt.js",
+      "dependencies": [],
+      "returnType": "number"
+    },
+    "Math.clz32": {
+      "path": "Math/Lib/Math.clz32.js",
+      "dependencies": [],
+      "returnType": "number"
+    },
+    "Math.expm1": {
+      "path": "Math/Lib/Math.expm1.js",
+      "dependencies": [],
+      "returnType": "number"
+    },
+    "Math.hypot": {
+      "path": "Math/Lib/Math.hypot.js",
+      "dependencies": [],
+      "returnType": "number"
+    },
+    "Math.imul": {
+      "path": "Math/Lib/Math.imul.js",
       "dependencies": [],
       "returnType": "number"
     },
     "Math.log10": {
-      "path": "Math/Math.log10.js",
+      "path": "Math/Lib/Math.log10.js",
+      "dependencies": [],
+      "returnType": "number"
+    },
+    "Math.log1p": {
+      "path": "Math/Lib/Math.log1p.js",
+      "dependencies": [],
+      "returnType": "number"
+    },
+    "Math.log2": {
+      "path": "Math/Lib/Math.log2.js",
       "dependencies": [],
       "returnType": "number"
     },
     "Math.mean": {
-      "path": "Math/Math.mean.js",
+      "path": "Math/Lib/Math.mean.js",
       "dependencies": [
         "Array/Lib/flat.js",
         "Array/Lib/info.js",
@@ -549,22 +584,22 @@
       "returnType": null
     },
     "Math.median": {
-      "path": "Math/Math.median.js",
+      "path": "Math/Lib/Math.median.js",
       "dependencies": [],
       "returnType": "number"
     },
     "Math.sign": {
-      "path": "Math/Math.sign.js",
+      "path": "Math/Lib/Math.sign.js",
       "dependencies": [],
       "returnType": "number"
     },
     "Math.sum": {
-      "path": "Math/Math.sum.js",
+      "path": "Math/Lib/Math.sum.js",
       "dependencies": [],
       "returnType": "number"
     },
     "Math.trunc": {
-      "path": "Math/Math.trunc.js",
+      "path": "Math/Lib/Math.trunc.js",
       "dependencies": [],
       "returnType": "number"
     },
@@ -603,6 +638,16 @@
     },
     "Number.MIN_SAFE_INTEGER": {
       "path": "Number/Lib/MIN_SAFE_INTEGER.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Number.parseFloat": {
+      "path": "Number/Lib/parseFloat.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Number.parseInt": {
+      "path": "Number/Lib/parseInt.js",
       "dependencies": [],
       "returnType": null
     },
@@ -650,6 +695,16 @@
       "path": "Object/Lib/fromEntries.js",
       "dependencies": [],
       "returnType": "Object"
+    },
+    "Object.getOwnPropertyDescriptor": {
+      "path": "Object/Lib/getOwnPropertyDescriptor.js",
+      "dependencies": [],
+      "returnType": null
+    },
+    "Object.getOwnPropertyDescriptors": {
+      "path": "Object/Lib/getOwnPropertyDescriptors.js",
+      "dependencies": [],
+      "returnType": "object"
     },
     "Object.getOwnPropertyNames": {
       "path": "Object/Lib/getOwnPropertyNames.js",
@@ -1236,6 +1291,9 @@
         "Array/Lib/arrayInternals.js"
       ]
     },
+    "Date/Lib/Date.now.js": {
+      "dependencies": []
+    },
     "Date/Lib/Date.toISOString.js": {
       "dependencies": []
     },
@@ -1335,13 +1393,31 @@
     "Map/Lib/values.js": {
       "dependencies": []
     },
-    "Math/Math.cbrt.js": {
+    "Math/Lib/Math.cbrt.js": {
       "dependencies": []
     },
-    "Math/Math.log10.js": {
+    "Math/Lib/Math.clz32.js": {
       "dependencies": []
     },
-    "Math/Math.mean.js": {
+    "Math/Lib/Math.expm1.js": {
+      "dependencies": []
+    },
+    "Math/Lib/Math.hypot.js": {
+      "dependencies": []
+    },
+    "Math/Lib/Math.imul.js": {
+      "dependencies": []
+    },
+    "Math/Lib/Math.log10.js": {
+      "dependencies": []
+    },
+    "Math/Lib/Math.log1p.js": {
+      "dependencies": []
+    },
+    "Math/Lib/Math.log2.js": {
+      "dependencies": []
+    },
+    "Math/Lib/Math.mean.js": {
       "dependencies": [
         "Array/Lib/flat.js",
         "Array/Lib/info.js",
@@ -1349,16 +1425,16 @@
         "Array/Lib/map.js"
       ]
     },
-    "Math/Math.median.js": {
+    "Math/Lib/Math.median.js": {
       "dependencies": []
     },
-    "Math/Math.sign.js": {
+    "Math/Lib/Math.sign.js": {
       "dependencies": []
     },
-    "Math/Math.sum.js": {
+    "Math/Lib/Math.sum.js": {
       "dependencies": []
     },
-    "Math/Math.trunc.js": {
+    "Math/Lib/Math.trunc.js": {
       "dependencies": []
     },
     "Number/Lib/EPSILON.js": {
@@ -1383,6 +1459,12 @@
       "dependencies": []
     },
     "Number/Lib/MIN_SAFE_INTEGER.js": {
+      "dependencies": []
+    },
+    "Number/Lib/parseFloat.js": {
+      "dependencies": []
+    },
+    "Number/Lib/parseInt.js": {
       "dependencies": []
     },
     "Object/Lib/assign.js": {
@@ -1410,6 +1492,12 @@
       "dependencies": []
     },
     "Object/Lib/fromEntries.js": {
+      "dependencies": []
+    },
+    "Object/Lib/getOwnPropertyDescriptor.js": {
+      "dependencies": []
+    },
+    "Object/Lib/getOwnPropertyDescriptors.js": {
       "dependencies": []
     },
     "Object/Lib/getOwnPropertyNames.js": {

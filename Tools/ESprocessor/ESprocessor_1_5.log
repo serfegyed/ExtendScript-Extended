@@ -1,0 +1,30 @@
+Started consolidating /d/OneDrive/Extendscript/Codex/ExtendScript-Extended/Tools/ESprocessor/ESprocessor_1_5.js
+
+	//* Include file start: ../Console/console.js
+	//* Include file end: ../Console/console.js
+
+
+	//* Include file start: ../../Array/Lib/indexOf.js
+
+		//* Include file start: ./arrayInternals.js
+		//* Include file end: ./arrayInternals.js
+
+	//* Include file end: ../../Array/Lib/indexOf.js
+
+
+	//* Include file start: ../../String/Lib/startsWith.js
+	//* Include file end: ../../String/Lib/startsWith.js
+
+
+	//* Include file start: ../../String/Lib/repeat.js
+	//* Include file end: ../../String/Lib/repeat.js
+
+
+	//* Include file start: Lib/ESprocessor.js
+	//* Include file end: Lib/ESprocessor.js
+
+
+	//* Include file start: Lib/run.js
+	//* Include file end: Lib/run.js
+
+File was consolidated successfully to: ESprocessor_1_5_full.js

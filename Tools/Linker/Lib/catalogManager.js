@@ -5,7 +5,7 @@ const path = require("path");
 const builder = require("./buildOmvCatalog");
 const discovery = require("./discoverOmvCatalogs");
 
-const GENERATOR_VERSION = 1;
+const GENERATOR_VERSION = 4;
 
 const fingerprint = files => files.map(file => {
     const {size, mtimeMs} = fs.statSync(file);
@@ -15,13 +15,23 @@ const fingerprint = files => files.map(file => {
 const sameSources = (left, right) => JSON.stringify(left || []) === JSON.stringify(right || []);
 
 function mergeCatalogs(catalogs) {
-    const result = {version: 1, globals: [], globalTypes: {}, types: {}, returns: {}};
+    const result = {
+        version: 1,
+        globals: [],
+        globalTypes: {},
+        types: {},
+        returns: {},
+        classes: {},
+        members: {}
+    };
 
     for (const catalog of catalogs.filter(Boolean)) {
         for (const name of catalog.globals || []) {
             if (!result.globals.includes(name)) result.globals.push(name);
         }
         Object.assign(result.globalTypes, catalog.globalTypes || {});
+        Object.assign(result.classes, catalog.classes || {});
+        Object.assign(result.members, catalog.members || {});
 
         for (const [name, source] of Object.entries(catalog.types || {})) {
             const target = result.types[name] ||= {static: [], prototype: []};
@@ -83,6 +93,8 @@ function catalogsForSource(linkerRoot, source, options = {}) {
     return {
         nativeCatalog: mergeCatalogs([base, common, host]),
         polyfillCatalog,
+        commonCatalog: common,
+        hostCatalog: host,
         target,
         hostSource
     };

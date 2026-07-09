@@ -24,19 +24,19 @@ if (typeof console === "undefined") {
         var timers = [];
         var consoleObject = {};
 
-        function joinArguments(args, startIndex) {
+        function joinArguments(argumentList, startIndex) {
             var message = "";
-            for (var i = startIndex; i < args.length; i++) {
-                message += (i > startIndex ? " " : "") + String(args[i]);
+            for (var i = startIndex; i < argumentList.length; i++) {
+                message += (i > startIndex ? " " : "") + String(argumentList[i]);
             }
             return message;
         }
 
-        function getTimerLabel(args) {
-            if (args.length === 0 || typeof args[0] === "undefined") {
+        function getTimerLabel(argumentList) {
+            if (argumentList.length === 0 || typeof argumentList[0] === "undefined") {
                 return "default";
             }
-            return String(args[0]);
+            return String(argumentList[0]);
         }
 
         function findTimerIndex(label) {
