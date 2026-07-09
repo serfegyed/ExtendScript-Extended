@@ -4,8 +4,6 @@
  * ExtendScript processes the include directives. Node.js ignores them and
  * loads the same public source files explicitly.
  */
-//@debug 0
-
 //@include "../../Tools/Console/console.js"
 //@include "../TypeTest.js"
 

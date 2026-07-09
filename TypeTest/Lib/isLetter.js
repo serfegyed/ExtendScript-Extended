@@ -1,13 +1,13 @@
 /**
  * Checks if a character is a letter.
  *
- * @param {string} chr - The character to check.
+ * @param {string} character - The character to check.
  * @return {boolean} Returns true if the character is a letter, otherwise returns false.
  */
 if (typeof isLetter === "undefined") {
-    function isLetter(chr) {
-        return typeof chr === "string" &&
-            chr.length === 1 &&
-            /^[a-zA-ZÀ-ÖØ-öø-ž]$/.test(chr);
+    function isLetter(character) {
+        return typeof character === "string" &&
+            character.length === 1 &&
+            /^[a-zA-ZÀ-ÖØ-öø-ž]$/.test(character);
     };
 };

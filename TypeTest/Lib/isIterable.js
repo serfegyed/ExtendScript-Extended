@@ -1,15 +1,15 @@
 /**
  * Checks if an object is iterable.
  *
- * @param {any} obj - The object to check for iterability.
+ * @param {any} value - The value to check for iterability.
  * @return {boolean} Returns true if the object is iterable, false otherwise.
  */
 if (typeof isIterable === "undefined"){
-    function isIterable(obj) {
-        if (obj === null || obj === undefined) {
+    function isIterable(value) {
+        if (value === null || value === undefined) {
             return false;
         }
 
-        return typeof obj.length === 'number' || typeof obj.size === 'number';
+        return typeof value.length === 'number' || typeof value.size === 'number';
     };
 };
