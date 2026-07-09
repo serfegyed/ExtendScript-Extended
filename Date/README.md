@@ -6,6 +6,17 @@ is missing. This folder currently has no aggregate bundle.
 
 ## Included methods
 
+### `Date.now()`
+
+Returns the current epoch time in milliseconds.
+
+```javascript
+//@include "Lib/Date.now.js"
+
+Date.now();
+// current Unix timestamp in milliseconds
+```
+
 ### `Date.prototype.toISOString()`
 
 Returns the Date value as a UTC ISO string with millisecond precision.
@@ -70,7 +81,7 @@ Run `Test/tests-Date.js` in ESTK or Node. The harness disables native Date
 methods so the project implementations are tested directly, and it loads the
 required Temporal subset for `toTemporalInstant()`.
 
-Current ESTK checkpoint: **14 passed, 0 failed**.
+Current ESTK checkpoint: **16 passed, 0 failed**.
 
 ## Compatibility
 

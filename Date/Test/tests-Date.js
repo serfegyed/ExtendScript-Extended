@@ -11,14 +11,17 @@
 
 var isNodeRuntime = typeof process !== "undefined" &&
     process.versions && process.versions.node;
+var nativeDateNow = isNodeRuntime ? Date.now : null;
 var nativeDateToISOString = isNodeRuntime ? Date.prototype.toISOString : null;
 var nativeDateToJSON = isNodeRuntime ? Date.prototype.toJSON : null;
 var nativeDateToTemporalInstant = isNodeRuntime ? Date.prototype.toTemporalInstant : null;
 
+Date.now = undefined;
 Date.prototype.toISOString = undefined;
 Date.prototype.toJSON = undefined;
 Date.prototype.toTemporalInstant = undefined;
 
+//@include "../Lib/Date.now.js"
 //@include "../Lib/Date.toISOString.js"
 //@include "../Lib/Date.toJSON.js"
 //@include "../Lib/Date.toTemporalInstant.js"
@@ -36,6 +39,7 @@ if (isNodeRuntime) {
             (0, eval)(source);
         }
 
+        load("../Lib/Date.now.js");
         load("../Lib/Date.toISOString.js");
         load("../Lib/Date.toJSON.js");
         load("../Lib/Date.toTemporalInstant.js");
@@ -101,6 +105,20 @@ if (isNodeRuntime) {
         date.setUTCHours(hour, minute, second, millisecond);
         return date;
     }
+
+    test("Date.now is installed", function () {
+        assertEqual(typeof Date.now, "function", "polyfill method");
+    });
+
+    test("Date.now returns the current epoch millisecond value", function () {
+        var before = new Date().getTime();
+        var value = Date.now();
+        var after = new Date().getTime();
+
+        assertEqual(typeof value, "number", "return type");
+        assertEqual(value >= before, true, "not before call window");
+        assertEqual(value <= after, true, "not after call window");
+    });
 
     test("Date.prototype.toISOString is installed", function () {
         assertEqual(typeof Date.prototype.toISOString, "function", "polyfill method");
@@ -319,6 +337,9 @@ if (isNodeRuntime) {
     console.log("\nPassed: " + passed);
     console.log("Failed: " + failed);
 
+    if (nativeDateNow) {
+        Date.now = nativeDateNow;
+    }
     if (nativeDateToISOString) {
         Date.prototype.toISOString = nativeDateToISOString;
     }
