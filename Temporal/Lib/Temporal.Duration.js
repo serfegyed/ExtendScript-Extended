@@ -567,48 +567,51 @@
 	/**
 	 * Creates a Duration from another Duration, a string, or a Duration-like object.
 	 *
-	 * @param {Temporal.Duration|string|Object} thing Source value.
+	 * @param {Temporal.Duration|string|Object} value Source value.
 	 * @throws {TypeError} If the source is missing or unsupported.
 	 * @throws {RangeError} If the source contains invalid Duration values.
 	 * @returns {Temporal.Duration} New Duration instance.
 	 */
-	Temporal.Duration.from = function (thing) {
+	Temporal.Duration.from = function (value) {
+		var duration;
+
 		// Empty
-		if (thing === undefined || thing === null) {
+		if (value === undefined || value === null) {
 			throw new TypeError("Temporal error: Duration argument must be Duration or string.");
 
 			// Temporal.Duration object
-		} else if (thing instanceof Temporal.Duration) {
+		} else if (value instanceof Temporal.Duration) {
+			duration = value;
 
 			// Other object.
-		} else if (typeof thing === 'object' && thing !== null) {
-			thing = normalizeDurationLike(thing);
+		} else if (typeof value === 'object' && value !== null) {
+			duration = normalizeDurationLike(value);
 
 			// Temporal.Duration string format
-		} else if (typeof thing === 'string') {
-			thing = parseISO8601Duration(thing);
+		} else if (typeof value === 'string') {
+			duration = parseISO8601Duration(value);
 
 			// Any other cases
 		} else {
 			throw new TypeError("Temporal error: Duration argument must be Duration or string.");
 		};
 
-		const isBlank = (thing.years === 0 && thing.months === 0 && thing.weeks === 0 && thing.days === 0 &&
-			thing.hours === 0 && thing.minutes === 0 && thing.seconds === 0 && thing.milliseconds === 0);
+		const isBlank = (duration.years === 0 && duration.months === 0 && duration.weeks === 0 && duration.days === 0 &&
+			duration.hours === 0 && duration.minutes === 0 && duration.seconds === 0 && duration.milliseconds === 0);
 
-		thing.sign = isBlank ? 0 : thing.sign;
-		thing.blank = isBlank;
+		duration.sign = isBlank ? 0 : duration.sign;
+		duration.blank = isBlank;
 		return new Temporal.Duration(
-			thing.years || 0,
-			thing.months || 0,
-			thing.weeks || 0,
-			thing.days || 0,
-			thing.hours || 0,
-			thing.minutes || 0,
-			thing.seconds || 0,
-			thing.milliseconds || 0,
-			thing.sign,
-			thing.blank
+			duration.years || 0,
+			duration.months || 0,
+			duration.weeks || 0,
+			duration.days || 0,
+			duration.hours || 0,
+			duration.minutes || 0,
+			duration.seconds || 0,
+			duration.milliseconds || 0,
+			duration.sign,
+			duration.blank
 		);
 	};
 
