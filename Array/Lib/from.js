@@ -6,7 +6,7 @@
  */
 //@include "./arrayInternals.js"
 if (!Array.from) {
-    Array.from = function (arrayLike, mapFunction, thisArg) {
+    Array.from = function (arrayLike, callback, thisArg) {
         var object;
         var length;
         var constructor;
@@ -16,7 +16,7 @@ if (!Array.from) {
         if (arrayLike === null || arrayLike === undefined) {
             throw new TypeError("Array.from called with null or undefined.");
         }
-        if (mapFunction !== undefined && typeof mapFunction !== "function") {
+        if (callback !== undefined && typeof callback !== "function") {
             throw new TypeError("Array.from: mapFunction must be a function.");
         }
 
@@ -25,8 +25,8 @@ if (!Array.from) {
         constructor = typeof this === "function" ? this : Array;
         result = new constructor(length);
         for (i = 0; i < length; i++) {
-            result[i] = mapFunction === undefined ? object[i] :
-                mapFunction.call(thisArg, object[i], i);
+            result[i] = callback === undefined ? object[i] :
+                callback.call(thisArg, object[i], i);
         }
         result.length = length;
         return result;

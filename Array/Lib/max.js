@@ -3,7 +3,7 @@
  */
 //@include "./arrayInternals.js"
 if (!Array.prototype.max) {
-    Array.prototype.max = function (salient) {
+    Array.prototype.max = function (key) {
         "use strict";
 
         var object;
@@ -18,9 +18,9 @@ if (!Array.prototype.max) {
         if (this === null || this === undefined) {
             throw new TypeError("Array.prototype.max called on null or undefined.");
         }
-        mapper = typeof salient === "string" ? function (item) {
-            return item[salient];
-        } : (salient || function (item) { return item; });
+        mapper = typeof key === "string" ? function (item) {
+            return item[key];
+        } : (key || function (item) { return item; });
         if (typeof mapper !== "function") {
             throw new TypeError("Array.prototype.max: mapper must be a function or string.");
         }

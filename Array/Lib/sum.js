@@ -1,7 +1,7 @@
 /**
  * Calculates the sum of the elements in an array.
  *
- * @param {string|Function} salient - A function or string representing the property to compare for each element.
+ * @param {string|Function} key - A function or string representing the property to compare for each element.
  *        If a string, the elements are mapped using the property value.
  *        If a function, the elements are mapped using the function's return value.
  *        If not provided, the elements themselves are used.
@@ -19,14 +19,14 @@
 //@include "./map.js"
 //@include "./reduce.js"
 if (!Array.prototype.sum) {
-    Array.prototype.sum = function (salient) {
-        if (salient && typeof salient === "string") {
-            var mapper = function (obj) {
-                return obj[salient];
+    Array.prototype.sum = function (key) {
+        if (key && typeof key === "string") {
+            var mapper = function (item) {
+                return item[key];
             };
         } else {
-            var mapper = salient || function (obj) {
-                return obj;
+            var mapper = key || function (item) {
+                return item;
             };
         }
         var features = Array.prototype.map.call(this, mapper);
