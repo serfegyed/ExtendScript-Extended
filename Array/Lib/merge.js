@@ -12,6 +12,8 @@ if (!Array.prototype.merge) {
         var i = 0;
         var j = 0;
         var k = 0;
+        var leftLength;
+        var rightLength;
 
         if (!Array.isArray(this) || !Array.isArray(arrayToMerge)) {
             throw new TypeError("Array.prototype.merge requires two Arrays.");
@@ -21,13 +23,15 @@ if (!Array.prototype.merge) {
         }
         compare = compareFunction === undefined ?
             __arrayDefaultCompare__ : compareFunction;
-        result = new Array(this.length + arrayToMerge.length);
-        while (i < this.length && j < arrayToMerge.length) {
+        leftLength = this.length;
+        rightLength = arrayToMerge.length;
+        result = new Array(leftLength + rightLength);
+        while (i < leftLength && j < rightLength) {
             result[k++] = compare(this[i], arrayToMerge[j]) <= 0 ?
                 this[i++] : arrayToMerge[j++];
         }
-        while (i < this.length) result[k++] = this[i++];
-        while (j < arrayToMerge.length) result[k++] = arrayToMerge[j++];
+        while (i < leftLength) result[k++] = this[i++];
+        while (j < rightLength) result[k++] = arrayToMerge[j++];
 
         this.length = result.length;
         for (i = 0; i < result.length; i++) this[i] = result[i];
