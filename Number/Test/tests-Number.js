@@ -19,6 +19,8 @@ if (isNodeRuntime) {
         isInteger: Number.isInteger,
         isNaN: Number.isNaN,
         isSafeInteger: Number.isSafeInteger,
+        parseInt: Number.parseInt,
+        parseFloat: Number.parseFloat,
         MAX_SAFE_INTEGER: Number.MAX_SAFE_INTEGER,
         MIN_SAFE_INTEGER: Number.MIN_SAFE_INTEGER,
         EPSILON: Number.EPSILON
@@ -29,6 +31,8 @@ Number.isFinite = undefined;
 Number.isInteger = undefined;
 Number.isNaN = undefined;
 Number.isSafeInteger = undefined;
+Number.parseInt = undefined;
+Number.parseFloat = undefined;
 
 //@include "../Number.js"
 
@@ -43,7 +47,9 @@ if (isNodeRuntime) {
             "../Lib/isFinite.js",
             "../Lib/isInteger.js",
             "../Lib/isNaN.js",
-            "../Lib/isSafeInteger.js"
+            "../Lib/isSafeInteger.js",
+            "../Lib/parseInt.js",
+            "../Lib/parseFloat.js"
         ];
         var i;
 
@@ -74,6 +80,27 @@ if (isNodeRuntime) {
             fail((message ? message + ": " : "") +
                 "expected " + String(expected) + ", got " + String(actual));
         }
+    }
+
+    function numberLabel(value) {
+        if (value !== value) return "NaN";
+        if (value === 0 && 1 / value === -Infinity) return "-0";
+        return String(value);
+    }
+
+    function assertNumberSame(actual, expected, message) {
+        var bothNaN = actual !== actual && expected !== expected;
+
+        if (bothNaN) return;
+        if (actual === 0 && expected === 0) {
+            if (1 / actual === 1 / expected) return;
+        } else if (actual === expected) {
+            return;
+        }
+
+        fail((message ? message + ": " : "") +
+            "expected " + numberLabel(expected) +
+            ", got " + numberLabel(actual));
     }
 
     function test(name, callback) {
@@ -114,11 +141,42 @@ if (isNodeRuntime) {
         });
     }
 
+    function checkParseMethod(methodName, rows) {
+        test("Number." + methodName, function () {
+            var nativeMethod = nativeNumber && nativeNumber[methodName];
+            var row;
+            var expected;
+            var i;
+
+            for (i = 0; i < rows.length; i++) {
+                row = rows[i];
+                expected = row.expected;
+
+                if (nativeMethod) {
+                    expected = nativeMethod.apply(Number, row.args);
+                    assertNumberSame(
+                        expected,
+                        row.expected,
+                        "Node reference row " + i
+                    );
+                }
+
+                assertNumberSame(
+                    Number[methodName].apply(Number, row.args),
+                    expected,
+                    "polyfill row " + i
+                );
+            }
+        });
+    }
+
     test("Number methods are installed", function () {
         assert(typeof Number.isFinite === "function", "Number.isFinite");
         assert(typeof Number.isInteger === "function", "Number.isInteger");
         assert(typeof Number.isNaN === "function", "Number.isNaN");
         assert(typeof Number.isSafeInteger === "function", "Number.isSafeInteger");
+        assert(typeof Number.parseInt === "function", "Number.parseInt");
+        assert(typeof Number.parseFloat === "function", "Number.parseFloat");
     });
 
     test("Number constants match the standard values", function () {
@@ -187,6 +245,46 @@ if (isNodeRuntime) {
         { value: Infinity, expected: false },
         { value: "1", expected: false },
         { value: new Number(1), expected: false }
+    ]);
+
+    checkParseMethod("parseInt", [
+        { args: ["42"], expected: 42 },
+        { args: ["  -42px"], expected: -42 },
+        { args: ["0x10"], expected: 16 },
+        { args: ["0x10", 10], expected: 0 },
+        { args: ["0b10"], expected: 0 },
+        { args: ["0B10"], expected: 0 },
+        { args: ["0o10"], expected: 0 },
+        { args: ["0O10"], expected: 0 },
+        { args: ["0b10", 0], expected: 0 },
+        { args: ["0o10", 0], expected: 0 },
+        { args: ["0b10", 2], expected: 0 },
+        { args: ["0o10", 8], expected: 0 },
+        { args: ["08"], expected: 8 },
+        { args: ["010"], expected: 10 },
+        { args: ["010", 0], expected: 10 },
+        { args: ["010", 8], expected: 8 },
+        { args: ["101", 2], expected: 5 },
+        { args: ["10", 37], expected: NaN },
+        { args: ["xyz"], expected: NaN },
+        { args: [""], expected: NaN },
+        { args: [null], expected: NaN },
+        { args: [true], expected: NaN }
+    ]);
+
+    checkParseMethod("parseFloat", [
+        { args: ["3.14"], expected: 3.14 },
+        { args: ["  -3.14px"], expected: -3.14 },
+        { args: ["Infinity"], expected: Infinity },
+        { args: ["-Infinity"], expected: -Infinity },
+        { args: ["0x10"], expected: 0 },
+        { args: ["0b10"], expected: 0 },
+        { args: ["0B10"], expected: 0 },
+        { args: ["0o10"], expected: 0 },
+        { args: ["0O10"], expected: 0 },
+        { args: [""], expected: NaN },
+        { args: ["NaN"], expected: NaN },
+        { args: [null], expected: NaN }
     ]);
 
     console.log("\nPassed: " + passed);

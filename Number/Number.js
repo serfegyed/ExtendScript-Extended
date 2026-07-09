@@ -9,3 +9,5 @@
 //@include "./Lib/isInteger.js"
 //@include "./Lib/isNaN.js"
 //@include "./Lib/isSafeInteger.js"
+//@include "./Lib/parseInt.js"
+//@include "./Lib/parseFloat.js"

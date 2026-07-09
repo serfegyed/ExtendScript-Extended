@@ -78,17 +78,46 @@ console.log(Number.isSafeInteger(Number.MAX_SAFE_INTEGER + 1)); // false
 console.log(Number.isSafeInteger(Number.MIN_SAFE_INTEGER - 1)); // false
 ```
 
+### Number.parseInt
+Wrapper for the global `parseInt()` function with Node-compatible default
+radix handling. When `radix` is missing or `0`, decimal is used except for
+`0x`/`0X` hex prefixes.
+
+```javascript
+console.log(Number.parseInt("42"));        // 42
+console.log(Number.parseInt("  -42px"));  // -42
+console.log(Number.parseInt("0x10"));     // 16
+console.log(Number.parseInt("010"));      // 10 in Node
+console.log(Number.parseInt("101", 2));   // 5
+```
+
+### Number.parseFloat
+Wrapper for the global `parseFloat()` function.
+
+```javascript
+console.log(Number.parseFloat("3.14"));       // 3.14
+console.log(Number.parseFloat("  -3.14px"));  // -3.14
+console.log(Number.parseFloat("Infinity"));   // Infinity
+console.log(Number.parseFloat("0x10"));       // 0
+```
+
 ## Usage
-To use these polyfills, simply include this script in your ExtendScript project before using any of the polyfilled Math methods.The polyfills check if the method already exists before defining it, ensuring that they do not override native implementations in environments that already support these features.
+To use these polyfills, simply include this script in your ExtendScript project before using any of the polyfilled Number methods. The polyfills check if the method already exists before defining it, ensuring that they do not override native implementations in environments that already support these features.
 
 ```javascript
 // Include the polyfills in your script
-//@include "path/to/Number.isFinite.js"
-//@include "path/to/Number.isInteger.js"
-//@include "path/to/Number.isNaN.js"
-//@include "path/to/Number.isSafeInteger.js"
+//@include "path/to/Number/Number.js"
 ...
 ```
+
+Individual files can also be included from `Lib`.
+
+## Tests
+Run `Test/tests-Number.js` in ESTK or Node. The harness disables native Number
+methods so the project implementations are tested directly, while Node is used
+as a convenient behavior reference.
+
+Current Node checkpoint: **8 passed, 0 failed**.
 
 ## Compatibility
 These polyfills are designed for use in ExtendScript, which is based on ECMAScript 3. They have been tested in Adobe InDesign scripting environments but should be compatible with any ExtendScript environment.
