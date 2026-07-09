@@ -6,18 +6,16 @@
  * @return {Map} Returns the current map after merging.
  */
 Map.prototype.merge = function (otherMap) {
-    var iterator;
+    var i;
     var entry;
 
     if (!(otherMap instanceof Map)) {
         throw new TypeError("Map.prototype.merge: value must be a Map.");
     }
 
-    iterator = otherMap.entries();
-    entry = iterator.next();
-    while (!entry.done) {
-        this.set(entry.value[0], entry.value[1]);
-        entry = iterator.next();
+    for (i = 0; i < otherMap._entries.length; i++) {
+        entry = otherMap._entries[i];
+        this.set(entry[0], entry[1]);
     }
 
     return this;

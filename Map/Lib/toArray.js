@@ -5,12 +5,10 @@
  */
 Map.prototype.toArray = function () {
     var entries = [];
-    var iterator = this.entries();
-    var entry = iterator.next();
 
-    while (!entry.done) {
-        entries.push(entry.value);
-        entry = iterator.next();
+    for (var i = 0; i < this._entries.length; i++) {
+        entries.push([this._entries[i][0], this._entries[i][1]]);
     }
+
     return entries;
 };
