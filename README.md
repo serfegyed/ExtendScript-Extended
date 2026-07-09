@@ -10,9 +10,11 @@ This project was originally made as a learning tool and to solve problems encoun
 ## What's Inside
 - **Array Extensions**: A set of methods added to the native Array object, inspired by ES6 features.
 - **Date Extensions**: ISO serialization and Temporal conversion methods for the native Date object.
+- **Function Extensions**: Function.prototype.bind() for fixed receivers and leading arguments.
 - **JSON Extensions**: JSON.stringify() and JSON.parse() methods, inspired by ES6 features.
 - **Math Extensions**: Additional math functions and constants.
 - **Number Extensions**: Methods like Number.isNaN(), Number.isFinite(), Number.isInteger(), and Number.isSafeInteger() as well as some constants.
+- **RegExp Extensions**: RegExp.escape() for safely embedding literal text in regular expression patterns.
 - **String Enhancements**: New methods for the String object to aid in text processing and to bring it closer to the modern JavaScript standard.
 - **Object Utilities**: Enhancements for the Object class, focusing on property management and object introspection.
 - **Map and Set**: Introducing Map and Set objects for more advanced data structures.
