@@ -24,9 +24,14 @@ if (!Array.from) {
         length = __arrayToLength__(object.length);
         constructor = typeof this === "function" ? this : Array;
         result = new constructor(length);
-        for (i = 0; i < length; i++) {
-            result[i] = callback === undefined ? object[i] :
-                callback.call(thisArg, object[i], i);
+        if (callback === undefined) {
+            for (i = 0; i < length; i++) {
+                result[i] = object[i];
+            }
+        } else {
+            for (i = 0; i < length; i++) {
+                result[i] = callback.call(thisArg, object[i], i);
+            }
         }
         result.length = length;
         return result;
