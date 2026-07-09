@@ -655,20 +655,20 @@
 	/**
 	 * Returns a copy of this Duration with selected fields replaced.
 	 *
-	 * @param {Object} obj Duration fields to replace.
+	 * @param {Object} durationLike Duration fields to replace.
 	 * @throws {TypeError} If no Duration fields are supplied.
 	 * @throws {RangeError} If replacement fields produce mixed signs or invalid values.
 	 * @returns {Temporal.Duration} New Duration instance.
 	 */
-	Temporal.Duration.prototype.with = function (obj) {
+	Temporal.Duration.prototype.with = function (durationLike) {
 		// Copy this
 		var newDuration = Temporal.__copyFields__(this);
-		var changes = normalizeDurationLike(obj, "Temporal error: Must provide a duration.");
+		var changes = normalizeDurationLike(durationLike, "Temporal error: Must provide a duration.");
 
 		// Check signs
 		for (var i = 0; i < DURATION_FIELDS.length; i++) {
 			var key = DURATION_FIELDS[i];
-			if (obj.hasOwnProperty(key)) {
+			if (durationLike.hasOwnProperty(key)) {
 				newDuration[key] = changes[key];
 			}
 		};
