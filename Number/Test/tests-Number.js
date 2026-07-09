@@ -5,8 +5,6 @@
  * preserves its native Number methods as the reference, disables those
  * methods, and then loads the project polyfill.
  */
-//@debug 0
-
 //@include "../../Tools/Console/console.js"
 
 var isNodeRuntime = typeof process !== "undefined" &&
