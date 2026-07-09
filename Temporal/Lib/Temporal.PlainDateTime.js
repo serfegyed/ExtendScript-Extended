@@ -347,18 +347,18 @@
         roundingIncrement = Math.floor(roundingIncrement);
         validateRoundingIncrement(roundingIncrement, smallestUnit);
 
-        var dt1 = Temporal.__copyFields__(this);
-        var dt2 = Temporal.PlainDateTime.from(other);
+        var startDateTime = Temporal.__copyFields__(this);
+        var endDateTime = Temporal.PlainDateTime.from(other);
 
-        if (Temporal.PlainDateTime.compare(dt1, dt2) === 0) {
+        if (Temporal.PlainDateTime.compare(startDateTime, endDateTime) === 0) {
             return new Temporal.Duration();
         }
 
         var reverse = false;
-        if (Temporal.PlainDateTime.compare(dt1, dt2) > 0) {
-            var temp = dt1;
-            dt1 = dt2;
-            dt2 = temp;
+        if (Temporal.PlainDateTime.compare(startDateTime, endDateTime) > 0) {
+            var swapDateTime = startDateTime;
+            startDateTime = endDateTime;
+            endDateTime = swapDateTime;
             reverse = true;
         }
 
@@ -463,9 +463,9 @@
         }
         var rawDiff;
         if (largestUnit === "year" || largestUnit === "month") {
-            rawDiff = calendarDiff(dt1, dt2);
+            rawDiff = calendarDiff(startDateTime, endDateTime);
         } else {
-            var signedMilliseconds = totalMillisecondsBetween(dt1, dt2);
+            var signedMilliseconds = totalMillisecondsBetween(startDateTime, endDateTime);
             if (reverse) {
                 signedMilliseconds = -signedMilliseconds;
             }
