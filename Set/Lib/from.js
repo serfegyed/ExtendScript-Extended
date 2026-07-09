@@ -11,18 +11,13 @@ Set.prototype.from = function (iterables) {
     var j;
     var key;
     var iterable;
-    var iterator;
-    var item;
 
     for (i = 0; i < arguments.length; i++) {
         iterable = arguments[i];
 
         if (iterable instanceof Set) {
-            iterator = iterable.values();
-            item = iterator.next();
-            while (!item.done) {
-                this.add(item.value);
-                item = iterator.next();
+            for (j = 0; j < iterable._data.length; j++) {
+                this.add(iterable._data[j]);
             }
         } else if (iterable instanceof Array ||
                 (typeof iterable !== "string" && isArrayLike(iterable))) {

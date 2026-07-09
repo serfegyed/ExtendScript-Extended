@@ -6,5 +6,5 @@
  */
 Set.prototype.join = function (separator) {
     separator = separator !== undefined ? separator : ',';
-    return this.toArray().join(separator);
+    return this._data.join(separator);
 };
