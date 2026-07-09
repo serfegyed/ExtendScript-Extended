@@ -4,8 +4,6 @@
  * ExtendScript processes include directives. Node.js preserves its native
  * Map as a behavior reference and loads the project implementation explicitly.
  */
-//@debug 0
-
 //@include "../../Tools/Console/console.js"
 
 var isNodeRuntime = typeof process !== "undefined" &&

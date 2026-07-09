@@ -1,8 +1,6 @@
 /*
  * Non-standard Map extension tests.
  */
-//@debug 0
-
 //@include "../../Tools/Console/console.js"
 
 var isNodeRuntime = typeof process !== "undefined" &&
