@@ -129,18 +129,18 @@
 	 * Checks whether a parameter is present in a simple lookup object.
 	 *
 	 * @param {*} parameter The value to look up.
-	 * @param {Object} validKeysObj Object whose values are accepted parameters.
+	 * @param {Object} validKeys Object whose values are accepted parameters.
 	 * @throws {TypeError} If either argument is missing.
 	 * @returns {boolean} True when the parameter is accepted.
 	 */
-	function isValidParameter(parameter, validKeysObj) {
-		if (parameter === null || validKeysObj === null) {
+	function isValidParameter(parameter, validKeys) {
+		if (parameter === null || validKeys === null) {
 			throw new TypeError('Missing parameter'); // Handle empty inputs
 		};
 
-		for (var key in validKeysObj) {
+		for (var key in validKeys) {
 
-			if (validKeysObj[key] === parameter) {
+			if (validKeys[key] === parameter) {
 				return true;
 			}
 		}
@@ -150,18 +150,18 @@
 	/**
 	 * Checks that every own key in an object is present in a valid-key lookup.
 	 *
-	 * @param {Object} parametersObj Object to validate.
-	 * @param {Object} validKeysObj Object whose keys are accepted.
+	 * @param {Object} parameters Object to validate.
+	 * @param {Object} validKeys Object whose keys are accepted.
 	 * @throws {TypeError} If either argument is missing.
 	 * @returns {boolean} True when all keys are accepted.
 	 */
-	function isValidParameters(parametersObj, validKeysObj) {
-		if (parametersObj === null || validKeysObj === null) {
+	function isValidParameters(parameters, validKeys) {
+		if (parameters === null || validKeys === null) {
 			throw new TypeError('Missing parameter'); // Handle empty inputs
 		};
 
-		for (var key in parametersObj) {
-			if (!validKeysObj.hasOwnProperty(key)) {
+		for (var key in parameters) {
+			if (!validKeys.hasOwnProperty(key)) {
 				return false;
 			}
 		}
@@ -171,11 +171,11 @@
 	/**
 	 * Checks whether an object contains only Duration field names and metadata.
 	 *
-	 * @param {*} durationObj Candidate object.
+	 * @param {*} durationLike Candidate object.
 	 * @returns {boolean} True when the object has no unknown Duration keys.
 	 */
-	function isDurationLike(durationObj) {
-		if (typeof durationObj !== 'object' || durationObj === null) {
+	function isDurationLike(durationLike) {
+		if (typeof durationLike !== 'object' || durationLike === null) {
 			return false; // Handle non-object inputs
 		}
 
@@ -192,18 +192,18 @@
 			blank: true
 		};
 
-		return isValidParameters(durationObj, validKeys);
+		return isValidParameters(durationLike, validKeys);
 	}
 
 	/**
 	 * Checks whether an object provides at least one real Duration field.
 	 *
-	 * @param {Object} durationObj Candidate object.
+	 * @param {Object} durationLike Candidate object.
 	 * @returns {boolean} True when any supported Duration field is present.
 	 */
-	function hasDurationField(durationObj) {
+	function hasDurationField(durationLike) {
 		for (var i = 0; i < DURATION_FIELDS.length; i++) {
-			if (durationObj.hasOwnProperty(DURATION_FIELDS[i])) {
+			if (durationLike.hasOwnProperty(DURATION_FIELDS[i])) {
 				return true;
 			}
 		}
@@ -215,39 +215,39 @@
 	 *
 	 * Unknown object keys are ignored, but at least one Duration field is required.
 	 *
-	 * @param {*} durationObj Object to normalize.
+	 * @param {*} durationLike Object to normalize.
 	 * @param {string} nullMessage Error message for null or non-object inputs.
 	 * @throws {TypeError} If the object is missing or has no Duration fields.
 	 * @throws {RangeError} If a field is not a finite integer or signs are mixed.
 	 * @returns {Object} Normalized Duration field record.
 	 */
-	function normalizeDurationLike(durationObj, nullMessage) {
-		if (typeof durationObj !== 'object' || durationObj === null) {
+	function normalizeDurationLike(durationLike, nullMessage) {
+		if (typeof durationLike !== 'object' || durationLike === null) {
 			throw new TypeError(nullMessage || "Temporal error: Duration argument must be Duration or string.");
 		};
 
-		if (!hasDurationField(durationObj)) {
+		if (!hasDurationField(durationLike)) {
 			throw new TypeError("Temporal error: Did not provide any valid Duration fields.");
 		};
 
-		return normalizeDurationFields(durationObj, true, false);
+		return normalizeDurationFields(durationLike, true, false);
 	}
 
 	/**
 	 * Converts raw field values to finite integer Duration fields.
 	 *
-	 * @param {Object} durationObj Object containing raw field values.
+	 * @param {Object} durationLike Object containing raw field values.
 	 * @param {boolean} requireOwnField Whether absent fields should be ignored.
 	 * @param {boolean} undefinedIsZero Whether explicit undefined should become zero.
 	 * @throws {RangeError} If a field is not a finite integer or signs are mixed.
 	 * @returns {Object} Normalized Duration field record.
 	 */
-	function normalizeDurationFields(durationObj, requireOwnField, undefinedIsZero) {
+	function normalizeDurationFields(durationLike, requireOwnField, undefinedIsZero) {
 		var normalized = {};
 		for (var i = 0; i < DURATION_FIELDS.length; i++) {
 			var field = DURATION_FIELDS[i];
-			var hasField = !requireOwnField || durationObj.hasOwnProperty(field);
-			var value = (hasField && !(undefinedIsZero && durationObj[field] === undefined)) ? Number(durationObj[field]) : 0;
+			var hasField = !requireOwnField || durationLike.hasOwnProperty(field);
+			var value = (hasField && !(undefinedIsZero && durationLike[field] === undefined)) ? Number(durationLike[field]) : 0;
 
 			if (value !== 0 && (isNaN(value) || !isFinite(value) || Math.floor(value) !== value)) {
 				throw new RangeError("Temporal error: Expected finite integer.");
@@ -267,14 +267,14 @@
 	 * If the values are valid, it sets the `sign` and `blank` properties on the object.
 	 * If the values are invalid, it throws a RangeError.
 	 *
-	 * @param {Object} thing - The object containing the values to check.
+	 * @param {Object} fields The Duration fields to check.
 	 * @throws {RangeError} If the non-zero values have different signs or are not integers.
 	 * @returns {Object} The modified object with `sign` and `blank` properties set.
 	 */
-	function checkInputValues(thing) {
+	function checkInputValues(fields) {
 		var allValues = [
-			thing.years, thing.months, thing.weeks, thing.days,
-			thing.hours, thing.minutes, thing.seconds, thing.milliseconds
+			fields.years, fields.months, fields.weeks, fields.days,
+			fields.hours, fields.minutes, fields.seconds, fields.milliseconds
 		];
 
 		var hasNegative = false;
@@ -301,31 +301,31 @@
 			throw new RangeError("Temporal error: Duration was not valid.");
 		}
 
-		thing.sign = thing.sign || ((hasNegative) ? -1 : ((hasPositive) ? 1 : 0));
-		thing.blank = thing.sign === 0;
+		fields.sign = fields.sign || ((hasNegative) ? -1 : ((hasPositive) ? 1 : 0));
+		fields.blank = fields.sign === 0;
 
-		return thing
+		return fields
 	}
 
 	/**
 	 * Converts a Duration record to milliseconds, using relativeTo for calendar fields.
 	 *
-	 * @param {Temporal.Duration|Object} dt Duration-like record.
+	 * @param {Temporal.Duration|Object} duration Duration-like record.
 	 * @param {Temporal.PlainDateTime|Object|string=} relativeTo Calendar anchor.
 	 * @throws {RangeError} If year or month fields need a missing relativeTo.
 	 * @returns {number} Absolute millisecond magnitude.
 	 */
-	function durationToMilliseconds(dt, relativeTo) {
+	function durationToMilliseconds(duration, relativeTo) {
 		var totalMs = 0;
 		var datePartDays = 0;
 
-		if (relativeTo === undefined && (dt.years !== 0 || dt.months !== 0)) {
+		if (relativeTo === undefined && (duration.years !== 0 || duration.months !== 0)) {
 			throw new RangeError('Missing relativeTo')
 		};
 
-		if (dt.years !== 0 || dt.months !== 0) {
-			var targetMonth = relativeTo.month + dt.months;
-			var targetDate = Temporal.__balanceDateUnits__(relativeTo.year + dt.years, targetMonth, 1);
+		if (duration.years !== 0 || duration.months !== 0) {
+			var targetMonth = relativeTo.month + duration.months;
+			var targetDate = Temporal.__balanceDateUnits__(relativeTo.year + duration.years, targetMonth, 1);
 			var targetDay = Math.min(relativeTo.day, Temporal.__computeDaysInMonth__(targetDate.year, targetDate.month));
 
 			targetDate.day = targetDay;
@@ -333,12 +333,12 @@
 		};
 
 		totalMs += ((datePartDays || 0) * Temporal.__MILLISECONDS_PER_DAY__) +
-			((dt.weeks || 0) * Temporal.__MILLISECONDS_PER_WEEK__) +
-			((dt.days || 0) * Temporal.__MILLISECONDS_PER_DAY__) +
-			((dt.hours || 0) * Temporal.__MILLISECONDS_PER_HOUR__) +
-			((dt.minutes || 0) * Temporal.__MILLISECONDS_PER_MINUTE__) +
-			((dt.seconds || 0) * Temporal.__MILLISECONDS_PER_SECOND__) +
-			(dt.milliseconds || 0);
+			((duration.weeks || 0) * Temporal.__MILLISECONDS_PER_WEEK__) +
+			((duration.days || 0) * Temporal.__MILLISECONDS_PER_DAY__) +
+			((duration.hours || 0) * Temporal.__MILLISECONDS_PER_HOUR__) +
+			((duration.minutes || 0) * Temporal.__MILLISECONDS_PER_MINUTE__) +
+			((duration.seconds || 0) * Temporal.__MILLISECONDS_PER_SECOND__) +
+			(duration.milliseconds || 0);
 
 		return Math.abs(totalMs);
 	};
