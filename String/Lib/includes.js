@@ -1,9 +1,9 @@
 /**
- * Checks if the string includes the given substring.
+ * Checks if the string includes the given search text.
  *
- * @param {string} substring - The substring to search for.
+ * @param {string} searchString - The text to search for.
  * @param {number} position - The starting position for the search (optional).
- * @return {boolean} Returns true if the substring is found, false otherwise.
+ * @return {boolean} Returns true if the search text is found, false otherwise.
  */
 if (!String.prototype.includes) {
     String.prototype.includes = function (searchString, position) {

@@ -1,11 +1,11 @@
 /**
- * Checks whether a string contains a specified substring.
+ * Checks whether a string contains specified search text.
  *
- * @param {string} substring - The substring to search for.
- * @return {boolean} True when the substring is present.
+ * @param {string} searchString - The text to search for.
+ * @return {boolean} True when the search text is present.
  */
 if (!String.prototype.contains) {
-    String.prototype.contains = function (substring) {
-        return String(this).indexOf(String(substring)) !== -1;
+    String.prototype.contains = function (searchString) {
+        return String(this).indexOf(String(searchString)) !== -1;
     };
 }

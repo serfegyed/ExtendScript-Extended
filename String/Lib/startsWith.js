@@ -1,8 +1,9 @@
 /**
- * Checks if the string starts with the specified substring.
+ * Checks if the string starts with the specified search text.
  *
- * @param {string} substring - The substring to check.
- * @return {boolean} Returns true if the string starts with the specified substring, otherwise returns false.
+ * @param {string} searchString - The text to search for.
+ * @param {number} position - Optional start position.
+ * @return {boolean} Returns true if the string starts with the search text, otherwise returns false.
  */
 if (!String.prototype.startsWith) {
     String.prototype.startsWith = function (searchString, position) {

@@ -4,8 +4,6 @@
  * ExtendScript processes the include directives. Node.js loads the same
  * project files explicitly so this harness can be run in both environments.
  */
-//@debug 0
-
 //@include "../../Tools/Console/console.js"
 
 var isNodeRuntime = typeof process !== "undefined" &&

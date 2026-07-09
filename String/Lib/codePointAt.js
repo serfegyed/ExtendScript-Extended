@@ -1,7 +1,7 @@
 /**
  * Retrieves the Unicode code point at the specified position in a string.
  *
- * @param {number} pos - The position of the code point to retrieve.
+ * @param {number} position - The position of the code point to retrieve.
  * @return {number|undefined} The Unicode code point at the specified position, or undefined if the position is invalid.
  * @example
  *	> $.writeln("👋👋👋 hello world".codePoint(0));

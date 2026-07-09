@@ -1,7 +1,8 @@
 /**
- * Determines whether the string ends with the specified substring.
+ * Determines whether the string ends with the specified search text.
  *  
- * @param {String} substring
+ * @param {String} searchString - The text to search for.
+ * @param {number} position - Optional end position.
  * @returns {Bool} True or false.
  */
 if (!String.prototype.endsWith) {

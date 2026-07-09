@@ -5,8 +5,6 @@
  * the include directives; Node.js preserves native methods as references,
  * disables them, and loads the same project files explicitly.
  */
-//@debug 0
-
 //@include "../../Tools/Console/console.js"
 
 var isNodeRuntime = typeof process !== "undefined" &&
