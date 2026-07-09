@@ -5,8 +5,6 @@
  * preserves its native standard methods as references, disables them, and
  * then loads the project polyfills.
  */
-//@debug 0
-
 //@include "../../Tools/Console/console.js"
 
 var isNodeRuntime = typeof process !== "undefined" &&

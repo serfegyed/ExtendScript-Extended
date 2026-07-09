@@ -9,13 +9,13 @@
 if (!Math.sum) {
     Math.sum = function () {    // ExtendScript version
         // Helper function to recursively flatten an array and compute the sum
-        function flattenAndSum(arr) {
+        function flattenAndSum(values) {
             var sum = 0;
-            for (var i = 0; i < arr.length; i++) {
-                if (arr[i] instanceof Array) {
-                    sum += flattenAndSum(arr[i]); // Recurse for sub-arrays
+            for (var i = 0; i < values.length; i++) {
+                if (values[i] instanceof Array) {
+                    sum += flattenAndSum(values[i]); // Recurse for sub-arrays
                 } else {
-                    sum += (typeof arr[i] === 'number' ? arr[i] : 0); // Sum the elements
+                    sum += (typeof values[i] === 'number' ? values[i] : 0); // Sum the elements
                 }
             }
             return sum;

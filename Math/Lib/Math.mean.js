@@ -2,32 +2,32 @@
  * Calculate the mean of an array or across a specified dimension.
  *
  * @param {Array|number} values - The array of values or the array and the dimension along which to calculate the mean
- * @param {number} dim - The dimension along which to calculate the mean. 
+ * @param {number} dimension - The dimension along which to calculate the mean. 
  *					Should be 0 or 1. If not specified, the mean is calculated as flattened array
  * @return {Array|number} The mean value or an array of mean values
  */
-Math.mean = function (/*values, dim*/) {
+Math.mean = function (/*values, dimension*/) {
     //@include "../../Array/Lib/flat.js"
     //@include "../../Array/Lib/info.js"
     //@include "../../Array/Lib/reduce.js"
     //@include "../../Array/Lib/map.js"
     // Helper function to calculate mean of an array
-    function meanOfArray(arr) {
-        var sum = arr.reduce(function (a, b) { return a + b; }, 0);
-        return sum / arr.length;
+    function meanOfArray(values) {
+        var sum = values.reduce(function (a, b) { return a + b; }, 0);
+        return sum / values.length;
     }
 
     // Calculate mean across the specified dimension
-    function meanAcrossDimension(arr, dim) {
+    function meanAcrossDimension(values, dimension) {
         var result = [];
-        if (dim === 0) { // Calculate mean of each column
-            for (var i = 0; i < arr[0].length; i++) {
-                var column = arr.map(function (row) { return row[i]; });
+        if (dimension === 0) { // Calculate mean of each column
+            for (var i = 0; i < values[0].length; i++) {
+                var column = values.map(function (row) { return row[i]; });
                 result.push(meanOfArray(column));
             }
-        } else if (dim === 1) { // Calculate mean of each row
-            for (var j = 0; j < arr.length; j++) {
-                result.push(meanOfArray(arr[j]));
+        } else if (dimension === 1) { // Calculate mean of each row
+            for (var j = 0; j < values.length; j++) {
+                result.push(meanOfArray(values[j]));
             }
         } else {
             throw new Error('Invalid dimension. Should be 0 or 1.');
