@@ -1,8 +1,8 @@
 /**
  * Replaces all occurrences of a search string with a replacement string in the target string.
  *
- * @param {RegExp|string} search - The search string or regular expression to be replaced.
- * @param {string|function} replacement - The replacement string or a function that returns the replacement string.
+ * @param {RegExp|string} searchValue - The search string or regular expression to be replaced.
+ * @param {string|function} replaceValue - The replacement string or a function that returns the replacement string.
  * @return {string} The modified target string with all occurrences of the search string replaced with the replacement string.
  */
 if (!String.prototype.replaceAll) {
@@ -30,14 +30,14 @@ if (!String.prototype.replaceAll) {
             var output = "";
             var nextPosition = 0;
             var current;
-            var args;
+            var replacementArguments;
 
             regexp.lastIndex = 0;
             while ((current = regexp.exec(input)) !== null) {
                 output += input.slice(nextPosition, current.index);
-                args = current.slice(0);
-                args.push(current.index, input);
-                output += String(replacer.apply(undefined, args));
+                replacementArguments = current.slice(0);
+                replacementArguments.push(current.index, input);
+                output += String(replacer.apply(undefined, replacementArguments));
                 nextPosition = current.index + current[0].length;
                 if (current.index === regexp.lastIndex) {
                     regexp.lastIndex++;
