@@ -16,6 +16,8 @@
 //@include "../Array/Lib/isArray.js"
 //@include "./Lib/fromEntries.js"
 //@include "./Lib/getOwnPropertyNames.js"
+//@include "./Lib/getOwnPropertyDescriptor.js"
+//@include "./Lib/getOwnPropertyDescriptors.js"
 //@include "./Lib/getPrototypeOf.js"
 //@include "./Lib/create.js"
 //@include "./Lib/defineProperty.js"

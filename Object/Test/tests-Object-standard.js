@@ -20,6 +20,8 @@ var nativeObjectValues = isNodeRuntime ? Object.values : null;
 var nativeObjectEntries = isNodeRuntime ? Object.entries : null;
 var nativeObjectFromEntries = isNodeRuntime ? Object.fromEntries : null;
 var nativeObjectGetOwnPropertyNames = isNodeRuntime ? Object.getOwnPropertyNames : null;
+var nativeObjectGetOwnPropertyDescriptor = isNodeRuntime ? Object.getOwnPropertyDescriptor : null;
+var nativeObjectGetOwnPropertyDescriptors = isNodeRuntime ? Object.getOwnPropertyDescriptors : null;
 var nativeObjectGetPrototypeOf = isNodeRuntime ? Object.getPrototypeOf : null;
 var nativeObjectCreate = isNodeRuntime ? Object.create : null;
 var nativeObjectDefineProperty = isNodeRuntime ? Object.defineProperty : null;
@@ -34,6 +36,8 @@ Object.values = undefined;
 Object.entries = undefined;
 Object.fromEntries = undefined;
 Object.getOwnPropertyNames = undefined;
+Object.getOwnPropertyDescriptor = undefined;
+Object.getOwnPropertyDescriptors = undefined;
 Object.getPrototypeOf = undefined;
 Object.create = undefined;
 Object.defineProperty = undefined;
@@ -49,6 +53,8 @@ Object.groupBy = undefined;
 //@include "../../Array/Lib/isArray.js"
 //@include "../Lib/fromEntries.js"
 //@include "../Lib/getOwnPropertyNames.js"
+//@include "../Lib/getOwnPropertyDescriptor.js"
+//@include "../Lib/getOwnPropertyDescriptors.js"
 //@include "../Lib/getPrototypeOf.js"
 //@include "../Lib/create.js"
 //@include "../Lib/defineProperty.js"
@@ -75,6 +81,8 @@ if (isNodeRuntime) {
             path.join(__dirname, "../../Array/Lib/isArray.js"),
             path.join(__dirname, "../Lib/fromEntries.js"),
             path.join(__dirname, "../Lib/getOwnPropertyNames.js"),
+            path.join(__dirname, "../Lib/getOwnPropertyDescriptor.js"),
+            path.join(__dirname, "../Lib/getOwnPropertyDescriptors.js"),
             path.join(__dirname, "../Lib/getPrototypeOf.js"),
             path.join(__dirname, "../Lib/create.js"),
             path.join(__dirname, "../Lib/defineProperty.js"),
@@ -420,6 +428,109 @@ if (isNodeRuntime) {
         }, "undefined value");
     });
 
+    test("Object.getOwnPropertyDescriptor is installed", function () {
+        assertEqual(typeof Object.getOwnPropertyDescriptor, "function",
+            "Object.getOwnPropertyDescriptor");
+        assertEqual(typeof Object.getOwnPropertyDescriptors, "function",
+            "Object.getOwnPropertyDescriptors");
+    });
+
+    test("Object.getOwnPropertyDescriptor returns own data descriptors", function () {
+        function Parent() {}
+        var object = new Parent();
+        var descriptor;
+        var nativeDescriptor;
+
+        Parent.prototype.inherited = true;
+        object.a = 1;
+
+        descriptor = Object.getOwnPropertyDescriptor(object, "a");
+        assertEqual(descriptor.value, 1, "value");
+        assertEqual(descriptor.writable, true, "writable");
+        assertEqual(descriptor.enumerable, true, "enumerable");
+        assertEqual(descriptor.configurable, true, "configurable");
+        assertEqual(Object.getOwnPropertyDescriptor(object, "missing"), undefined,
+            "missing descriptor");
+        assertEqual(Object.getOwnPropertyDescriptor(object, "inherited"), undefined,
+            "inherited descriptor");
+
+        if (nativeObjectGetOwnPropertyDescriptor) {
+            nativeDescriptor = nativeObjectGetOwnPropertyDescriptor({a: 1}, "a");
+            assertEqual(nativeDescriptor.value, 1, "Node descriptor value");
+            assertEqual(nativeDescriptor.enumerable, true, "Node descriptor enumerable");
+        }
+    });
+
+    test("Object.getOwnPropertyDescriptor handles supported built-in fields", function () {
+        var arrayDescriptor = Object.getOwnPropertyDescriptor(["x"], "length");
+        var functionDescriptor = Object.getOwnPropertyDescriptor(
+            function (a, b) { return a + b; },
+            "length"
+        );
+
+        assertEqual(arrayDescriptor.value, 1, "array length value");
+        assertEqual(arrayDescriptor.writable, true, "array length writable");
+        assertEqual(arrayDescriptor.enumerable, false, "array length enumerable");
+        assertEqual(arrayDescriptor.configurable, false, "array length configurable");
+        assertEqual(functionDescriptor.value, 2, "function length value");
+        assertEqual(functionDescriptor.writable, false, "function length writable");
+        assertEqual(functionDescriptor.enumerable, false, "function length enumerable");
+    });
+
+    test("Object.getOwnPropertyDescriptors returns the supported descriptor map", function () {
+        var object = {a: 1};
+        var descriptors;
+
+        object.b = 2;
+        descriptors = Object.getOwnPropertyDescriptors(object);
+
+        assertEqual(descriptors.a.value, 1, "a value");
+        assertEqual(descriptors.b.value, 2, "b value");
+        assertEqual(descriptors.a.enumerable, true, "a enumerable");
+        assertEqual(Object.getOwnPropertyDescriptors(["x"]).length.value, 1,
+            "array length descriptor");
+
+        if (nativeObjectGetOwnPropertyDescriptors) {
+            assertEqual(nativeObjectGetOwnPropertyDescriptors({a: 1}).a.value, 1,
+                "Node descriptors value");
+        }
+    });
+
+    test("Object descriptors interoperate with project property helpers", function () {
+        var object = {};
+        var descriptors;
+        var created;
+
+        Object.defineProperty(object, "x", {value: 3});
+        descriptors = Object.getOwnPropertyDescriptors(object);
+
+        assertEqual(descriptors.x.value, 3, "defined property descriptor");
+        assertArrayEqual(Object.keys(descriptors), ["x"], "descriptor keys");
+        assertEqual(Object.values(descriptors)[0].value, 3, "descriptor values");
+        assertEqual(Object.entries(descriptors)[0][0], "x", "descriptor entry key");
+
+        created = Object.create({p: 1}, {a: 2});
+        assertEqual(Object.getOwnPropertyDescriptor(created, "a").value, 2,
+            "Object.create direct subset descriptor");
+        assertEqual(Object.getOwnPropertyDescriptor(created, "p"), undefined,
+            "Object.create inherited descriptor");
+    });
+
+    test("Object descriptor methods reject nullish values", function () {
+        assertThrows(function () {
+            Object.getOwnPropertyDescriptor(null, "x");
+        }, "descriptor null value");
+        assertThrows(function () {
+            Object.getOwnPropertyDescriptor(undefined, "x");
+        }, "descriptor undefined value");
+        assertThrows(function () {
+            Object.getOwnPropertyDescriptors(null);
+        }, "descriptors null value");
+        assertThrows(function () {
+            Object.getOwnPropertyDescriptors(undefined);
+        }, "descriptors undefined value");
+    });
+
     test("Object.getPrototypeOf is installed", function () {
         assertEqual(typeof Object.getPrototypeOf, "function", "Object.getPrototypeOf");
     });
@@ -504,8 +615,16 @@ if (isNodeRuntime) {
         assertEqual(Object.hasOwn(object, "empty"), true, "undefined own property");
         Object.defineProperty(object, 1, {value: "one"});
         assertEqual(object[1], "one", "converted property key");
-        Object.defineProperty(object, "ignored", {get: function () { return 1; }});
-        assertEqual(Object.hasOwn(object, "ignored"), false, "unsupported accessor ignored");
+        Object.defineProperty(object, "accessor", {get: function () { return 1; }});
+        assertEqual(Object.hasOwn(object, "accessor"), true,
+            "unsupported accessor creates own property");
+        assertEqual(object.accessor, undefined, "unsupported accessor value");
+        assertEqual(Object.getOwnPropertyDescriptor(object, "accessor").value, undefined,
+            "unsupported accessor descriptor");
+        Object.defineProperty(object, "flags", {enumerable: false});
+        assertEqual(Object.hasOwn(object, "flags"), true,
+            "unsupported flags create own property");
+        assertEqual(object.flags, undefined, "unsupported flags value");
         object.name = "Grace";
         assertEqual(object.name, "Grace", "descriptor attributes are not emulated");
         if (nativeObjectDefineProperty) {

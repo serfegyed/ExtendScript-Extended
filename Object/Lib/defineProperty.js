@@ -19,11 +19,9 @@ if (!Object.defineProperty) {
             throw new TypeError("Property description must be an object");
         }
 
-        if ("value" in descriptor) {
-            object[String(property)] = descriptor.value;
-        }
+        object[String(property)] = descriptor.value;
 
-        // Other descriptor attributes (writable, enumerable, configurable) are not supported in ES3
+        // Other descriptor attributes are not supported in ES3.
 
         return object;
     };
