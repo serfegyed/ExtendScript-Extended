@@ -8,8 +8,8 @@
 if (!Object.is) {
     Object.is = function (x, y) {
         // Helper function to check for NaN
-        var isItNaN = function (v) {
-            return v !== v;
+        var isItNaN = function (value) {
+            return value !== value;
         };
 
         // Check for same value or if both are NaN
