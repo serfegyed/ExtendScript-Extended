@@ -1,13 +1,13 @@
 /**
- * Returns a new set that is the union of the current set and the otherSet.
+ * Returns a new set that is the union of the current set and the other set.
  *
- * @param {Object} otherSet - The Set-like object to combine with this Set.
+ * @param {Object} other - The Set-like object to combine with this Set.
  * @return {Set} A new set that contains all the elements from both sets.
  */
-Set.prototype.union = function (otherSet) {
-    var other = __getSetRecord__(otherSet);
+Set.prototype.union = function (other) {
+    var record = __getSetRecord__(other);
     var result = new Set(this);
-    var iterator = other.keys.call(other.object);
+    var iterator = record.keys.call(record.object);
     var item;
 
     if (!iterator || typeof iterator.next !== "function") {

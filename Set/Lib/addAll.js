@@ -1,15 +1,15 @@
 /**
  * Adds all elements from the given array to the set.
  *
- * @param {Array} argArr - The array of elements to be added to the set.
+ * @param {Array} values - The array of elements to be added to the set.
  * @return {Set} - The modified set with the added elements.
  */
-Set.prototype.addAll = function (argArr) {
-    if (!(argArr instanceof Array)) {
+Set.prototype.addAll = function (values) {
+    if (!(values instanceof Array)) {
         throw new TypeError("Set.prototype.addAll: values must be an array.");
     }
-    for (var i = 0; i < argArr.length; i++) {
-        this.add(argArr[i]);
+    for (var i = 0; i < values.length; i++) {
+        this.add(values[i]);
     }
     return this;
 };

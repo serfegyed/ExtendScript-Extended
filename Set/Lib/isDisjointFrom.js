@@ -1,21 +1,21 @@
 /**
  * Checks if the current set is disjoint with another set.
  *
- * @param {Set} otherSet - The set to compare with.
+ * @param {Set} other - The set to compare with.
  * @return {boolean} Returns true if the sets are disjoint, false otherwise.
  */
-Set.prototype.isDisjointFrom = function (otherSet) {
-    var other = __getSetRecord__(otherSet);
+Set.prototype.isDisjointFrom = function (other) {
+    var record = __getSetRecord__(other);
     var iterator;
     var item;
     var i;
 
-    if (this.size <= other.size) {
+    if (this.size <= record.size) {
         for (i = 0; i < this._data.length; i++) {
-            if (other.has.call(other.object, this._data[i])) return false;
+            if (record.has.call(record.object, this._data[i])) return false;
         }
     } else {
-        iterator = other.keys.call(other.object);
+        iterator = record.keys.call(record.object);
         if (!iterator || typeof iterator.next !== "function") {
             throw new TypeError("Set-like keys() must return an iterator.");
         }

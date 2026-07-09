@@ -1,8 +1,6 @@
 /*
  * Standard Set polyfill reference and compatibility tests.
  */
-//@debug 0
-
 //@include "../../Tools/Console/console.js"
 
 var isNodeRuntime = typeof process !== "undefined" &&
