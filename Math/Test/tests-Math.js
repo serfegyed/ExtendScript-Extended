@@ -16,27 +16,33 @@ var nativeMath = null;
 if (isNodeRuntime) {
     nativeMath = {
         cbrt: Math.cbrt,
+        clz32: Math.clz32,
+        expm1: Math.expm1,
+        hypot: Math.hypot,
+        imul: Math.imul,
+        log1p: Math.log1p,
         log10: Math.log10,
+        log2: Math.log2,
         sign: Math.sign,
         trunc: Math.trunc
     };
 }
 
 Math.cbrt = undefined;
+Math.clz32 = undefined;
+Math.expm1 = undefined;
+Math.hypot = undefined;
+Math.imul = undefined;
+Math.log1p = undefined;
 Math.log10 = undefined;
+Math.log2 = undefined;
 Math.mean = undefined;
 Math.median = undefined;
 Math.sign = undefined;
 Math.sum = undefined;
 Math.trunc = undefined;
 
-//@include "../Math.cbrt.js"
-//@include "../Math.log10.js"
-//@include "../Math.mean.js"
-//@include "../Math.median.js"
-//@include "../Math.sign.js"
-//@include "../Math.sum.js"
-//@include "../Math.trunc.js"
+//@include "../math.js"
 
 if (isNodeRuntime) {
     (function () {
@@ -50,14 +56,18 @@ if (isNodeRuntime) {
             (0, eval)(source);
         }
 
-        load("../../Array/Lib/info.js");
-        load("../Math.cbrt.js");
-        load("../Math.log10.js");
-        load("../Math.mean.js");
-        load("../Math.median.js");
-        load("../Math.sign.js");
-        load("../Math.sum.js");
-        load("../Math.trunc.js");
+        function loadBundle(relativePath) {
+            var filename = path.join(__dirname, relativePath);
+            var source = fs.readFileSync(filename, "utf8");
+            var includePattern = /^\/\/@include\s+"([^"]+)"/gm;
+            var match;
+
+            while ((match = includePattern.exec(source)) !== null) {
+                load(path.join(path.dirname(relativePath), match[1]));
+            }
+        }
+
+        loadBundle("../math.js");
     }());
 }
 
@@ -97,9 +107,13 @@ if (isNodeRuntime) {
     }
 
     function assertApprox(actual, expected, tolerance, message) {
+        var scale;
+
         if (actual === expected) return;
         if (actual !== actual && expected !== expected) return;
-        if (Math.abs(actual - expected) > tolerance) {
+        scale = Math.max(1, Math.abs(actual), Math.abs(expected));
+        if (Math.abs(actual - expected) > tolerance &&
+                Math.abs(actual - expected) / scale > tolerance) {
             fail((message ? message + ": " : "") +
                 "expected approximately " + expected + ", got " + actual);
         }
@@ -164,7 +178,21 @@ if (isNodeRuntime) {
     }
 
     test("Math methods are installed", function () {
-        var names = ["cbrt", "log10", "mean", "median", "sign", "sum", "trunc"];
+        var names = [
+            "cbrt",
+            "clz32",
+            "expm1",
+            "hypot",
+            "imul",
+            "log1p",
+            "log10",
+            "log2",
+            "mean",
+            "median",
+            "sign",
+            "sum",
+            "trunc"
+        ];
         var i;
 
         for (i = 0; i < names.length; i++) {
@@ -242,6 +270,119 @@ if (isNodeRuntime) {
                 assertApprox(nativeMath.log10(rows[i].value), rows[i].expected, 1e-15, "Node reference row " + i);
             }
             assertApprox(Math.log10(rows[i].value), rows[i].expected, 1e-15, "polyfill row " + i);
+        }
+    });
+
+    test("Math.log2 preserves special values and coercion", function () {
+        checkStandardMethod("log2", [
+            { value: -1, expected: NaN },
+            { value: -0, expected: -Infinity },
+            { value: 0, expected: -Infinity },
+            { value: 1, expected: 0 },
+            { value: 2, expected: 1 },
+            { value: 1024, expected: 10 },
+            { value: Infinity, expected: Infinity },
+            { value: NaN, expected: NaN },
+            { value: null, expected: -Infinity }
+        ]);
+    });
+
+    test("Math.log1p preserves special values and improves small values", function () {
+        var rows = [
+            { value: -2, expected: NaN },
+            { value: -1, expected: -Infinity },
+            { value: -0, expected: -0 },
+            { value: 0, expected: 0 },
+            { value: 1, expected: 0.6931471805599453 },
+            { value: 1e-8, expected: 9.999999950000001e-9 },
+            { value: Infinity, expected: Infinity },
+            { value: NaN, expected: NaN },
+            { value: null, expected: 0 }
+        ];
+        var i;
+
+        for (i = 0; i < rows.length; i++) {
+            if (nativeMath && nativeMath.log1p) {
+                assertApprox(nativeMath.log1p(rows[i].value), rows[i].expected, 1e-20, "Node reference row " + i);
+            }
+            assertApprox(Math.log1p(rows[i].value), rows[i].expected, 1e-20, "polyfill row " + i);
+        }
+    });
+
+    test("Math.expm1 preserves special values and improves small values", function () {
+        var rows = [
+            { value: -Infinity, expected: -1 },
+            { value: -1, expected: -0.6321205588285577 },
+            { value: -0, expected: -0 },
+            { value: 0, expected: 0 },
+            { value: 1, expected: 1.718281828459045 },
+            { value: 1e-8, expected: 1.0000000050000001e-8 },
+            { value: Infinity, expected: Infinity },
+            { value: NaN, expected: NaN },
+            { value: null, expected: 0 }
+        ];
+        var i;
+
+        for (i = 0; i < rows.length; i++) {
+            if (nativeMath && nativeMath.expm1) {
+                assertApprox(nativeMath.expm1(rows[i].value), rows[i].expected, 1e-20, "Node reference row " + i);
+            }
+            assertApprox(Math.expm1(rows[i].value), rows[i].expected, 1e-20, "polyfill row " + i);
+        }
+    });
+
+    test("Math.hypot handles scale, coercion, Infinity, and NaN", function () {
+        var rows = [
+            { values: [3, 4], expected: 5 },
+            { values: [], expected: 0 },
+            { values: [Infinity, 1], expected: Infinity },
+            { values: [NaN, 1], expected: NaN },
+            { values: [NaN, Infinity], expected: Infinity },
+            { values: [1e200, 1e200], expected: 1.414213562373095e200 },
+            { values: [3, "4"], expected: 5 }
+        ];
+        var i;
+
+        for (i = 0; i < rows.length; i++) {
+            if (nativeMath && nativeMath.hypot) {
+                assertApprox(nativeMath.hypot.apply(Math, rows[i].values), rows[i].expected, 1e-12, "Node reference row " + i);
+            }
+            assertApprox(Math.hypot.apply(Math, rows[i].values), rows[i].expected, 1e-12, "polyfill row " + i);
+        }
+    });
+
+    test("Math.clz32 converts to uint32 and counts leading zeros", function () {
+        checkStandardMethod("clz32", [
+            { value: undefined, expected: 32 },
+            { value: 0, expected: 32 },
+            { value: 1, expected: 31 },
+            { value: 1000, expected: 22 },
+            { value: 0xffffffff, expected: 0 },
+            { value: 0x80000000, expected: 0 },
+            { value: 3.5, expected: 30 },
+            { value: "16", expected: 27 },
+            { value: NaN, expected: 32 },
+            { value: Infinity, expected: 32 }
+        ]);
+    });
+
+    test("Math.imul performs signed 32-bit multiplication", function () {
+        var rows = [
+            { values: [2, 4], expected: 8 },
+            { values: [-1, 8], expected: -8 },
+            { values: [-2, -2], expected: 4 },
+            { values: [0xffffffff, 5], expected: -5 },
+            { values: [0x7fffffff, 2], expected: -2 },
+            { values: [0x80000000, 2], expected: 0 },
+            { values: [123456, 789012], expected: -1375982336 }
+        ];
+        var i;
+
+        for (i = 0; i < rows.length; i++) {
+            if (nativeMath && nativeMath.imul) {
+                assertNumberSame(nativeMath.imul.apply(Math, rows[i].values), rows[i].expected, "Node reference row " + i);
+            }
+            assertNumberSame(Math.imul.apply(Math, rows[i].values), rows[i].expected, "polyfill row " + i);
         }
     });
 

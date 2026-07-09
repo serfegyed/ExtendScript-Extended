@@ -7,10 +7,10 @@
  * @return {Array|number} The mean value or an array of mean values
  */
 Math.mean = function (/*values, dim*/) {
-    //@include "../Array/Lib/flat.js"
-    //@include "../Array/Lib/info.js"
-    //@include "../Array/Lib/reduce.js"
-    //@include "../Array/Lib/map.js"
+    //@include "../../Array/Lib/flat.js"
+    //@include "../../Array/Lib/info.js"
+    //@include "../../Array/Lib/reduce.js"
+    //@include "../../Array/Lib/map.js"
     // Helper function to calculate mean of an array
     function meanOfArray(arr) {
         var sum = arr.reduce(function (a, b) { return a + b; }, 0);

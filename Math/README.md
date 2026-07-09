@@ -38,6 +38,92 @@ console.log(Math.log10(100000)); // 5
 console.log(Math.log10(Infinity)); // Infinity
 ```
 
+### Math.log2
+Calculates the base 2 logarithm of a number.
+
+Parameters: x - The number to calculate the logarithm for.  
+Returns: The base 2 logarithm of the input number.
+
+```javascript
+console.log(Math.log2(-1)); // NaN
+console.log(Math.log2(-0)); // -Infinity
+console.log(Math.log2(0)); // -Infinity
+console.log(Math.log2(1)); // 0
+console.log(Math.log2(2)); // 1
+console.log(Math.log2(1024)); // 10
+```
+
+### Math.log1p
+Calculates the natural logarithm of 1 plus a number.
+
+Parameters: x - The number to calculate `log(1 + x)` for.  
+Returns: The natural logarithm of 1 plus the input number.
+
+```javascript
+console.log(Math.log1p(-2)); // NaN
+console.log(Math.log1p(-1)); // -Infinity
+console.log(Math.log1p(-0)); // -0
+console.log(Math.log1p(0)); // 0
+console.log(Math.log1p(1)); // 0.6931471805599453
+console.log(Math.log1p(1e-8)); // 9.999999950000001e-9
+```
+
+### Math.expm1
+Calculates `e` raised to a number, minus 1.
+
+Parameters: x - The exponent.  
+Returns: `Math.exp(x) - 1`, with better precision for small values.
+
+```javascript
+console.log(Math.expm1(-Infinity)); // -1
+console.log(Math.expm1(-1)); // -0.6321205588285577
+console.log(Math.expm1(-0)); // -0
+console.log(Math.expm1(0)); // 0
+console.log(Math.expm1(1)); // 1.718281828459045
+console.log(Math.expm1(1e-8)); // 1.0000000050000001e-8
+```
+
+### Math.hypot
+Calculates the square root of the sum of squares of its arguments.
+
+Parameters: A comma-separated list of numbers.  
+Returns: The Euclidean norm of the given values.
+
+```javascript
+console.log(Math.hypot(3, 4)); // 5
+console.log(Math.hypot()); // 0
+console.log(Math.hypot(Infinity, 1)); // Infinity
+console.log(Math.hypot(NaN, 1)); // NaN
+console.log(Math.hypot(3, "4")); // 5
+```
+
+### Math.clz32
+Counts leading zero bits in the 32-bit unsigned integer conversion of a value.
+
+Parameters: value - The value to convert and inspect.  
+Returns: The number of leading zero bits.
+
+```javascript
+console.log(Math.clz32(0)); // 32
+console.log(Math.clz32(1)); // 31
+console.log(Math.clz32(1000)); // 22
+console.log(Math.clz32(0xffffffff)); // 0
+console.log(Math.clz32("16")); // 27
+```
+
+### Math.imul
+Performs C-like 32-bit integer multiplication.
+
+Parameters: a, b - The two multiplicands.  
+Returns: The signed 32-bit multiplication result.
+
+```javascript
+console.log(Math.imul(2, 4)); // 8
+console.log(Math.imul(-1, 8)); // -8
+console.log(Math.imul(0xffffffff, 5)); // -5
+console.log(Math.imul(0x7fffffff, 2)); // -2
+```
+
 ### Math.sign
 Calculates the sign of a number.
 
@@ -139,17 +225,31 @@ try {
 
 
 ## Usage
-To use these polyfills, simply include this script in your ExtendScript project before using any of the polyfilled Math methods.The polyfills check if the method already exists before defining it, ensuring that they do not override native implementations in environments that already support these features.
+To use all Math polyfills, include the bundle file before using any of the
+polyfilled Math methods. The bundle is include-only: it contains ordered
+`//@include` directives and does not copy implementation bodies.
 
 ```javascript
-// Include the polyfills in your script
-//@include "path/to/Math.cbrt.js"
-//@include "path/to/Math.log10.js"
-//@include "path/to/Math.trunc.js"
+//@include "path/to/Math/math.js"
 
 ...
 ```
-Now, you can safely use Math.trunc, Math.log10, and Math.cbrt in your ExtendScript code as if they were natively supported:
+Individual implementations live in `Lib` and can also be included directly:
+
+```javascript
+//@include "path/to/Math/Lib/Math.cbrt.js"
+//@include "path/to/Math/Lib/Math.clz32.js"
+//@include "path/to/Math/Lib/Math.expm1.js"
+//@include "path/to/Math/Lib/Math.hypot.js"
+//@include "path/to/Math/Lib/Math.imul.js"
+//@include "path/to/Math/Lib/Math.log1p.js"
+//@include "path/to/Math/Lib/Math.log10.js"
+//@include "path/to/Math/Lib/Math.log2.js"
+//@include "path/to/Math/Lib/Math.trunc.js"
+```
+
+Now, you can safely use Math.trunc, Math.log10, and Math.cbrt in your
+ExtendScript code as if they were natively supported:
 
 ```javascript
 var truncatedValue = Math.trunc(4.9); // Returns 4
@@ -158,6 +258,15 @@ var cubeRootValue = Math.cbrt(27); // Returns 3
 
 ...
 ```
+
+## Tests
+Run `Test/tests-Math.js` in ESTK or Node. The harness disables native standard
+Math methods and loads `math.js` so the project implementations and bundle
+order are tested directly, while Node is used as a convenient behavior
+reference.
+
+Current Node checkpoint: **19 passed, 0 failed**.
+
 ## Compatibility
 These polyfills are designed for use in ExtendScript, which is based on ECMAScript 3. They have been tested in Adobe InDesign scripting environments but should be compatible with any ExtendScript environment.
 
