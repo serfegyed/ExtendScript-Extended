@@ -100,32 +100,32 @@ var Temporal = Temporal || {};
         return this;
     };
 
-    Temporal.PlainMonthDay.from = function (thing, options) {
+    Temporal.PlainMonthDay.from = function (value, options) {
         var overflow = normalizeOverflow(options);
         var month;
         var referenceYear;
 
-        if (thing instanceof Temporal.PlainMonthDay) {
-            return new Temporal.PlainMonthDay(thing.month, thing.day);
+        if (value instanceof Temporal.PlainMonthDay) {
+            return new Temporal.PlainMonthDay(value.month, value.day);
         }
 
-        if (typeof thing === "string") {
-            var projected = Temporal.__projectOffsetISOStringToUTCFields__(thing);
+        if (typeof value === "string") {
+            var projected = Temporal.__projectOffsetISOStringToUTCFields__(value);
             if (projected !== null) {
                 return createMonthDay(projected.month, projected.day, "reject", projected.year);
             }
-            return parseMonthDayString(thing);
+            return parseMonthDayString(value);
         }
 
-        if (typeof thing === "object" && thing !== null) {
-            validateISOCalendar(thing);
-            if (!hasMonthDayFields(thing)) {
+        if (typeof value === "object" && value !== null) {
+            validateISOCalendar(value);
+            if (!hasMonthDayFields(value)) {
                 throw new TypeError("Invalid PlainMonthDay object: missing required fields");
             }
 
-            month = Temporal.__resolveISOMonth__(thing);
-            referenceYear = thing.year === undefined ? REFERENCE_ISO_YEAR : thing.year;
-            return createMonthDay(month, thing.day, overflow, referenceYear);
+            month = Temporal.__resolveISOMonth__(value);
+            referenceYear = value.year === undefined ? REFERENCE_ISO_YEAR : value.year;
+            return createMonthDay(month, value.day, overflow, referenceYear);
         }
 
         throw new TypeError("Invalid type for Temporal.PlainMonthDay.from");

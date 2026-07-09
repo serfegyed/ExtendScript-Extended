@@ -178,17 +178,17 @@
         return this;
     };
 
-    Temporal.PlainTime.from = function (thing, options) {
+    Temporal.PlainTime.from = function (value, options) {
         var overflow = normalizeOverflow(options);
 
-        if (thing instanceof Temporal.PlainTime) {
-            return new Temporal.PlainTime(thing.hour, thing.minute, thing.second, thing.millisecond);
+        if (value instanceof Temporal.PlainTime) {
+            return new Temporal.PlainTime(value.hour, value.minute, value.second, value.millisecond);
         }
-        if (typeof Temporal.PlainDateTime === "function" && thing instanceof Temporal.PlainDateTime) {
-            return new Temporal.PlainTime(thing.hour, thing.minute, thing.second, thing.millisecond);
+        if (typeof Temporal.PlainDateTime === "function" && value instanceof Temporal.PlainDateTime) {
+            return new Temporal.PlainTime(value.hour, value.minute, value.second, value.millisecond);
         }
-        if (typeof thing === "string") {
-            var projected = Temporal.__projectOffsetISOStringToUTCFields__(thing);
+        if (typeof value === "string") {
+            var projected = Temporal.__projectOffsetISOStringToUTCFields__(value);
             if (projected !== null) {
                 return createTime(
                     projected.hour,
@@ -198,16 +198,16 @@
                     "reject"
                 );
             }
-            return parseTimeString(thing);
+            return parseTimeString(value);
         }
-        if (thing !== null && typeof thing === "object") {
+        if (value !== null && typeof value === "object") {
             var names = ["hour", "minute", "second", "millisecond"];
             var values = {};
             var found = false;
             for (var i = 0; i < names.length; i++) {
                 var name = names[i];
-                if ((name in thing) && thing[name] !== undefined) {
-                    values[name] = thing[name];
+                if ((name in value) && value[name] !== undefined) {
+                    values[name] = value[name];
                     found = true;
                 }
             }
