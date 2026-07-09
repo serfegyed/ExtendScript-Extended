@@ -1,8 +1,23 @@
 /**
  * Returns a dense, shallow copy with a range removed and items inserted.
  */
-//@include "./arrayInternals.js"
 if (!Array.prototype.toSpliced) {
+    function toInteger(value) {
+        var number = Number(value);
+
+        if (number !== number || number === 0) return 0;
+        if (number === Infinity || number === -Infinity) return number;
+        return number < 0 ? Math.ceil(number) : Math.floor(number);
+    }
+
+    function toLength(value) {
+        var number = Number(value);
+
+        if (number !== number || number <= 0) return 0;
+        if (number === Infinity) return 9007199254740991;
+        return Math.min(Math.floor(number), 9007199254740991);
+    }
+
     Array.prototype.toSpliced = function (start, deleteCount) {
         "use strict";
 
@@ -20,8 +35,8 @@ if (!Array.prototype.toSpliced) {
             throw new TypeError("Array.prototype.toSpliced called on null or undefined.");
         }
         object = Object(this);
-        length = __arrayToLength__(object.length);
-        relativeStart = __arrayToInteger__(start);
+        length = toLength(object.length);
+        relativeStart = toInteger(start);
         actualStart = relativeStart < 0 ? Math.max(length + relativeStart, 0) :
             Math.min(relativeStart, length);
         itemCount = arguments.length > 2 ? arguments.length - 2 : 0;
@@ -31,7 +46,7 @@ if (!Array.prototype.toSpliced) {
             actualDeleteCount = length - actualStart;
         } else {
             actualDeleteCount = Math.min(
-                Math.max(__arrayToInteger__(deleteCount), 0),
+                Math.max(toInteger(deleteCount), 0),
                 length - actualStart
             );
         }

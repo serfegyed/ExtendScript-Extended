@@ -70,7 +70,6 @@ if (isNodeRuntime) {
         var fs = require("fs");
         var path = require("path");
         var filenames = [
-            "../Lib/arrayInternals.js",
             "../Lib/at.js",
             "../Lib/copyWithin.js",
             "../Lib/fill.js",

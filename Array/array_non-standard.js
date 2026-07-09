@@ -3,7 +3,6 @@
  */
 
 // Standard dependencies required by standalone extension files.
-//@include "./Lib/arrayInternals.js"
 //@include "./Lib/isArray.js"
 //@include "./Lib/flat.js"
 //@include "./Lib/map.js"

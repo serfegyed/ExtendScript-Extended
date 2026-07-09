@@ -4,7 +4,6 @@
  * ExtendScript does not expose the standard iterator protocol, so this
  * polyfill intentionally implements the array-like branch.
  */
-//@include "./arrayInternals.js"
 if (!Array.from) {
     Array.from = function (arrayLike, callback, thisArg) {
         var object;
@@ -20,8 +19,16 @@ if (!Array.from) {
             throw new TypeError("Array.from: mapFunction must be a function.");
         }
 
+        function toLength(value) {
+            var number = Number(value);
+
+            if (number !== number || number <= 0) return 0;
+            if (number === Infinity) return 9007199254740991;
+            return Math.min(Math.floor(number), 9007199254740991);
+        }
+
         object = Object(arrayLike);
-        length = __arrayToLength__(object.length);
+        length = toLength(object.length);
         constructor = typeof this === "function" ? this : Array;
         result = new constructor(length);
         if (callback === undefined) {

@@ -2,7 +2,6 @@
  * Returns a live iterator over [index, value] pairs.
  * Generic: requires only length and integer-indexed properties.
  */
-//@include "./arrayInternals.js"
 if (!Array.prototype.entries) {
     Array.prototype.entries = function () {
         "use strict";
@@ -15,9 +14,17 @@ if (!Array.prototype.entries) {
         }
         object = Object(this);
 
+        function toLength(value) {
+            var number = Number(value);
+
+            if (number !== number || number <= 0) return 0;
+            if (number === Infinity) return 9007199254740991;
+            return Math.min(Math.floor(number), 9007199254740991);
+        }
+
         return {
             next: function () {
-                if (index >= __arrayToLength__(object.length)) {
+                if (index >= toLength(object.length)) {
                     return {done: true, value: undefined};
                 }
                 return {done: false, value: [index, object[index++]]};

@@ -1,8 +1,23 @@
 /**
  * Flattens nested Arrays up to the requested depth.
  */
-//@include "./arrayInternals.js"
 if (!Array.prototype.flat) {
+    function toInteger(value) {
+        var number = Number(value);
+
+        if (number !== number || number === 0) return 0;
+        if (number === Infinity || number === -Infinity) return number;
+        return number < 0 ? Math.ceil(number) : Math.floor(number);
+    }
+
+    function toLength(value) {
+        var number = Number(value);
+
+        if (number !== number || number <= 0) return 0;
+        if (number === Infinity) return 9007199254740991;
+        return Math.min(Math.floor(number), 9007199254740991);
+    }
+
     Array.prototype.flat = function (depth) {
         "use strict";
 
@@ -18,7 +33,7 @@ if (!Array.prototype.flat) {
                 if (i in source) {
                     value = source[i];
                     if (currentDepth > 0 && value instanceof Array) {
-                        flattenInto(value, __arrayToLength__(value.length),
+                        flattenInto(value, toLength(value.length),
                             currentDepth - 1);
                     } else {
                         result[result.length] = value;
@@ -31,9 +46,9 @@ if (!Array.prototype.flat) {
             throw new TypeError("Array.prototype.flat called on null or undefined.");
         }
         object = Object(this);
-        flatDepth = depth === undefined ? 1 : __arrayToInteger__(depth);
+        flatDepth = depth === undefined ? 1 : toInteger(depth);
         if (flatDepth < 0) flatDepth = 0;
-        flattenInto(object, __arrayToLength__(object.length), flatDepth);
+        flattenInto(object, toLength(object.length), flatDepth);
         return result;
     };
 }

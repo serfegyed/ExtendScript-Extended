@@ -36,7 +36,6 @@ if (isNodeRuntime) {
         var fs = require("fs");
         var path = require("path");
         var filenames = [
-            "../Lib/arrayInternals.js",
             "../Lib/isArray.js",
             "../Lib/flat.js",
             "../Lib/append.js",

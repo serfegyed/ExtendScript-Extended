@@ -1,8 +1,15 @@
 /**
  * Returns the present value with the smallest mapped key.
  */
-//@include "./arrayInternals.js"
 if (!Array.prototype.min) {
+    function toLength(value) {
+        var number = Number(value);
+
+        if (number !== number || number <= 0) return 0;
+        if (number === Infinity) return 9007199254740991;
+        return Math.min(Math.floor(number), 9007199254740991);
+    }
+
     Array.prototype.min = function (key) {
         "use strict";
 
@@ -26,7 +33,7 @@ if (!Array.prototype.min) {
         }
 
         object = Object(this);
-        length = __arrayToLength__(object.length);
+        length = toLength(object.length);
         while (i < length && !(i in object)) i++;
         if (i >= length) return undefined;
         minValue = object[i++];

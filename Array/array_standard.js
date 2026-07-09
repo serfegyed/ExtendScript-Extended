@@ -2,7 +2,6 @@
  * ExtendScript Array standard-compatible polyfills.
  */
 
-//@include "./Lib/arrayInternals.js"
 //@include "./Lib/isArray.js"
 //@include "./Lib/at.js"
 //@include "./Lib/copyWithin.js"

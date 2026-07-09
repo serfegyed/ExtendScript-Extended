@@ -1,8 +1,23 @@
 /**
  * Returns a shallow copy rotated right by a positive number of steps.
  */
-//@include "./arrayInternals.js"
 if (!Array.prototype.rotate) {
+    function toInteger(value) {
+        var number = Number(value);
+
+        if (number !== number || number === 0) return 0;
+        if (number === Infinity || number === -Infinity) return number;
+        return number < 0 ? Math.ceil(number) : Math.floor(number);
+    }
+
+    function toLength(value) {
+        var number = Number(value);
+
+        if (number !== number || number <= 0) return 0;
+        if (number === Infinity) return 9007199254740991;
+        return Math.min(Math.floor(number), 9007199254740991);
+    }
+
     Array.prototype.rotate = function (step) {
         "use strict";
 
@@ -16,10 +31,10 @@ if (!Array.prototype.rotate) {
             throw new TypeError("Array.prototype.rotate called on null or undefined.");
         }
         object = Object(this);
-        length = __arrayToLength__(object.length);
+        length = toLength(object.length);
         result = new Array(length);
         if (length === 0) return result;
-        offset = __arrayToInteger__(step);
+        offset = toInteger(step);
         if (offset === Infinity || offset === -Infinity) offset = 0;
         offset = ((offset % length) + length) % length;
         for (i = 0; i < length; i++) {

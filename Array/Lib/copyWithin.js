@@ -1,8 +1,23 @@
 /**
  * Copies indexed properties within an Array or array-like object.
  */
-//@include "./arrayInternals.js"
 if (!Array.prototype.copyWithin) {
+    function toInteger(value) {
+        var number = Number(value);
+
+        if (number !== number || number === 0) return 0;
+        if (number === Infinity || number === -Infinity) return number;
+        return number < 0 ? Math.ceil(number) : Math.floor(number);
+    }
+
+    function toLength(value) {
+        var number = Number(value);
+
+        if (number !== number || number <= 0) return 0;
+        if (number === Infinity) return 9007199254740991;
+        return Math.min(Math.floor(number), 9007199254740991);
+    }
+
     Array.prototype.copyWithin = function (target, start, end) {
         "use strict";
 
@@ -21,10 +36,10 @@ if (!Array.prototype.copyWithin) {
         }
 
         object = Object(this);
-        length = __arrayToLength__(object.length);
-        to = __arrayToInteger__(target);
-        from = __arrayToInteger__(start);
-        finalIndex = end === undefined ? length : __arrayToInteger__(end);
+        length = toLength(object.length);
+        to = toInteger(target);
+        from = toInteger(start);
+        finalIndex = end === undefined ? length : toInteger(end);
 
         to = to < 0 ? Math.max(length + to, 0) : Math.min(to, length);
         from = from < 0 ? Math.max(length + from, 0) : Math.min(from, length);

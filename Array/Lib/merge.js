@@ -1,7 +1,6 @@
 /**
  * Merges a sorted Array into the sorted receiver and mutates the receiver.
  */
-//@include "./arrayInternals.js"
 //@include "./isArray.js"
 if (!Array.prototype.merge) {
     Array.prototype.merge = function (arrayToMerge, compareFunction) {
@@ -21,8 +20,13 @@ if (!Array.prototype.merge) {
         if (compareFunction !== undefined && typeof compareFunction !== "function") {
             throw new TypeError("Array.prototype.merge: comparator must be a function.");
         }
-        compare = compareFunction === undefined ?
-            __arrayDefaultCompare__ : compareFunction;
+        compare = compareFunction === undefined ? function (a, b) {
+            if (a === undefined) return b === undefined ? 0 : 1;
+            if (b === undefined) return -1;
+            if (a < b) return -1;
+            if (a > b) return 1;
+            return 0;
+        } : compareFunction;
         leftLength = this.length;
         rightLength = arrayToMerge.length;
         result = new Array(leftLength + rightLength);

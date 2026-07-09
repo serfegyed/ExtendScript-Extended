@@ -1,8 +1,15 @@
 /**
  * Returns the present value with the largest mapped key.
  */
-//@include "./arrayInternals.js"
 if (!Array.prototype.max) {
+    function toLength(value) {
+        var number = Number(value);
+
+        if (number !== number || number <= 0) return 0;
+        if (number === Infinity) return 9007199254740991;
+        return Math.min(Math.floor(number), 9007199254740991);
+    }
+
     Array.prototype.max = function (key) {
         "use strict";
 
@@ -26,7 +33,7 @@ if (!Array.prototype.max) {
         }
 
         object = Object(this);
-        length = __arrayToLength__(object.length);
+        length = toLength(object.length);
         while (i < length && !(i in object)) i++;
         if (i >= length) return undefined;
         maxValue = object[i++];

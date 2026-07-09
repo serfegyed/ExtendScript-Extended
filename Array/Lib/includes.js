@@ -1,8 +1,23 @@
 /**
  * Tests indexed values using SameValueZero comparison.
  */
-//@include "./arrayInternals.js"
 if (!Array.prototype.includes) {
+    function toInteger(value) {
+        var number = Number(value);
+
+        if (number !== number || number === 0) return 0;
+        if (number === Infinity || number === -Infinity) return number;
+        return number < 0 ? Math.ceil(number) : Math.floor(number);
+    }
+
+    function toLength(value) {
+        var number = Number(value);
+
+        if (number !== number || number <= 0) return 0;
+        if (number === Infinity) return 9007199254740991;
+        return Math.min(Math.floor(number), 9007199254740991);
+    }
+
     Array.prototype.includes = function (searchElement, fromIndex) {
         "use strict";
 
@@ -17,9 +32,9 @@ if (!Array.prototype.includes) {
         }
 
         object = Object(this);
-        length = __arrayToLength__(object.length);
+        length = toLength(object.length);
         if (length === 0) return false;
-        from = __arrayToInteger__(fromIndex);
+        from = toInteger(fromIndex);
         if (from === Infinity) return false;
         i = from >= 0 ? from : Math.max(length + from, 0);
         for (; i < length; i++) {

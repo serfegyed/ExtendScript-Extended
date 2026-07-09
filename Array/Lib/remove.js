@@ -1,8 +1,23 @@
 /**
  * Returns a shallow copy without the value at the requested index.
  */
-//@include "./arrayInternals.js"
 if (!Array.prototype.remove) {
+    function toInteger(value) {
+        var number = Number(value);
+
+        if (number !== number || number === 0) return 0;
+        if (number === Infinity || number === -Infinity) return number;
+        return number < 0 ? Math.ceil(number) : Math.floor(number);
+    }
+
+    function toLength(value) {
+        var number = Number(value);
+
+        if (number !== number || number <= 0) return 0;
+        if (number === Infinity) return 9007199254740991;
+        return Math.min(Math.floor(number), 9007199254740991);
+    }
+
     Array.prototype.remove = function (index) {
         "use strict";
 
@@ -16,9 +31,9 @@ if (!Array.prototype.remove) {
             throw new TypeError("Array.prototype.remove called on null or undefined.");
         }
         object = Object(this);
-        length = __arrayToLength__(object.length);
+        length = toLength(object.length);
         if (length === 0) return undefined;
-        actualIndex = __arrayToInteger__(index);
+        actualIndex = toInteger(index);
         if (actualIndex < 0) actualIndex = length + actualIndex;
         if (actualIndex < 0 || actualIndex >= length) {
             throw new RangeError("Array.prototype.remove index is out of range.");
