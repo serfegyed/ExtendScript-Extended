@@ -1,34 +1,34 @@
 /**
  * Calculates the natural logarithm of 1 plus a number.
  *
- * @param {number} x - The number to calculate log(1 + x) for.
+ * @param {number} value - The number to calculate log(1 + value) for.
  * @return {number} The natural logarithm of 1 plus the input number.
  */
 if (!Math.log1p) {
-    Math.log1p = function (x) {
-        var y = x * 1;
+    Math.log1p = function (value) {
+        var number = value * 1;
         var term;
         var sum;
-        var n;
+        var i;
 
-        if (y === -1) {
+        if (number === -1) {
             return -Infinity;
         }
-        if (y === 0 || y === Infinity || y !== y) {
-            return y + y;
+        if (number === 0 || number === Infinity || number !== number) {
+            return number + number;
         }
-        if (y < -1) {
+        if (number < -1) {
             return NaN;
         }
-        if (Math.abs(y) < 1e-4) {
-            term = y;
+        if (Math.abs(number) < 1e-4) {
+            term = number;
             sum = 0;
-            for (n = 1; n < 40; n++) {
-                sum += (n % 2 ? 1 : -1) * term / n;
-                term *= y;
+            for (i = 1; i < 40; i++) {
+                sum += (i % 2 ? 1 : -1) * term / i;
+                term *= number;
             }
             return sum;
         }
-        return Math.log(1 + y);
+        return Math.log(1 + number);
     };
 }
