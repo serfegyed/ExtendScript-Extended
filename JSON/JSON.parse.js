@@ -16,6 +16,14 @@ if (typeof JSON === "undefined") {
         return objectToString.call(value) === "[object Array]";
     }
 
+    /**
+     * Parses JSON text and optionally transforms the result with a reviver.
+     *
+     * @param {*} text JSON text source.
+     * @param {*} reviver Optional reviver callback.
+     * @returns {*} Parsed JSON value.
+     * @throws {SyntaxError} If the JSON text is invalid.
+     */
     function parse(text, reviver) {
         const source = String(text);
         const length = source.length;

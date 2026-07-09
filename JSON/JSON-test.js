@@ -5,8 +5,6 @@
  * its native JSON object as the reference, then loads the polyfill in place of
  * the native global JSON object.
  */
-//@debug 0
-
 //@include "../Tools/Console/console.js"
 //@include "./JSON.stringify.js"
 //@include "./JSON.parse.js"

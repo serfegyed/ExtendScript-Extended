@@ -126,6 +126,15 @@ if (typeof JSON === "undefined") {
         return "";
     }
 
+    /**
+     * Converts a value to JSON text.
+     *
+     * @param {*} value Value to stringify.
+     * @param {*} replacer Optional replacer function or property list.
+     * @param {*} space Optional indentation control.
+     * @returns {string|undefined} JSON text, or undefined for unsupported root values.
+     * @throws {TypeError} If a circular structure is encountered.
+     */
     function stringify(value, replacer, space) {
         const replacerFunction = typeof replacer === "function" ? replacer : null;
         const propertyList = makePropertyList(replacer);
