@@ -10,16 +10,8 @@ if (!String.prototype.startsWith) {
         "use strict";
 
         function isRegExp(value) {
-            var matcher;
-
             if (value === null || value === undefined) {
                 return false;
-            }
-            if (typeof Symbol !== "undefined" && Symbol.match) {
-                matcher = value[Symbol.match];
-                if (matcher !== undefined) {
-                    return Boolean(matcher);
-                }
             }
             return Object.prototype.toString.call(value) === "[object RegExp]";
         }

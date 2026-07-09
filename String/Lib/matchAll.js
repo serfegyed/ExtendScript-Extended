@@ -15,6 +15,9 @@ if (!String.prototype.matchAll) {
         var flags;
         var match;
         var matches = [];
+        var iteratorIndex = 0;
+        var matchArray;
+        var i;
 
         if (this === null || this === undefined) {
             throw new TypeError("String.prototype.matchAll called on null or undefined");
@@ -37,7 +40,10 @@ if (!String.prototype.matchAll) {
         }
 
         while ((match = matcher.exec(string)) !== null) {
-            var matchArray = Array.from(match);
+            matchArray = [];
+            for (i = 0; i < match.length; i++) {
+                matchArray[i] = match[i];
+            }
             matchArray.index = match.index;
             matchArray.input = match.input;
             matches.push(matchArray);
@@ -47,6 +53,13 @@ if (!String.prototype.matchAll) {
             }
         }
 
-        return matches.values();
+        return {
+            next: function () {
+                if (iteratorIndex < matches.length) {
+                    return {value: matches[iteratorIndex++], done: false};
+                }
+                return {value: undefined, done: true};
+            }
+        };
     };
 }

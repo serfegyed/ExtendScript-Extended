@@ -64,8 +64,6 @@ if (isNodeRuntime) {
             path.join(__dirname, "../Lib/fromCodePoint.js"),
             path.join(__dirname, "../Lib/isWellFormed.js"),
             path.join(__dirname, "../Lib/toWellFormed.js"),
-            path.join(__dirname, "../../Array/Lib/from.js"),
-            path.join(__dirname, "../../Array/Lib/values.js"),
             path.join(__dirname, "../Lib/matchAll.js"),
             path.join(__dirname, "../Lib/replaceAll.js")
         ];
@@ -261,11 +259,17 @@ if (isNodeRuntime) {
         var rows = [];
         var step;
         var match;
+        var values;
+        var i;
 
         while (!(step = iterator.next()).done) {
             match = step.value;
+            values = [];
+            for (i = 0; i < match.length; i++) {
+                values[i] = match[i];
+            }
             rows.push({
-                values: Array.from(match),
+                values: values,
                 index: match.index,
                 input: match.input
             });

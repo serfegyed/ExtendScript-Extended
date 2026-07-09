@@ -46,8 +46,5 @@ available under `Lib`.
 
 ## Dependencies
 
-`String.prototype.matchAll()` requires these Array polyfills to be included
-first:
-
-1. `Array/Lib/from.js`
-2. `Array/Lib/values.js`
+The standard and non-standard String bundles are self-contained within the
+String class.

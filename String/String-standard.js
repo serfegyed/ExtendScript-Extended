@@ -8,8 +8,6 @@
 //@include "./Lib/fromCodePoint.js"
 //@include "./Lib/includes.js"
 //@include "./Lib/isWellFormed.js"
-//@include "../Array/Lib/from.js"
-//@include "../Array/Lib/values.js"
 //@include "./Lib/matchAll.js"
 //@include "./Lib/padEnd.js"
 //@include "./Lib/padStart.js"
