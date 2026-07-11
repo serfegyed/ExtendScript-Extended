@@ -56,8 +56,9 @@ are added directly. Empty collections are no-ops.
 
 ## Dependencies
 
-`external.js` supplies `sameValueZero()` and `isArrayLike()`. It does not modify
-native platform objects.
+`Set_basic.js` keeps its SameValueZero comparison helper internal. `Set.from()`
+keeps its array-like detection helper internal. The standard and non-standard
+bundles do not require external helper files.
 
 ## Tests
 

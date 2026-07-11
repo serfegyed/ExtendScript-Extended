@@ -1,7 +1,6 @@
 /**
  * Standard Map polyfill bundle for ExtendScript.
  */
-//@include "./External/external.js"
 //@include "./Map_basic.js"
 //@include "./Lib/clear.js"
 //@include "./Lib/forEach.js"

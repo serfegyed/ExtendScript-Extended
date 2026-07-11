@@ -3,7 +3,7 @@
  *
  * @param {any} searchElement - The element to search for in the map.
  * @return {any} The key associated with the search element, or undefined if the element is not found.
- * @external Map.prototype.entries, sameValueZero()
+ * @external Map.prototype._findIndex()
  */
 Map.prototype.keyOf = function (searchElement) {
     var index;

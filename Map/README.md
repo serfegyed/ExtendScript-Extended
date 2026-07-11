@@ -11,7 +11,7 @@ production target.
 - Files in `Lib` can be included individually after their documented dependencies.
 
 Both bundles contain only ordered `#include` directives. Implementation code is
-kept in `Map_basic.js`, `External`, and `Lib`.
+kept in `Map_basic.js` and `Lib`.
 
 ## Standard surface
 
@@ -48,8 +48,8 @@ also receives `(value, key)` and must return a two-element pair.
 
 ## Dependencies
 
-`External/external.js` supplies `sameValueZero()`. It is already included by
-`Map_standard.js` and therefore also by `Map_full.js`.
+`Map_basic.js` keeps its SameValueZero comparison helper internal. The standard
+and full bundles do not require external helper files.
 
 ## Tests
 

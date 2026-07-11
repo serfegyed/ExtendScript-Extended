@@ -34,7 +34,6 @@ if (isNodeRuntime) {
         var fs = require("fs");
         var path = require("path");
         var filenames = [
-            "../external.js",
             "../Set_basic.js",
             "../Lib/clear.js",
             "../Lib/values.js",

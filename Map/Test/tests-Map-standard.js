@@ -21,7 +21,6 @@ if (isNodeRuntime) {
         var fs = require("fs");
         var path = require("path");
         var filenames = [
-            path.join(__dirname, "../External/external.js"),
             path.join(__dirname, "../Map_basic.js"),
             path.join(__dirname, "../Lib/clear.js"),
             path.join(__dirname, "../Lib/forEach.js"),

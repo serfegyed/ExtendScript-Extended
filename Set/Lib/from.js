@@ -6,6 +6,12 @@
  *
  * @return {Set} The modified Set.
  */
+function __SetFromIsArrayLike__(object) {
+    if (object === null || object === undefined) return false;
+    return typeof object.length === "number" && object.length >= 0 &&
+        (object.length === 0 || (object.length - 1) in object);
+}
+
 Set.prototype.from = function (iterables) {
     var i;
     var j;
@@ -20,7 +26,8 @@ Set.prototype.from = function (iterables) {
                 this.add(iterable._data[j]);
             }
         } else if (iterable instanceof Array ||
-                (typeof iterable !== "string" && isArrayLike(iterable))) {
+                (typeof iterable !== "string" &&
+                    __SetFromIsArrayLike__(iterable))) {
             for (j = 0; j < iterable.length; j++) {
                 this.add(iterable[j]);
             }

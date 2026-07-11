@@ -14,8 +14,14 @@
  * Property for the Map class:
  * - size       - Returns the number of key-value pairs in the map.
  *
- * @external:   sameValueZero()
  */
+function __MapSameValueZero__(x, y) {
+    if (typeof x === "number" && typeof y === "number") {
+        return x === y || (x !== x && y !== y);
+    }
+    return x === y;
+}
+
 function Map(iterable) {
     if (!(this instanceof Map)) {
         throw new TypeError("Constructor Map requires 'new'.");
@@ -36,7 +42,7 @@ function Map(iterable) {
 
 Map.prototype._findEntry = function (key) {
     for (var i = 0; i < this._entries.length; i++) {
-        if (sameValueZero(this._entries[i][0], key)) {
+        if (__MapSameValueZero__(this._entries[i][0], key)) {
             return i;
         }
     }
@@ -45,7 +51,7 @@ Map.prototype._findEntry = function (key) {
 
 Map.prototype._findIndex = function (value) {
     for (var i = 0; i < this._entries.length; i++) {
-        if (sameValueZero(this._entries[i][1], value)) {
+        if (__MapSameValueZero__(this._entries[i][1], value)) {
             return i;
         }
     }

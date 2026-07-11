@@ -1,7 +1,6 @@
 /**
  * Standard Set bundle for ExtendScript.
  */
-//@include "./external.js"
 //@include "./Set_basic.js"
 //@include "./Lib/clear.js"
 //@include "./Lib/values.js"

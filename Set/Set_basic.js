@@ -1,8 +1,13 @@
 /**
  * Core Set implementation for ExtendScript.
- *
- * @external sameValueZero()
  */
+function __SetSameValueZero__(x, y) {
+    if (typeof x === "number" && typeof y === "number") {
+        return x === y || (x !== x && y !== y);
+    }
+    return x === y;
+}
+
 function Set(elements) {
     var i;
 
@@ -23,7 +28,7 @@ function Set(elements) {
 
 Set.prototype.indexOf = function (value) {
     for (var i = 0; i < this._data.length; i++) {
-        if (sameValueZero(value, this._data[i])) return i;
+        if (__SetSameValueZero__(value, this._data[i])) return i;
     }
     return -1;
 };
@@ -50,7 +55,7 @@ Set.prototype.delete = function (value) {
     this._data.splice(index, 1);
     for (i = 0; i < this._records.length; i++) {
         if (this._records[i].active &&
-                sameValueZero(this._records[i].value, value)) {
+                __SetSameValueZero__(this._records[i].value, value)) {
             this._records[i].active = false;
             break;
         }

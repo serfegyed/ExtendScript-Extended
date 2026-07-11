@@ -18,7 +18,6 @@ if (isNodeRuntime) {
         var fs = require("fs");
         var path = require("path");
         var filenames = [
-            path.join(__dirname, "../external.js"),
             path.join(__dirname, "../Set_basic.js"),
             path.join(__dirname, "../Lib/clear.js"),
             path.join(__dirname, "../Lib/values.js"),
