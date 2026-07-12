@@ -53,8 +53,6 @@ modern object model:
 - `Object.isObject()` recognizes non-null objects and functions.
 - `Object.prototype.merge()` performs a shallow-key merge with deeply copied
   values. Depends on `Object.deepCopy()`.
-- `Object.prototype.toString()` intentionally replaces native output with a
-  readable representation for the ExtendScript Console.
 
 ## Tests
 

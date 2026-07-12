@@ -80,10 +80,8 @@ is generic. Sparse behavior is tested separately for true holes, explicit
   right and negative steps rotate left.
 - `Array.prototype.shuffle()` — shuffles the receiver in place.
 - `Array.prototype.toShuffled()` — returns a shuffled shallow copy.
-- `Array.prototype.unique()` — keeps the first value for each SameValueZero
+- `Array.prototype.unique()` - keeps the first value for each SameValueZero
   key.
-- `Array.prototype.toString()` — intentionally replaces native Array output
-  with a readable ExtendScript Console representation and is loaded last.
 
 The shuffle methods preserve true sparse slots rather than converting them to
 explicit `undefined` values.

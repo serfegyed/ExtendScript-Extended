@@ -29,7 +29,6 @@ var isNodeRuntime = typeof process !== "undefined" &&
 //@include "../Lib/toShuffled.js"
 //@include "../Lib/dim.js"
 //@include "../Lib/info.js"
-//@include "../Lib/toString.js"
 
 if (isNodeRuntime) {
     (function () {
@@ -64,8 +63,7 @@ if (isNodeRuntime) {
             "../Lib/shuffle.js",
             "../Lib/toShuffled.js",
             "../Lib/dim.js",
-            "../Lib/info.js",
-            "../Lib/toString.js"
+            "../Lib/info.js"
         ];
         var sources = [];
         var i;
@@ -99,7 +97,6 @@ if (isNodeRuntime) {
         Array.prototype.toShuffled = undefined;
         Array.prototype.dim = undefined;
         Array.info = undefined;
-        Array.prototype.toString = undefined;
 
         for (i = 0; i < sources.length; i++) (0, eval)(sources[i]);
     }());
@@ -573,25 +570,6 @@ if (isNodeRuntime) {
         assertThrowsTypeError(function () {
             Array.info({length: 0});
         }, "info non-Array");
-    });
-
-    test("Readable Array toString override is installed", function () {
-        assertEqual(typeof Array.prototype.toString, "function", "Array toString");
-    });
-
-    test("Array toString distinguishes values, holes, and escaped strings", function () {
-        var array = new Array(6);
-
-        array[0] = 1;
-        array[1] = "a\"b";
-        array[2] = undefined;
-        array[3] = null;
-        array[5] = [2, "line\nfeed"];
-        assertEqual(array.toString(),
-            "[1, \"a\\\"b\", undefined, null, , [2, \"line\\nfeed\"]]",
-            "readable Array output");
-        assertEqual(Array.prototype.toString.call({0: "x", length: 1}), "[\"x\"]",
-            "generic readable output");
     });
 
     console.log("\nPassed: " + passed);

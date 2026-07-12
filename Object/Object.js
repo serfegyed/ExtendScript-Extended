@@ -2,8 +2,6 @@
  * ExtendScript Object extensions bundle.
  *
  * Standard-compatible methods are followed by project-specific extensions.
- * Object.prototype.toString is intentionally loaded last because it replaces
- * native output with a readable ExtendScript Console representation.
  */
 
 // Standard-compatible methods
@@ -33,4 +31,3 @@
 //@include "./Lib/compact.js"
 //@include "./Lib/flat.js"
 //@include "./Lib/merge.js"
-//@include "./Lib/toString.js"

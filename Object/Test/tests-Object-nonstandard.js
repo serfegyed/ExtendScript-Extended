@@ -17,7 +17,6 @@ Object.deepCopy = undefined;
 Object.compact = undefined;
 Object.flat = undefined;
 Object.prototype.merge = undefined;
-Object.prototype.toString = undefined;
 
 //@include "../Lib/isObject.js"
 //@include "../Lib/isEmpty.js"
@@ -27,7 +26,6 @@ Object.prototype.toString = undefined;
 //@include "../Lib/compact.js"
 //@include "../Lib/flat.js"
 //@include "../Lib/merge.js"
-//@include "../Lib/toString.js"
 
 if (isNodeRuntime) {
     (function () {
@@ -41,8 +39,7 @@ if (isNodeRuntime) {
             path.join(__dirname, "../Lib/deepCopy.js"),
             path.join(__dirname, "../Lib/compact.js"),
             path.join(__dirname, "../Lib/flat.js"),
-            path.join(__dirname, "../Lib/merge.js"),
-            path.join(__dirname, "../Lib/toString.js")
+            path.join(__dirname, "../Lib/merge.js")
         ];
         var i;
 
@@ -400,27 +397,6 @@ if (isNodeRuntime) {
         } catch (error) {
             assertEqual(error instanceof TypeError, true, "cyclic TypeError");
         }
-    });
-
-    test("Object.prototype.toString override is installed", function () {
-        assertEqual(typeof Object.prototype.toString, "function",
-            "Object.prototype.toString");
-    });
-
-    test("Object.prototype.toString formats enumerable own properties", function () {
-        function Parent() {}
-        var object;
-
-        Parent.prototype.inherited = "ignored";
-        object = new Parent();
-        object.name = "Ada";
-        object.age = 37;
-        object.hasOwnProperty = "shadow";
-
-        assertEqual(object.toString(),
-            '{name: "Ada", age: 37, hasOwnProperty: "shadow"}',
-            "formatted object");
-        assertEqual(({}).toString(), "{}", "empty object");
     });
 
     console.log("\nPassed: " + passed);

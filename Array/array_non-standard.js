@@ -34,6 +34,3 @@
 //@include "./Lib/toShuffled.js"
 //@include "./Lib/dim.js"
 //@include "./Lib/info.js"
-
-// Intentional native output override; keep last.
-//@include "./Lib/toString.js"
