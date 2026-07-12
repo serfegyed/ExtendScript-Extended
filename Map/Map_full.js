@@ -16,6 +16,7 @@
 //@include "./Lib/mapValues.js"
 //@include "./Lib/reduce.js"
 //@include "./Lib/toArray.js"
+//@include "./Lib/toSource.js"
 //@include "./Lib/toString.js"
 //@include "./Lib/deleteAll.js"
 //@include "./Lib/deleteEach.js"

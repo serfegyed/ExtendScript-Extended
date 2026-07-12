@@ -10,7 +10,7 @@ production target.
 - `Map_full.js` includes `Map_standard.js` and every project extension.
 - Files in `Lib` can be included individually after their documented dependencies.
 
-Both bundles contain only ordered `#include` directives. Implementation code is
+Both bundles contain only ordered `//@include` directives. Implementation code is
 kept in `Map_basic.js` and `Lib`.
 
 ## Standard surface
@@ -39,7 +39,7 @@ The full bundle additionally provides:
 - Transformations: `filter`, `mapKeys`, `mapValues`, `reduce`
 - Bulk mutation: `deleteAll`, `deleteEach`, `setAll`, `setEach`
 - Construction and merging: `Map.from`, `merge`
-- Output helpers: `toArray`, `toString`
+- Output helpers: `toArray`, `toSource`, `toString`
 
 Most callback methods receive `(value, key, map)`. For compatibility with the
 original project API, `mapKeys` receives `(key, value, map)`. `Map.from` accepts
@@ -53,7 +53,7 @@ and full bundles do not require external helper files.
 
 ## Tests
 
-- `Test/tests-Map-standard.js`: standard surface, 17 tests
-- `Test/tests-Map-nonstandard.js`: project extensions, 18 tests
+- `Test/tests-Map-standard.js`: standard surface, 18 tests
+- `Test/tests-Map-nonstandard.js`: project extensions, 19 tests
 
 Both harnesses run in ESTK and Node.js.

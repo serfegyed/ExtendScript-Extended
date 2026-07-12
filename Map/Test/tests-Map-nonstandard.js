@@ -24,6 +24,7 @@ if (isNodeRuntime) {
 //@include "../Lib/mapValues.js"
 //@include "../Lib/reduce.js"
 //@include "../Lib/toArray.js"
+//@include "../Lib/toSource.js"
 //@include "../Lib/toString.js"
 //@include "../Lib/deleteAll.js"
 //@include "../Lib/deleteEach.js"
@@ -57,6 +58,7 @@ if (isNodeRuntime) {
             "../Lib/mapValues.js",
             "../Lib/reduce.js",
             "../Lib/toArray.js",
+            "../Lib/toSource.js",
             "../Lib/toString.js",
             "../Lib/deleteAll.js",
             "../Lib/deleteEach.js",
@@ -272,6 +274,7 @@ if (isNodeRuntime) {
 
         assertEqual(typeof map.reduce, "function", "Map.prototype.reduce");
         assertEqual(typeof map.toArray, "function", "Map.prototype.toArray");
+        assertEqual(typeof map.toSource, "function", "Map.prototype.toSource");
         assertEqual(typeof map.toString, "function", "Map.prototype.toString");
     });
 
@@ -302,7 +305,7 @@ if (isNodeRuntime) {
         }, "reduce callback");
     });
 
-    test("Map toArray and toString expose readable independent output", function () {
+    test("Map toArray, toSource, and toString expose output", function () {
         var map = new Map([["a", 1], ["b", "two"]]);
         var array = map.toArray();
 
@@ -311,8 +314,22 @@ if (isNodeRuntime) {
         assertEqual(array[1][1], "two", "second array value");
         array[0][1] = 99;
         assertEqual(map.get("a"), 1, "array pairs are independent");
-        assertEqual(map.toString(), 'Map: <[a: 1], [b: "two"]>', "Map string");
-        assertEqual(new Map().toString(), "Map: <>", "empty Map string");
+        assertEqual(map.toSource(), '(new Map([["a", 1], ["b", "two"]]))',
+            "Map source");
+        assertEqual(map.toString(), "[object Map]", "Map string");
+        assertEqual(new Map().toSource(), "(new Map([]))", "empty Map source");
+        assertEqual(new Map().toString(), "[object Map]", "empty Map string");
+    });
+
+    test("Map toSource returns evaluable independent output", function () {
+        var map = new Map([['a"b', "line\nbreak"], ["slash\\key", 2]]);
+        var copy = eval(map.toSource());
+
+        assertEqual(copy instanceof Map, true, "source creates Map");
+        assertEqual(copy.get('a"b'), "line\nbreak", "quoted string value");
+        assertEqual(copy.get("slash\\key"), 2, "escaped key value");
+        copy.set("new", 3);
+        assertEqual(map.has("new"), false, "source copy is independent");
     });
 
     test("Map bulk mutation extensions are installed", function () {
