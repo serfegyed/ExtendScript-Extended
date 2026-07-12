@@ -14,6 +14,7 @@ if (isNodeRuntime) {
 //@include "../Lib/isSet.js"
 //@include "../Lib/isEmpty.js"
 //@include "../Lib/toArray.js"
+//@include "../Lib/toSource.js"
 //@include "../Lib/toString.js"
 //@include "../Lib/join.js"
 //@include "../Lib/every.js"
@@ -51,6 +52,7 @@ if (isNodeRuntime) {
             "../Lib/isSet.js",
             "../Lib/isEmpty.js",
             "../Lib/toArray.js",
+            "../Lib/toSource.js",
             "../Lib/toString.js",
             "../Lib/join.js",
             "../Lib/every.js",
@@ -119,6 +121,7 @@ if (isNodeRuntime) {
         assertEqual(typeof Set.isSet, "function", "Set.isSet");
         assertEqual(typeof Set.isEmpty, "function", "Set.isEmpty");
         assertEqual(typeof set.toArray, "function", "Set.prototype.toArray");
+        assertEqual(typeof set.toSource, "function", "Set.prototype.toSource");
         assertEqual(typeof set.toString, "function", "Set.prototype.toString");
         assertEqual(typeof set.join, "function", "Set.prototype.join");
     });
@@ -137,7 +140,7 @@ if (isNodeRuntime) {
         }, "plain object");
     });
 
-    test("Set toArray, toString, and join expose independent output", function () {
+    test("Set toArray, toSource, toString, and join expose output", function () {
         var set = new Set([1, "two", 3]);
         var array = set.toArray();
 
@@ -145,10 +148,12 @@ if (isNodeRuntime) {
         assertEqual(array[1], "two", "array value");
         array[0] = 99;
         assertEqual(set.has(1), true, "array is independent");
-        assertEqual(set.toString(), '{1, "two", 3}', "Set string");
+        assertEqual(set.toSource(), '(new Set([1, "two", 3]))', "Set source");
+        assertEqual(set.toString(), "[object Set]", "Set string");
         assertEqual(set.join(), "1,two,3", "default join");
         assertEqual(set.join(" | "), "1 | two | 3", "custom join");
-        assertEqual(new Set().toString(), "{}", "empty Set string");
+        assertEqual(new Set().toSource(), "(new Set([]))", "empty Set source");
+        assertEqual(new Set().toString(), "[object Set]", "empty Set string");
     });
 
     test("Set predicate and search extensions are installed", function () {

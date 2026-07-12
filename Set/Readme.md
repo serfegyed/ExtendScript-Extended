@@ -44,7 +44,7 @@ The non-standard bundle additionally provides:
 - Predicates and search: `every`, `some`, `find`
 - Transformations: `filter`, `map`, `reduce`
 - Bulk mutation: `addAll`, `addEach`, `deleteAll`, `deleteEach`
-- Aggregation and output: `from`, `toArray`, `toString`, `join`
+- Aggregation and output: `from`, `toArray`, `toSource`, `toString`, `join`
 
 Set callback methods generally receive `(value, value, set)`. `addEach` receives
 `(value, index, set)` from its source array, while `deleteEach` uses the same

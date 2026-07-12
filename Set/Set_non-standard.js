@@ -5,6 +5,7 @@
 //@include "./Lib/isSet.js"
 //@include "./Lib/isEmpty.js"
 //@include "./Lib/toArray.js"
+//@include "./Lib/toSource.js"
 //@include "./Lib/toString.js"
 //@include "./Lib/join.js"
 //@include "./Lib/every.js"
