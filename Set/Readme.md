@@ -7,12 +7,14 @@ production target.
 ## Bundles
 
 - `Set_standard.js` includes the core and complete supported standard surface.
+- `Set_operators.js` includes the standard bundle and optional ESTK operator
+  overloads.
 - `Set_non-standard.js` includes the standard bundle and all project extensions.
 - `Set_full.js` is a compatibility alias for `Set_non-standard.js`.
 - `Set_composition.js` is a compatibility alias for `Set_standard.js`, because
   Set composition is now standardized.
 
-All bundle files contain only ordered `#include` directives. The constructor and
+All bundle files contain only ordered `//@include` directives. The constructor and
 core storage live in `Set_basic.js`; individual methods live in `Lib`.
 
 ## Standard surface
@@ -54,6 +56,30 @@ shape over a stable snapshot of the Set values.
 their values; plain objects contribute their own property names; other values
 are added directly. Empty collections are no-ops.
 
+## ESTK operator sugar
+
+`Set_operators.js` is an optional ExtendScript-only layer. It depends only on
+`Set_standard.js` and does not require the project non-standard extensions.
+
+The operators are intended only as a more expressive syntax for standard Set
+operations. They do not add new Set capabilities. Operator overloads may be more
+expensive than direct method calls, especially relational checks that need size
+or membership tests. Prefer the named methods in performance-sensitive code.
+
+| Operator | Equivalent |
+|---|---|
+| `A | B` | `A.union(B)` |
+| `A & B` | `A.intersection(B)` |
+| `A - B` | `A.difference(B)` |
+| `A ^ B` | `A.symmetricDifference(B)` |
+| `A == B` | `A.size === B.size && A.isSubsetOf(B)` |
+| `A << B` | `A.isSubsetOf(B)` |
+| `A >> B` | `A.isSupersetOf(B)` |
+| `A % B` | `A.isDisjointFrom(B)` |
+
+Strict equality (`===`) is intentionally left untouched and keeps object
+identity semantics.
+
 ## Dependencies
 
 `Set_basic.js` keeps its SameValueZero comparison helper internal. `Set.from()`
@@ -63,6 +89,8 @@ bundles do not require external helper files.
 ## Tests
 
 - `Test/tests-Set-standard.js`: standard surface, 13 tests
+- `Test/tests-Set-operators.js`: ESTK operator overloads, 2 tests
 - `Test/tests-Set-nonstandard.js`: project extensions, 15 tests
 
-Both harnesses run in ESTK and Node.js.
+The standard and non-standard harnesses run in ESTK and Node.js. The operator
+harness is ESTK-only and skips itself under Node.js.
