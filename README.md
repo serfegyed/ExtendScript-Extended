@@ -11,6 +11,7 @@ This project was originally made as a learning tool and to solve problems encoun
 - **Array Extensions**: A set of methods added to the native Array object, inspired by ES6 features.
 - **Date Extensions**: ISO serialization and Temporal conversion methods for the native Date object.
 - **Function Extensions**: Function.prototype.bind() for fixed receivers and leading arguments.
+- **INI Settings**: Simple settings persistence for scripts using object-of-objects data and INI files.
 - **JSON Extensions**: JSON.stringify() and JSON.parse() methods, inspired by ES6 features.
 - **Math Extensions**: Additional math functions and constants.
 - **Number Extensions**: Methods like Number.isNaN(), Number.isFinite(), Number.isInteger(), and Number.isSafeInteger() as well as some constants.
@@ -20,7 +21,7 @@ This project was originally made as a learning tool and to solve problems encoun
 - **Map and Set**: Introducing Map and Set objects for more advanced data structures.
 - **Temporal Subset**: ISO/Gregorian date, time, duration, Instant, and host-local formatting support designed for ExtendScript's millisecond precision.
 - **TypeTest**: A collection of type testing methods like sameValueZero(), isPrimitive(), and isArrayLike(), etc.
-- **Development Tools**: Console helpers and ESprocessor for consolidating recursive include dependencies.
+- **Development Tools**: Console helpers, ESprocessor for consolidating recursive include dependencies, and the ExtendScript Linker.
 
 ## How to Use
 Each category (e.g. Array, String, Object) has its own README.md file with a detailed explanation.
