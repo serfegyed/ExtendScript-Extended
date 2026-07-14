@@ -28,8 +28,16 @@ if (isNodeRuntime) {
             this.name = nodePath.basename(this.fsName);
             parentFolder = {
                 fsName: nodePath.dirname(this.fsName),
+                fullName: nodePath.dirname(this.fsName).replace(/\\/g, "/"),
+                exists: nodeFs.existsSync(nodePath.dirname(this.fsName)) &&
+                    nodeFs.statSync(nodePath.dirname(this.fsName)).isDirectory(),
+                create: function () {
+                    nodeFs.mkdirSync(this.fsName, { recursive: true });
+                    this.exists = true;
+                    return true;
+                },
                 toString: function () {
-                    return this.fsName;
+                    return this.fullName;
                 }
             };
             this.parent = parentFolder;
@@ -103,6 +111,35 @@ if (isNodeRuntime) {
             temp: {
                 fsName: nodeOs.tmpdir()
             }
+        };
+        global.Folder = function (folderPath) {
+            var resolved = nodePath.resolve(String(folderPath).replace(/^~(?=\/|\\|$)/, nodeOs.tmpdir()));
+            return {
+                fsName: resolved,
+                fullName: resolved.replace(/\\/g, "/"),
+                exists: nodeFs.existsSync(resolved) && nodeFs.statSync(resolved).isDirectory(),
+                create: function () {
+                    nodeFs.mkdirSync(resolved, { recursive: true });
+                    this.exists = true;
+                    return true;
+                },
+                getFiles: function () {
+                    return [];
+                },
+                remove: function () {
+                    if (nodeFs.existsSync(resolved)) {
+                        nodeFs.rmSync(resolved, { recursive: true, force: true });
+                    }
+                    this.exists = false;
+                    return true;
+                },
+                toString: function () {
+                    return this.fullName;
+                }
+            };
+        };
+        global.Folder.temp = {
+            fsName: nodeOs.tmpdir()
         };
         global.$ = {
             fileName: nodePath.join(nodeOs.tmpdir(), "MyScript.jsx")
@@ -415,6 +452,38 @@ if (isNodeRuntime) {
             assertThrows(function () {
                 INI.read({});
             }, "filename must be a non-empty string");
+        });
+
+        test("read accepts a simple filename under the default folder", function () {
+            var data = { INIT: { setup1: "Default" } };
+            var result = INI.read(data, "simple-read.ini");
+            equal(result, data, "read must return the same object");
+            objectOfObjectsEqual(data, { INIT: { setup1: "Default" } });
+        });
+
+        test("write accepts a simple filename under the default folder", function () {
+            INI.write({ INIT: { setup1: "First setup" } }, "simple-write.ini");
+            equal(readFile(joinPath(Folder("~/.ESTK_scripts").fullName, "simple-write.ini")),
+                "[INIT]\nsetup1=First setup\n");
+            new File(joinPath(Folder("~/.ESTK_scripts").fullName, "simple-write.ini")).remove();
+        });
+
+        test("read rejects a relative path", function () {
+            assertThrows(function () {
+                INI.read({}, "./relative.ini");
+            }, "filename must be an explicit path or simple filename");
+        });
+
+        test("read rejects filename-only call", function () {
+            assertThrows(function () {
+                INI.read(joinPath(rootFolder, "filename-only.ini"));
+            }, "data must be an object");
+        });
+
+        test("write rejects filename-only call", function () {
+            assertThrows(function () {
+                INI.write(joinPath(rootFolder, "filename-only.ini"));
+            }, "data must be an object");
         });
 
         test("write rejects non-object sections", function () {

@@ -40,12 +40,37 @@ var INI = (function () {
         return String(text).replace(/^\s+|\s+$/g, "");
     }
 
+    function isExplicitPath(filename) {
+        return /^[A-Za-z]:[\\\/]/.test(filename) ||
+            filename.charAt(0) === "/" ||
+            filename.indexOf("~/") === 0;
+    }
+
+    function isSimpleFilename(filename) {
+        return filename.indexOf("/") === -1 &&
+            filename.indexOf("\\") === -1 &&
+            filename.indexOf(":") === -1;
+    }
+
+    function getDefaultFolder() {
+        return Folder("~/.ESTK_scripts");
+    }
+
     function getFile(filename) {
         if (typeof filename !== "string" || filename === "") {
             fail("filename must be a non-empty string");
         }
         if (typeof File === "undefined") {
             fail("File object is unavailable");
+        }
+        if (typeof Folder === "undefined") {
+            fail("Folder object is unavailable");
+        }
+        if (isSimpleFilename(filename)) {
+            return File(getDefaultFolder().fullName + "/" + filename);
+        }
+        if (!isExplicitPath(filename)) {
+            fail("filename must be an explicit path or simple filename");
         }
         return File(filename);
     }
@@ -117,10 +142,15 @@ var INI = (function () {
     function writeFile(file, data) {
         var firstSection = true;
         var outputData = {};
+        var folder = file.parent;
 
         validateObjectOfObjects(data);
         readFile(file, outputData);
         mergeData(outputData, data);
+
+        if (folder && !folder.exists && !folder.create()) {
+            fail("cannot create folder: " + folder);
+        }
 
         file.encoding = "UTF-8";
         if (!file.open("w")) {
@@ -155,6 +185,7 @@ var INI = (function () {
         },
 
         write: function (data, filename) {
+            validateObjectOfObjects(data);
             writeFile(getFile(filename), data);
             return data;
         }

@@ -35,8 +35,8 @@ var settings = {
     }
 };
 
-INI.read(settings, "~/Desktop/my-script.ini");
-INI.write(settings, "~/Desktop/my-script.ini");
+INI.read(settings, "my-script.ini");
+INI.write(settings, "my-script.ini");
 ```
 
 The file format is:
@@ -56,14 +56,30 @@ unchanged. `INI.write(data, filename)` creates or updates the file.
 
 ## Filenames
 
-Always pass the INI filename explicitly:
+Pass either a simple filename or an explicit path:
 
 ```javascript
+INI.read(settings, "my-script.ini");
+INI.write(settings, "my-script.ini");
+
 INI.read(settings, "~/Desktop/my-script.ini");
 INI.write(settings, "~/Desktop/my-script.ini");
 ```
 
-The filename is a string.
+Simple filenames are saved under `~/.ESTK_scripts/`, which maps to the user's
+home folder on Windows and macOS. The folder is created when needed.
+
+Do not use relative paths such as `./settings.ini` or `../settings.ini`.
+ExtendScript may resolve them relative to the ESTK or host application folder.
+To save beside the running script, build the path in the caller:
+
+```javascript
+var scriptPath = File($.fileName).fsName.replace(/\\/g, "/");
+var iniFile = scriptPath.substring(0, scriptPath.lastIndexOf("/")) + "/settings.ini";
+
+INI.read(settings, iniFile);
+INI.write(settings, iniFile);
+```
 
 ## Format rules
 
