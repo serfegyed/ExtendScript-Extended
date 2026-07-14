@@ -18,4 +18,5 @@
 //@include "./Lib/Math.median.js"
 //@include "./Lib/Math.sign.js"
 //@include "./Lib/Math.sum.js"
+//@include "./Lib/Math.sumPrecise.js"
 //@include "./Lib/Math.trunc.js"

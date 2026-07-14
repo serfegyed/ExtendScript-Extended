@@ -153,6 +153,19 @@ console.log(Math.sum([])); // Expected output: 0
 console.log(Math.sum()); // Expected output: 0
 console.log(Math.sum([1, 'two', 3, null, 5, undefined, '6', true])); // Expected output: 9, ignoring non-number elements
 ```
+### Math.sumPrecise
+Returns a more precise sum of an array-like collection of numbers.
+
+This ExtendScript-oriented subset accepts array-like numeric collections, not
+the full ES iterable protocol. Unlike `Math.sum`, it does not flatten arrays and
+does not ignore non-number values.
+
+```javascript
+console.log(Math.sumPrecise([1, 2, 3])); // 6
+console.log(Math.sumPrecise([1e20, 0.1, -1e20])); // 0.1
+console.log(Math.sumPrecise([])); // -0
+```
+
 ### Math.trunc 
 Truncates the decimal part of a number, returning the integer part only.
 
@@ -245,6 +258,7 @@ Individual implementations live in `Lib` and can also be included directly:
 //@include "path/to/Math/Lib/Math.log1p.js"
 //@include "path/to/Math/Lib/Math.log10.js"
 //@include "path/to/Math/Lib/Math.log2.js"
+//@include "path/to/Math/Lib/Math.sumPrecise.js"
 //@include "path/to/Math/Lib/Math.trunc.js"
 ```
 
@@ -265,7 +279,7 @@ Math methods and loads `math.js` so the project implementations and bundle
 order are tested directly, while Node is used as a convenient behavior
 reference.
 
-Current Node checkpoint: **19 passed, 0 failed**.
+Current Node checkpoint: **21 passed, 0 failed**.
 
 ## Compatibility
 These polyfills are designed for use in ExtendScript, which is based on ECMAScript 3. They have been tested in Adobe InDesign scripting environments but should be compatible with any ExtendScript environment.

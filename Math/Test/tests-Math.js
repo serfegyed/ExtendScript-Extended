@@ -38,6 +38,7 @@ Math.mean = undefined;
 Math.median = undefined;
 Math.sign = undefined;
 Math.sum = undefined;
+Math.sumPrecise = undefined;
 Math.trunc = undefined;
 
 //@include "../math.js"
@@ -141,6 +142,17 @@ if (isNodeRuntime) {
         fail((message ? message + ": " : "") + "expected an exception");
     }
 
+    function assertThrowsTypeError(callback, message) {
+        try {
+            callback();
+        } catch (error) {
+            assert(error instanceof TypeError, message + " TypeError");
+            return;
+        }
+
+        fail((message ? message + ": " : "") + "expected an exception");
+    }
+
     function test(name, callback) {
         try {
             callback();
@@ -189,6 +201,7 @@ if (isNodeRuntime) {
             "median",
             "sign",
             "sum",
+            "sumPrecise",
             "trunc"
         ];
         var i;
@@ -423,6 +436,36 @@ if (isNodeRuntime) {
         assertNumberSame(Math.sum([1, "two", 3, null, 5, undefined, "6", true]), 9, "non-numbers ignored");
         assertNumberSame(Math.sum([]), 0, "empty array");
         assertNumberSame(Math.sum(), 0, "no arguments");
+    });
+
+    test("Math.sumPrecise sums array-like numbers precisely", function () {
+        assertNumberSame(Math.sumPrecise([1, 2, 3]), 6, "simple array");
+        assertNumberSame(Math.sumPrecise([1e20, 0.1, -1e20]), 0.1,
+            "lost low-order value");
+        assertApprox(Math.sumPrecise([0.1, 0.2]) - 0.3,
+            5.55111512312578e-17, 1e-30, "binary float result");
+        assertNumberSame(Math.sumPrecise({0: 1, 1: 2, length: 2}), 3,
+            "array-like object");
+        assertNumberSame(Math.sumPrecise([]), -0, "empty array");
+    });
+
+    test("Math.sumPrecise validates inputs and special values", function () {
+        assertNumberSame(Math.sumPrecise([Infinity, 1]), Infinity,
+            "positive infinity");
+        assertNumberSame(Math.sumPrecise([-Infinity, 1]), -Infinity,
+            "negative infinity");
+        assertNumberSame(Math.sumPrecise([Infinity, -Infinity]), NaN,
+            "mixed infinities");
+        assertNumberSame(Math.sumPrecise([1, NaN]), NaN, "NaN value");
+        assertThrowsTypeError(function () {
+            Math.sumPrecise();
+        }, "missing argument");
+        assertThrowsTypeError(function () {
+            Math.sumPrecise([1, "2"]);
+        }, "string value");
+        assertThrowsTypeError(function () {
+            Math.sumPrecise([1, , 3]);
+        }, "sparse array hole");
     });
 
     test("Math.median follows the documented ordering rules", function () {
