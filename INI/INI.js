@@ -53,7 +53,15 @@ var INI = (function () {
     }
 
     function getDefaultFolder() {
-        return Folder("~/.ESTK_scripts");
+        var home = "";
+
+        if (typeof $ !== "undefined" && typeof $.getenv === "function") {
+            home = $.getenv("USERPROFILE") || $.getenv("HOME") || "";
+        }
+        if (home === "") {
+            home = "~";
+        }
+        return Folder(String(home).replace(/\\/g, "/") + "/.ESTK_scripts");
     }
 
     function getFile(filename) {

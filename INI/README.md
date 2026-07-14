@@ -66,8 +66,9 @@ INI.read(settings, "~/Desktop/my-script.ini");
 INI.write(settings, "~/Desktop/my-script.ini");
 ```
 
-Simple filenames are saved under `~/.ESTK_scripts/`, which maps to the user's
-home folder on Windows and macOS. The folder is created when needed.
+Simple filenames are saved under `.ESTK_scripts` in the user's home folder.
+On Windows, `INI.js` uses `%USERPROFILE%`; on macOS it falls back to `$HOME`.
+The folder is created when needed.
 
 Do not use relative paths such as `./settings.ini` or `../settings.ini`.
 ExtendScript may resolve them relative to the ESTK or host application folder.

@@ -142,7 +142,16 @@ if (isNodeRuntime) {
             fsName: nodeOs.tmpdir()
         };
         global.$ = {
-            fileName: nodePath.join(nodeOs.tmpdir(), "MyScript.jsx")
+            fileName: nodePath.join(nodeOs.tmpdir(), "MyScript.jsx"),
+            getenv: function (name) {
+                if (name === "USERPROFILE") {
+                    return nodeOs.tmpdir();
+                }
+                if (name === "HOME") {
+                    return nodeOs.tmpdir();
+                }
+                return "";
+            }
         };
 
         (0, eval)(nodeFs.readFileSync(nodePath.join(__dirname, "..", "INI.js"), "utf8"));
@@ -204,6 +213,11 @@ if (isNodeRuntime) {
         text = file.read();
         file.close();
         return text;
+    }
+
+    function defaultSettingsFolderPath() {
+        return Folder(String($.getenv("USERPROFILE") || $.getenv("HOME")).replace(/\\/g, "/") +
+            "/.ESTK_scripts").fullName;
     }
 
     function removeTree(path) {
@@ -463,9 +477,9 @@ if (isNodeRuntime) {
 
         test("write accepts a simple filename under the default folder", function () {
             INI.write({ INIT: { setup1: "First setup" } }, "simple-write.ini");
-            equal(readFile(joinPath(Folder("~/.ESTK_scripts").fullName, "simple-write.ini")),
+            equal(readFile(joinPath(defaultSettingsFolderPath(), "simple-write.ini")),
                 "[INIT]\nsetup1=First setup\n");
-            new File(joinPath(Folder("~/.ESTK_scripts").fullName, "simple-write.ini")).remove();
+            new File(joinPath(defaultSettingsFolderPath(), "simple-write.ini")).remove();
         });
 
         test("read rejects a relative path", function () {
