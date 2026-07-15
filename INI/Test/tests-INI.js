@@ -482,6 +482,25 @@ if (isNodeRuntime) {
             new File(joinPath(defaultSettingsFolderPath(), "simple-write.ini")).remove();
         });
 
+        test("remove deletes an existing INI file", function () {
+            var filePath = joinPath(rootFolder, "remove.ini");
+            writeFile(filePath, "[INIT]\nsetup1=First setup\n");
+            equal(INI.remove(filePath), true);
+            equal(new File(filePath).exists, false);
+        });
+
+        test("remove returns false when the file is missing", function () {
+            equal(INI.remove(joinPath(rootFolder, "missing-remove.ini")), false);
+        });
+
+        test("remove accepts a simple filename under the default folder", function () {
+            var filePath = joinPath(defaultSettingsFolderPath(), "simple-remove.ini");
+            INI.write({ INIT: { setup1: "First setup" } }, "simple-remove.ini");
+            equal(new File(filePath).exists, true);
+            equal(INI.remove("simple-remove.ini"), true);
+            equal(new File(filePath).exists, false);
+        });
+
         test("read rejects a relative path", function () {
             assertThrows(function () {
                 INI.read({}, "./relative.ini");

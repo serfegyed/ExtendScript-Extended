@@ -11,6 +11,7 @@ The public interface is intentionally small:
 ```javascript
 INI.read(data, filename);
 INI.write(data, filename);
+INI.remove(filename);
 ```
 
 `data` is required and must be an object whose section values are objects, or an
@@ -53,6 +54,8 @@ result2=Second result
 
 If the INI file does not exist, `INI.read(data, filename)` returns the same object
 unchanged. `INI.write(data, filename)` creates or updates the file.
+`INI.remove(filename)` deletes the file when it exists and returns `true`;
+when the file is absent it returns `false`.
 
 ## Filenames
 

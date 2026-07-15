@@ -4,6 +4,7 @@
  * Public API:
  * - INI.read(data, filename)
  * - INI.write(data, filename)
+ * - INI.remove(filename)
  *
  * The data argument must be an object whose section values are objects, or an
  * empty object. Missing files leave the passed object unchanged.
@@ -186,6 +187,13 @@ var INI = (function () {
         }
     }
 
+    function removeFile(file) {
+        if (!file.exists) {
+            return false;
+        }
+        return file.remove();
+    }
+
     return {
         read: function (data, filename) {
             validateObjectOfObjects(data);
@@ -196,6 +204,10 @@ var INI = (function () {
             validateObjectOfObjects(data);
             writeFile(getFile(filename), data);
             return data;
+        },
+
+        remove: function (filename) {
+            return removeFile(getFile(filename));
         }
     };
 }());
