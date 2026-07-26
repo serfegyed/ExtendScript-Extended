@@ -1,0 +1,8 @@
+interface:
+  display_name: "Karpathy Guidelines"
+  short_description: "Behavioral coding guidelines for Codex: surface assumptions, keep solutions simple, make surgical edits, and verify outcomes."
+  default_prompt: "Use Karpathy Guidelines while handling this task. Surface assumptions, prefer the simplest solution, keep changes surgical, and define concrete verification steps before coding."
+  brand_color: "#10A37F"
+
+policy:
+  allow_implicit_invocation: true
