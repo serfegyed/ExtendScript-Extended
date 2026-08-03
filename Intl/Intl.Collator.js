@@ -7,6 +7,7 @@
  * - sensitivity: base, accent, case, variant
  * - ignorePunctuation
  * - caseFirst: false, upper, lower
+ * - numeric: false, true (ASCII digit-run subset)
  */
 var Intl = Intl || {};
 
@@ -44,9 +45,6 @@ var Intl = Intl || {};
         ignorePunctuation = options.ignorePunctuation === undefined ? false : Boolean(options.ignorePunctuation);
 
         numeric = options.numeric === undefined ? false : Boolean(options.numeric);
-        if (numeric) {
-            throw new RangeError("Intl.Collator error: numeric collation is not supported yet.");
-        }
 
         caseFirst = options.caseFirst === undefined ? "false" : String(options.caseFirst);
         if (caseFirst !== "false" && caseFirst !== "upper" && caseFirst !== "lower") {
@@ -67,7 +65,7 @@ var Intl = Intl || {};
             usage: usage,
             sensitivity: sensitivity,
             ignorePunctuation: ignorePunctuation,
-            numeric: false,
+            numeric: numeric,
             caseFirst: caseFirst,
             collation: "default"
         };
@@ -120,14 +118,49 @@ var Intl = Intl || {};
         return mappedRecord(character, Intl.__getLocaleData__(locale, "collation").recordMap);
     }
 
-    function makeKey(value, locale, ignorePunctuation, caseFirst) {
+    function isAsciiDigit(character) {
+        var code = character.charCodeAt(0);
+
+        return code >= 48 && code <= 57;
+    }
+
+    function stripLeadingZeros(text) {
+        var index = 0;
+
+        while (index < text.length && text.charAt(index) === "0") {
+            index++;
+        }
+        return index === text.length ? "0" : text.substring(index);
+    }
+
+    function digitRunValue(text) {
+        return {
+            raw: text,
+            normalized: stripLeadingZeros(text)
+        };
+    }
+
+    function pushCharacterToken(tokens, character, locale, caseFirst) {
+        var record = characterRecord(character, locale);
+
+        tokens.push({
+            type: "text",
+            primary: record.base,
+            accent: String(record.accent),
+            cssCase: isUpperCaseLetter(character) ? (caseFirst === "upper" ? "0" : "1") : (caseFirst === "upper" ? "1" : "0")
+        });
+    }
+
+    function makeKey(value, locale, ignorePunctuation, caseFirst, numeric) {
         var string = String(value);
         var primary = "";
         var accent = "";
         var cssCase = "";
+        var tokens = [];
         var index;
         var character;
         var record;
+        var start;
 
         if (ignorePunctuation) {
             string = stripPunctuation(string);
@@ -135,17 +168,30 @@ var Intl = Intl || {};
 
         for (index = 0; index < string.length; index++) {
             character = string.charAt(index);
+            if (numeric && isAsciiDigit(character)) {
+                start = index;
+                while (index + 1 < string.length && isAsciiDigit(string.charAt(index + 1))) {
+                    index++;
+                }
+                tokens.push({
+                    type: "number",
+                    number: digitRunValue(string.substring(start, index + 1))
+                });
+                continue;
+            }
             record = characterRecord(character, locale);
             primary += record.base;
             accent += String(record.accent);
             cssCase += isUpperCaseLetter(character) ? (caseFirst === "upper" ? "0" : "1") : (caseFirst === "upper" ? "1" : "0");
+            pushCharacterToken(tokens, character, locale, caseFirst);
         }
 
         return {
             primary: primary,
             accent: accent,
             cssCase: cssCase,
-            original: string
+            original: string,
+            tokens: tokens
         };
     }
 
@@ -159,25 +205,76 @@ var Intl = Intl || {};
         return 0;
     }
 
-    function compareValues(left, right, locale, options) {
-        var leftKey = makeKey(left, locale, options.ignorePunctuation, options.caseFirst);
-        var rightKey = makeKey(right, locale, options.ignorePunctuation, options.caseFirst);
+    function compareNumberTokens(left, right) {
+        if (left.normalized.length < right.normalized.length) {
+            return -1;
+        }
+        if (left.normalized.length > right.normalized.length) {
+            return 1;
+        }
+        return compareText(left.normalized, right.normalized);
+    }
+
+    function compareTokenField(left, right, field) {
+        var leftText = left.type === "number" ? left.number.normalized : left[field];
+        var rightText = right.type === "number" ? right.number.normalized : right[field];
+
+        return compareText(leftText, rightText);
+    }
+
+    function compareTokens(leftTokens, rightTokens, field, sensitivity) {
+        var length = Math.min(leftTokens.length, rightTokens.length);
+        var index;
+        var left;
+        var right;
         var result;
 
-        result = compareText(leftKey.primary, rightKey.primary);
+        for (index = 0; index < length; index++) {
+            left = leftTokens[index];
+            right = rightTokens[index];
+            if (left.type === "number" && right.type === "number") {
+                result = compareNumberTokens(left.number, right.number);
+            } else {
+                result = compareTokenField(left, right, field);
+            }
+            if (result !== 0) {
+                return result;
+            }
+        }
+        if (leftTokens.length < rightTokens.length) {
+            return -1;
+        }
+        if (leftTokens.length > rightTokens.length) {
+            return 1;
+        }
+        return 0;
+    }
+
+    function compareValues(left, right, locale, options) {
+        var leftKey = makeKey(left, locale, options.ignorePunctuation, options.caseFirst, options.numeric);
+        var rightKey = makeKey(right, locale, options.ignorePunctuation, options.caseFirst, options.numeric);
+        var result;
+
+        result = options.numeric ?
+            compareTokens(leftKey.tokens, rightKey.tokens, "primary", options.sensitivity) :
+            compareText(leftKey.primary, rightKey.primary);
         if (result !== 0 || options.sensitivity === "base") {
             return result;
         }
 
         if (options.sensitivity === "accent" || options.sensitivity === "variant") {
-            result = compareText(leftKey.accent, rightKey.accent);
+            result = options.numeric ?
+                compareTokens(leftKey.tokens, rightKey.tokens, "accent", options.sensitivity) :
+                compareText(leftKey.accent, rightKey.accent);
             if (result !== 0) {
                 return result;
             }
         }
 
         if (options.sensitivity === "case" || options.sensitivity === "variant") {
-            result = compareText(leftKey.cssCase, rightKey.cssCase);
+            result = options.numeric ?
+                compareTokens(leftKey.tokens, rightKey.tokens, "cssCase", options.sensitivity) :
+                compareText(leftKey.cssCase, rightKey.cssCase);
             if (result !== 0) {
                 return result;
             }
@@ -208,6 +305,7 @@ var Intl = Intl || {};
         return compareValues(a, b, this.__locale__, {
             sensitivity: this.__sensitivity__,
             ignorePunctuation: this.__ignorePunctuation__,
+            numeric: this.__numeric__,
             caseFirst: this.__caseFirst__
         });
     };

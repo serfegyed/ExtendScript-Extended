@@ -47,6 +47,10 @@ var punctuation = new Intl.Collator("en-US", { ignorePunctuation: true });
 punctuation.compare("a-b", "ab");
 // 0
 
+var natural = new Intl.Collator("en-US", { numeric: true });
+natural.compare("file2", "file10");
+// negative value
+
 var words = ["Éva", "Adam", "Ábel", "Zoé"];
 var sorter = new Intl.Collator("hu-HU", {
     sensitivity: "base",
@@ -56,6 +60,13 @@ words.sort(function (a, b) {
     return sorter.compare(a, b);
 });
 // words is now sorted with the local Intl subset comparator
+
+var files = ["file10", "file2", "file1"];
+var naturalSorter = new Intl.Collator("en-US", { numeric: true });
+files.sort(function (a, b) {
+    return naturalSorter.compare(a, b);
+});
+// ["file1", "file2", "file10"]
 ```
 
 ## Supported Locales
@@ -137,11 +148,26 @@ Both currently use the same `Intl-core.js` locale resolver. Unsupported values t
 
 ### `numeric`
 
-Recognized value:
+Implemented values:
 
 - `false` (default)
+- `true`
 
-`true` throws `RangeError`. Numeric collation is intentionally deferred.
+`true` enables a deliberately narrow ASCII digit-run comparison. Consecutive `0..9` characters are compared as integer digit sequences without converting them to `Number`, so very long digit runs do not lose precision.
+
+Implemented behavior:
+
+- `file2` sorts before `file10`
+- `2` sorts before `10`
+- leading zeros are ignored, so `file02` compares equal to `file2`
+- separators such as `.`, `,`, `-`, `+`, and `e` remain ordinary characters; there is no decimal, negative-number, or exponent parsing
+
+Not implemented:
+
+- Unicode digit classes
+- locale decimal separators
+- floating-point number parsing
+- negative-number parsing
 
 ### `collation`
 
@@ -152,14 +178,13 @@ Recognized value:
 
 `standard` is accepted as the MDN-named default ordering alias, but `resolvedOptions().collation` returns the subset's normalized value: `default`. Other collation values throw `RangeError`.
 
-## Not Implemented
+## Out of Scope
 
 - locale-specific digraph and trigraph collation such as full Hungarian `cs`, `dzs`, `gy`, `ly`, `ny`, `sz`, `ty`, `zs`
 - German phonebook collation
 - French backwards accent sorting
 - Unicode normalization beyond the small built-in accent tables
 - emoji, kana, width, script, or non-Latin collation handling
-- `numeric: true`
 - collation variants other than `default`
 - separate `search` tailoring
 

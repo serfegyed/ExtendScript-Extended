@@ -79,6 +79,13 @@ var names = ["Éva", "Adam", "Ábel", "Zoé"];
 names.sort(function (a, b) {
     return collator.compare(a, b);
 });
+
+var natural = new Intl.Collator("en-US", { numeric: true });
+var files = ["file10", "file2", "file1"];
+files.sort(function (a, b) {
+    return natural.compare(a, b);
+});
+// ["file1", "file2", "file10"]
 ```
 
 ### DateTimeFormat
@@ -235,18 +242,19 @@ Implemented options:
 - `sensitivity`
 - `ignorePunctuation`
 - `caseFirst`
+- `numeric`
 
-Recognized but intentionally narrow or deferred options:
+Recognized compatibility options:
 
 - `localeMatcher`
-- `numeric`
 - `collation` (`default`; `standard` accepted as alias)
 
 Not implemented:
 
 - full Unicode Collation Algorithm
 - full CLDR locale tailoring
-- `numeric: true`
+- Unicode digit numeric collation
+- decimal, negative-number, or exponent parsing for `numeric: true`
 - collation variants such as German phonebook collation
 - separate search collation tailoring
 

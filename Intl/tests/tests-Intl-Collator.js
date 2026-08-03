@@ -177,6 +177,20 @@ if (isNodeRuntime) {
         assertSign(collator.compare(true, "true"), 0, "boolean string coercion");
     });
 
+    test("numeric true compares ASCII digit runs like Node observed natural sort", function () {
+        var numeric = new Intl.Collator("hu-HU", { numeric: true });
+
+        assertEquals(numeric.resolvedOptions().numeric, true, "resolved numeric true");
+        assertSign(numeric.compare("a2", "a10"), -1, "a2 before a10");
+        assertSign(numeric.compare("2", "10"), -1, "2 before 10");
+        assertSign(numeric.compare("file02", "file2"), 0, "leading zeros ignored");
+        assertSign(numeric.compare("file2", "file10"), -1, "file2 before file10");
+        assertSign(numeric.compare("v1.9", "v1.10"), -1, "dot separates digit runs");
+        assertSign(numeric.compare("a-2", "a-10"), -1, "minus is punctuation, not a negative sign");
+        assertSign(numeric.compare("a1.02", "a1.2"), 0, "leading zeros ignored after separator");
+        assertSign(new Intl.Collator("en-US", { numeric: "false" }).compare("2", "10"), -1, "truthy string enables numeric");
+    });
+
     test("edge cases follow the approved Collator subset", function () {
         var base = new Intl.Collator("en-US", { sensitivity: "base" });
         var accent = new Intl.Collator("fr-FR", { sensitivity: "accent", caseFirst: "upper" });
@@ -192,7 +206,7 @@ if (isNodeRuntime) {
         assertSign(new Intl.Collator("en-US").compare("", ""), 0, "empty strings compare equal");
         assertSign(new Intl.Collator("en-US").compare(undefined, "undefined"), 0, "undefined string coercion");
         assertSign(new Intl.Collator("en-US").compare(false, "false"), 0, "false string coercion");
-        assertSign(new Intl.Collator("en-US").compare(10, 2), -1, "numbers compare lexically when numeric is unsupported");
+        assertSign(new Intl.Collator("en-US").compare(10, 2), -1, "numbers compare lexically by default");
 
         assertEquals(explicitDefaults.usage, "sort", "usage String object coerces");
         assertEquals(explicitDefaults.sensitivity, "variant", "sensitivity String object coerces");
@@ -203,10 +217,6 @@ if (isNodeRuntime) {
         assertSign(accent.compare("\u00E9", "\u00C9"), 0, "caseFirst cannot affect accent sensitivity");
         assertSign(new Intl.Collator("en-US", { ignorePunctuation: 0 }).compare("a-b", "ab"), -1, "numeric zero leaves punctuation enabled");
         assertSign(new Intl.Collator("en-US", { ignorePunctuation: "false" }).compare("a-b", "ab"), 0, "truthy string enables ignorePunctuation");
-
-        assertThrowsWith(function () {
-            new Intl.Collator("en-US", { numeric: "false" });
-        }, "RangeError", "truthy numeric string requests unsupported numeric collation");
     });
     test("unsupported options throw RangeError", function () {
         assertThrowsWith(function () {
@@ -216,11 +226,6 @@ if (isNodeRuntime) {
         assertThrowsWith(function () {
             new Intl.Collator("en-US", { sensitivity: "banana" });
         }, "RangeError", "unsupported sensitivity");
-
-        assertThrowsWith(function () {
-            new Intl.Collator("en-US", { numeric: true });
-        }, "RangeError", "numeric not supported yet");
-
 
         assertThrowsWith(function () {
             new Intl.Collator("en-US", { caseFirst: "banana" });

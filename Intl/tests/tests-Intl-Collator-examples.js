@@ -54,6 +54,16 @@ if (isNodeRuntime) {
         show(label, left + " " + actualSign + " " + right, left + " " + expectedSign + " " + right);
     }
 
+    function joinValues(values) {
+        var text = "";
+        var index;
+
+        for (index = 0; index < values.length; index++) {
+            text += (index > 0 ? ", " : "") + values[index];
+        }
+        return text;
+    }
+
     writeLine("Intl.Collator public examples");
     writeLine("-----------------------------");
 
@@ -69,11 +79,21 @@ if (isNodeRuntime) {
     showCompare("Hungarian base groups double acute", new Intl.Collator("hu-HU", { sensitivity: "base" }), "\u00F6", "\u0151", "=");
     showCompare("German umlaut accent", new Intl.Collator("de-DE", { sensitivity: "accent" }), "u", "\u00FC", "<");
     showCompare("ignorePunctuation", new Intl.Collator("en-US", { ignorePunctuation: true }), "a-b", "ab", "=");
+    showCompare("numeric sort", new Intl.Collator("en-US", { numeric: true }), "file2", "file10", "<");
+    showCompare("numeric leading zeros", new Intl.Collator("en-US", { numeric: true }), "file02", "file2", "=");
     show("usage search", new Intl.Collator("fr-FR", { usage: "search" }).resolvedOptions().usage, "search");
     show("standard collation alias", new Intl.Collator("de-DE", { collation: "standard" }).resolvedOptions().collation, "default");
+    show("numeric resolved", new Intl.Collator("hu-HU", { numeric: true }).resolvedOptions().numeric, true);
     show("caseFirst resolved", new Intl.Collator("hu-HU", { caseFirst: "upper" }).resolvedOptions().caseFirst, "upper");
     show("fallback locale", new Intl.Collator("banana").resolvedOptions().locale, "en-US");
     show("legacy locale alias", new Intl.Collator("en-UK").resolvedOptions().locale, "en-GB");
+
+    var files = ["file10", "file2", "file1"];
+    var fileCollator = new Intl.Collator("en-US", { numeric: true });
+    files.sort(function (a, b) {
+        return fileCollator.compare(a, b);
+    });
+    show("Array.sort numeric", joinValues(files), "file1, file2, file10");
 
     writeLine("-----------------------------");
     writeLine("Examples: " + shown);
