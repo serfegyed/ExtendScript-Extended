@@ -13,3 +13,10 @@ Array/.DS_Store
 /Temporal/PlainTime/
 /Temporal/PlainYearMonth/
 /Temporal/Temporal-core/
+# Intl development-history folders are kept only in the private working tree.
+/Intl/Intl-core/
+/Intl/NumberFormat/
+/Intl/Collator/
+/Intl/DateTimeFormat/
+/Intl/DurationFormat/
+/Intl/DisplayNames/
