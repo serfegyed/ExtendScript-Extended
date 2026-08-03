@@ -275,6 +275,24 @@
         return fraction ? result + "." + fraction : result;
     };
 
+    Temporal.PlainTime.prototype.toLocaleString = function (locales, options) {
+        var formatOptions;
+
+        if (!(this instanceof Temporal.PlainTime)) {
+            throw new TypeError("Temporal.PlainTime.prototype.toLocaleString called on incompatible receiver.");
+        }
+        if (Temporal.__hasIntlDateTimeFormat__()) {
+            formatOptions = options === undefined ? {
+                hour: "numeric",
+                minute: "2-digit",
+                second: "2-digit",
+                fractionalSecondDigits: this.millisecond === 0 ? undefined : 3
+            } : options;
+            return new Intl.DateTimeFormat(locales, formatOptions).format(this);
+        }
+        return this.toString();
+    };
+
     Temporal.PlainTime.prototype.toJSON = function () {
         return this.toString();
     };

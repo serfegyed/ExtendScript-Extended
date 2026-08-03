@@ -516,7 +516,7 @@ Intentionally absent:
 - `toZonedDateTime()`
 - `withCalendar()`
 - non-ISO calendars
-- no Intl localization or locale/options processing
+- no full Intl localization; only the local `Intl.DateTimeFormat` subset is used when loaded
 - `calendarId`, `era`, `eraYear`
 - internal microsecond/nanosecond precision
 - full Node Temporal object-shape parity
@@ -550,7 +550,7 @@ Node Temporal is a reference and test oracle, not a full API contract. The docum
 - `until()` / `since()` with calendar units as `smallestUnit` is not fully supported and should be avoided.
 - TypeError/RangeError values use the native constructors provided by ExtendScript.
 
-When the optional `Lib/Temporal.LocaleDate.js` adapter is loaded last, `toLocaleString()` interprets the PlainDateTime fields as host-local wall time and returns `YYYY-MM-DDTHH:mm:ss.sss+HH:mm`. Native Date resolves DST gaps and overlaps; no IANA zone is selectable.
+`toLocaleString(locales, options)` is implemented on `Temporal.PlainDateTime`. It delegates to the local `Intl.DateTimeFormat` subset when that formatter is loaded; otherwise it falls back to `toString()`. Intl-free fallback does not project through native `Date` and does not invent an offset.
 
 ## Quick Example
 

@@ -173,13 +173,13 @@ Temporal.PlainDate
 - no named-zone rule lookup, DST calculation, or time-zone conversion
 - no offset processing for time-only strings; UTC projection requires a complete date-time
 - no calendar systems or calendar conversion APIs
-- no Intl localization or locale/options processing
+- no full Intl localization; only the local `Intl.DateTimeFormat` subset is used when loaded
 - no compatibility-only `calendarId` field
 - no `toPlainDateTime()` method on PlainTime
 
 These limits keep the implementation aligned with the repository's ExtendScript/InDesign target instead of expanding toward a full polyfill.
 
-Loading the optional `Lib/Temporal.LocaleDate.js` adapter installs `toLocaleString()` as a language-independent ISO time alias. It does not invent a date, so no DST-dependent offset is appended.
+`toLocaleString(locales, options)` is implemented on `Temporal.PlainTime`. It delegates to the local `Intl.DateTimeFormat` subset when that formatter is loaded; otherwise it falls back to `toString()`. It does not invent a date, so no DST-dependent offset is appended.
 
 ## Verification
 

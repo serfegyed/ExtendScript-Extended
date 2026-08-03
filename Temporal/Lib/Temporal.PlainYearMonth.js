@@ -49,6 +49,24 @@ var Temporal = Temporal || {};
         return new Temporal.PlainYearMonth(checked.year, checked.month);
     }
 
+    function yearMonthLocaleOptions(options) {
+        var result = {};
+        var source = options === undefined || options === null ? undefined : Object(options);
+        var hasYear = source !== undefined && Object.prototype.hasOwnProperty.call(source, "year") && source.year !== undefined;
+        var hasMonth = source !== undefined && Object.prototype.hasOwnProperty.call(source, "month") && source.month !== undefined;
+
+        Temporal.__copyDefinedOwnOption__(options, result, "localeMatcher");
+        Temporal.__copyDefinedOwnOption__(options, result, "numberingSystem");
+        if (!hasYear && !hasMonth) {
+            result.year = "numeric";
+            result.month = "2-digit";
+        } else {
+            if (hasYear) result.year = source.year;
+            if (hasMonth) result.month = source.month;
+        }
+        return result;
+    }
+
     function parseYearMonthString(value) {
         var match = String(value).match(/^(\d{4}|[-+]\d{6})-(\d{2})(?:-(\d{2})(?:[Tt ](\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,9})?)?)?)?$/);
         var year;
@@ -365,6 +383,24 @@ var Temporal = Temporal || {};
 
     Temporal.PlainYearMonth.prototype.toString = function () {
         return Temporal.__formatISO__(this, "PlainYearMonth");
+    };
+
+    Temporal.PlainYearMonth.prototype.toLocaleString = function (locales, options) {
+        var formatter;
+
+        if (!(this instanceof Temporal.PlainYearMonth)) {
+            throw new TypeError(
+                "Temporal.PlainYearMonth.prototype.toLocaleString called on incompatible receiver."
+            );
+        }
+        if (Temporal.__hasIntlDateTimeFormatToParts__()) {
+            if (options !== undefined) {
+                new Intl.DateTimeFormat(locales, options);
+            }
+            formatter = new Intl.DateTimeFormat(locales, yearMonthLocaleOptions(options));
+            return Temporal.__intlPartsToString__(formatter.formatToParts({ year: this.year, month: this.month, day: 1 }));
+        }
+        return this.toString();
     };
 
     Temporal.PlainYearMonth.prototype.toJSON = function () {

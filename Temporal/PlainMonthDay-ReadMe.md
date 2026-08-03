@@ -116,12 +116,12 @@ Temporal.PlainMonthDay
 - no `add()`, `subtract()`, `until()`, or `since()`
 - no `withCalendar()`
 - no named-zone rule lookup, DST calculation, or time-zone APIs
-- no Intl localization or locale/options processing
+- no localized MonthDay formatting; `toLocaleString()` currently keeps ISO output
 - no full Node Temporal object-shape parity
 
 ## Verification
 
-Loading the optional `Lib/Temporal.LocaleDate.js` adapter installs `toLocaleString()` as a language-independent `MM-DD` alias. It does not invent a year, time, or offset.
+`toLocaleString(locales, options)` is implemented on `Temporal.PlainMonthDay`. It delegates to the local `Intl.DateTimeFormat.formatToParts()` subset when that formatter is loaded, using only `month` and `day` parts so no synthetic reference year is visible. Without Intl, it falls back to `toString()`.
 
 The branch-specific harness contains 10 test groups and runs under both ExtendScript and Node. Every supported behavior uses fixed expected values captured from Node Temporal.
 

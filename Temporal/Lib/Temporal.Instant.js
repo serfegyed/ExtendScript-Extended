@@ -160,6 +160,27 @@
         ) + "Z";
     };
 
+    Temporal.Instant.prototype.toLocaleString = function (locales, options) {
+        var formatOptions;
+
+        if (!(this instanceof Temporal.Instant)) {
+            throw new TypeError("Temporal.Instant.prototype.toLocaleString called on incompatible receiver.");
+        }
+        if (Temporal.__hasIntlDateTimeFormat__()) {
+            formatOptions = options === undefined ? {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "numeric",
+                minute: "2-digit",
+                second: "2-digit",
+                fractionalSecondDigits: 3
+            } : options;
+            return new Intl.DateTimeFormat(locales, formatOptions).format(this.epochMilliseconds);
+        }
+        return this.toString();
+    };
+
     Temporal.Instant.prototype.toJSON = function () {
         return this.toString();
     };

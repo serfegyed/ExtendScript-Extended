@@ -214,19 +214,19 @@ try {
 }
 TemporalAllTests.end(temporalAllTestsError);
 
-TemporalAllTests.begin("tests-LocaleDate.js");
+TemporalAllTests.begin("tests-LocaleString.js");
 temporalAllTestsError = null;
 try {
-    //@include "Test/tests-LocaleDate.js"
+    //@include "Test/tests-LocaleString.js"
 } catch (error) {
     temporalAllTestsError = error;
 }
 TemporalAllTests.end(temporalAllTestsError);
 
-TemporalAllTests.begin("tests-LocaleString.js");
+TemporalAllTests.begin("tests-LocaleString-Intl.js");
 temporalAllTestsError = null;
 try {
-    //@include "Test/tests-LocaleString.js"
+    //@include "Test/tests-LocaleString-Intl.js"
 } catch (error) {
     temporalAllTestsError = error;
 }

@@ -98,6 +98,11 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assert(typeof Temporal.__daySerialToDate__ === "function", "Temporal.__daySerialToDate__ should exist");
         assert(typeof Temporal.__millisecondsToTimeDurationFields__ === "function", "Temporal.__millisecondsToTimeDurationFields__ should exist");
         assert(typeof Temporal.__validateTimeRoundingIncrement__ === "function", "Temporal.__validateTimeRoundingIncrement__ should exist");
+        assert(typeof Temporal.__hasIntlDateTimeFormat__ === "function", "Temporal.__hasIntlDateTimeFormat__ should exist");
+        assert(typeof Temporal.__hasIntlDateTimeFormatToParts__ === "function", "Temporal.__hasIntlDateTimeFormatToParts__ should exist");
+        assert(typeof Temporal.__hasIntlDurationFormat__ === "function", "Temporal.__hasIntlDurationFormat__ should exist");
+        assert(typeof Temporal.__copyDefinedOwnOption__ === "function", "Temporal.__copyDefinedOwnOption__ should exist");
+        assert(typeof Temporal.__intlPartsToString__ === "function", "Temporal.__intlPartsToString__ should exist");
         assert(typeof Temporal.__isLeapYear__ === "function", "Temporal.__isLeapYear__ should exist");
         assert(typeof Temporal.__validateDate__ === "function", "Temporal.__validateDate__ should exist");
         assert(typeof Temporal.__computeDayOfWeek__ === "function", "Temporal.__computeDayOfWeek__ should exist");
@@ -116,6 +121,30 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assertEquals(Temporal.__MILLISECONDS_PER_WEEK__, 604800000, "milliseconds per week");
         assertEquals(Temporal.__MIN_INSTANT_EPOCH_MILLISECONDS__, -8640000000000000, "minimum Instant epoch milliseconds");
         assertEquals(Temporal.__MAX_INSTANT_EPOCH_MILLISECONDS__, 8640000000000000, "maximum Instant epoch milliseconds");
+        assertEquals(Temporal.__hasIntlDateTimeFormat__(), false, "core-only DateTimeFormat helper");
+        assertEquals(Temporal.__hasIntlDateTimeFormatToParts__(), false, "core-only formatToParts helper");
+        assertEquals(Temporal.__hasIntlDurationFormat__(), false, "core-only DurationFormat helper");
+    });
+
+    test("Shared Intl-adjacent helpers copy options and join parts", function () {
+        var target = {};
+        var source = { localeMatcher: "lookup", numberingSystem: undefined };
+
+        Temporal.__copyDefinedOwnOption__(source, target, "localeMatcher");
+        Temporal.__copyDefinedOwnOption__(source, target, "numberingSystem");
+        Temporal.__copyDefinedOwnOption__(undefined, target, "missing");
+
+        assertEquals(target.localeMatcher, "lookup", "defined own option copied");
+        assertEquals(target.hasOwnProperty("numberingSystem"), false, "undefined option skipped");
+        assertEquals(
+            Temporal.__intlPartsToString__([
+                { type: "year", value: "2026" },
+                { type: "literal", value: ". " },
+                { type: "month", value: "07" }
+            ]),
+            "2026. 07",
+            "Intl parts joined"
+        );
     });
 
 	test("ISO monthCode helpers format, parse, and resolve property bags", function () {

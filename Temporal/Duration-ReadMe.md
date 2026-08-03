@@ -364,14 +364,18 @@ ExtendScript does not reliably provide a global `JSON` object, so this project d
 
 ### `duration.toLocaleString()`
 
-Intentionally aliases `toString()`.
+Uses the local `Intl.DurationFormat` subset when it is loaded. Without that optional Intl formatter, it falls back to `toString()`.
 
 ```javascript
 Temporal.Duration.from("P1DT2H").toLocaleString();
 // "P1DT2H"
 ```
 
-ExtendScript has no `Intl.DurationFormat`, and locale formatting is outside this project's scope.
+```javascript
+// With Intl-core.js and Intl.DurationFormat.js loaded:
+Temporal.Duration.from("P1DT2H").toLocaleString("hu-HU");
+// "1 nap és 2 ó"
+```
 
 ### `duration.valueOf()`
 

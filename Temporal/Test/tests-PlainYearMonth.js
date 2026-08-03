@@ -275,7 +275,8 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assertEquals(yearMonth.era, undefined, "era is intentionally unsupported");
         assertEquals(yearMonth.eraYear, undefined, "eraYear is intentionally unsupported");
         assertEquals(yearMonth.withCalendar, undefined, "withCalendar is intentionally unsupported");
-        assertEquals(Temporal.PlainYearMonth.prototype.hasOwnProperty("toLocaleString"), false, "toLocaleString is not implemented by this subset");
+        assertEquals(Temporal.PlainYearMonth.prototype.hasOwnProperty("toLocaleString"), true, "toLocaleString is implemented on the object");
+        assertEquals(yearMonth.toLocaleString("hu-HU"), "2024-02", "PlainYearMonth.toLocaleString keeps ISO fallback");
     });
 
     writeLine("---------------------------------------------------");

@@ -34,6 +34,24 @@ var Temporal = Temporal || {};
         return new Temporal.PlainMonthDay(checked.month, checked.day);
     }
 
+    function monthDayLocaleOptions(options) {
+        var result = {};
+        var source = options === undefined || options === null ? undefined : Object(options);
+        var hasMonth = source !== undefined && Object.prototype.hasOwnProperty.call(source, "month") && source.month !== undefined;
+        var hasDay = source !== undefined && Object.prototype.hasOwnProperty.call(source, "day") && source.day !== undefined;
+
+        Temporal.__copyDefinedOwnOption__(options, result, "localeMatcher");
+        Temporal.__copyDefinedOwnOption__(options, result, "numberingSystem");
+        if (!hasMonth && !hasDay) {
+            result.month = "2-digit";
+            result.day = "2-digit";
+        } else {
+            if (hasMonth) result.month = source.month;
+            if (hasDay) result.day = source.day;
+        }
+        return result;
+    }
+
     function validateISOCalendar(fields) {
         var calendar = fields.calendar;
 
@@ -163,6 +181,24 @@ var Temporal = Temporal || {};
 
     Temporal.PlainMonthDay.prototype.toString = function () {
         return Temporal.__formatISO__(this, "PlainMonthDay");
+    };
+
+    Temporal.PlainMonthDay.prototype.toLocaleString = function (locales, options) {
+        var formatter;
+
+        if (!(this instanceof Temporal.PlainMonthDay)) {
+            throw new TypeError(
+                "Temporal.PlainMonthDay.prototype.toLocaleString called on incompatible receiver."
+            );
+        }
+        if (Temporal.__hasIntlDateTimeFormatToParts__()) {
+            if (options !== undefined) {
+                new Intl.DateTimeFormat(locales, options);
+            }
+            formatter = new Intl.DateTimeFormat(locales, monthDayLocaleOptions(options));
+            return Temporal.__intlPartsToString__(formatter.formatToParts({ year: REFERENCE_ISO_YEAR, month: this.month, day: this.day }));
+        }
+        return this.toString();
     };
 
     Temporal.PlainMonthDay.prototype.toJSON = function () {

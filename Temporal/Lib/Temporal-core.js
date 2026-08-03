@@ -834,6 +834,40 @@ var Temporal = Temporal || {};
 	};
 
 
+	function hasIntlCore() {
+		return typeof Intl !== "undefined" && typeof Intl.__requireCore__ === "function";
+	}
+
+	function hasIntlDateTimeFormat() {
+		return hasIntlCore() && typeof Intl.DateTimeFormat === "function";
+	}
+
+	function hasIntlDateTimeFormatToParts() {
+		return hasIntlDateTimeFormat() &&
+			typeof Intl.DateTimeFormat.prototype.formatToParts === "function";
+	}
+
+	function hasIntlDurationFormat() {
+		return hasIntlCore() && typeof Intl.DurationFormat === "function";
+	}
+
+	function copyDefinedOwnOption(source, target, name) {
+		source = source === undefined || source === null ? undefined : Object(source);
+		if (source !== undefined && Object.prototype.hasOwnProperty.call(source, name) && source[name] !== undefined) {
+			target[name] = source[name];
+		}
+	}
+
+	function intlPartsToString(parts) {
+		var text = "";
+		var index;
+
+		for (index = 0; index < parts.length; index++) {
+			text += parts[index].value;
+		}
+		return text;
+	}
+
     /**
 	 *	Expose utilities to Temporal namespace
 	 */
@@ -891,4 +925,9 @@ var Temporal = Temporal || {};
 	Temporal.__formatISOMonthCode__ = formatISOMonthCode;
 	Temporal.__parseISOMonthCode__ = parseISOMonthCode;
 	Temporal.__resolveISOMonth__ = resolveISOMonth;
+	Temporal.__hasIntlDateTimeFormat__ = hasIntlDateTimeFormat;
+	Temporal.__hasIntlDateTimeFormatToParts__ = hasIntlDateTimeFormatToParts;
+	Temporal.__hasIntlDurationFormat__ = hasIntlDurationFormat;
+	Temporal.__copyDefinedOwnOption__ = copyDefinedOwnOption;
+	Temporal.__intlPartsToString__ = intlPartsToString;
 })();

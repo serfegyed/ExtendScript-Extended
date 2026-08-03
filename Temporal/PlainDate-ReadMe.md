@@ -201,13 +201,13 @@ Temporal.PlainDate
 - no named-zone rule lookup, DST calculation, or time-zone conversion
 - no `Temporal.ZonedDateTime`
 - no `withCalendar()` or `toZonedDateTime()`
-- no Intl localization or locale/options processing
+- no full Intl localization; only the local `Intl.DateTimeFormat` subset is used when loaded
 - no `era` or `eraYear` fields
 - no full Node Temporal object-shape parity
 
 These limits keep the implementation aligned with the repository's ExtendScript/InDesign target instead of expanding toward a complete polyfill.
 
-Loading the optional `Lib/Temporal.LocaleDate.js` adapter installs `toLocaleString()` as a language-independent ISO date alias. It returns only `YYYY-MM-DD`; no time or offset is invented.
+`toLocaleString(locales, options)` is implemented on `Temporal.PlainDate`. It delegates to the local `Intl.DateTimeFormat` subset when that formatter is loaded; otherwise it falls back to `toString()` and returns `YYYY-MM-DD`.
 
 ## Verification
 

@@ -153,6 +153,29 @@
         return Temporal.__formatISO__(this, "PlainDateTime", options);
     };
 
+    Temporal.PlainDateTime.prototype.toLocaleString = function (locales, options) {
+        var formatOptions;
+
+        if (!(this instanceof Temporal.PlainDateTime)) {
+            throw new TypeError(
+                "Temporal.PlainDateTime.prototype.toLocaleString called on incompatible receiver."
+            );
+        }
+        if (Temporal.__hasIntlDateTimeFormat__()) {
+            formatOptions = options === undefined ? {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "numeric",
+                minute: "2-digit",
+                second: "2-digit",
+                fractionalSecondDigits: this.millisecond === 0 ? undefined : 3
+            } : options;
+            return new Intl.DateTimeFormat(locales, formatOptions).format(this);
+        }
+        return this.toString();
+    };
+
     Temporal.PlainDateTime.compare = function (one, two) {
         one = Temporal.PlainDateTime.from(one);
         two = Temporal.PlainDateTime.from(two);

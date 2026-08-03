@@ -252,7 +252,7 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assertNodeEquals(Temporal.Instant.fromEpochMilliseconds(8640000000000000).toString(), "+275760-09-13T00:00:00Z", "maximum extended-year formatting");
     });
 
-    test("equals, JSON, unsupported locale formatting, and valueOf follow the project surface", function () {
+    test("equals, JSON, locale fallback formatting, and valueOf follow the project surface", function () {
         var instant = Temporal.Instant.from("2024-01-01T00:00:00.123Z");
 
         assertNodeEquals(instant.equals("2024-01-01T00:00:00.123Z"), true, "Instant.equals equal string");
@@ -260,13 +260,13 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assertNodeEquals(instant.toJSON(), "2024-01-01T00:00:00.123Z", "Instant.toJSON()");
         assertEquals(
             Temporal.Instant.prototype.hasOwnProperty("toLocaleString"),
-            false,
-            "Intl- and time-zone-dependent Instant.toLocaleString stays unsupported"
+            true,
+            "Instant owns toLocaleString"
         );
         assertEquals(
-            instant.toLocaleString,
-            Object.prototype.toLocaleString,
-            "Instant inherits only Object.prototype.toLocaleString"
+            instant.toLocaleString("hu-HU", { dateStyle: "full" }),
+            instant.toString(),
+            "without the local Intl subset Instant.toLocaleString falls back to toString"
         );
         assertThrowsWith(function () { instant.valueOf(); }, "TypeError", "Node: Instant.valueOf always throws");
     });

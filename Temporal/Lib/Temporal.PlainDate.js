@@ -406,6 +406,16 @@ var Temporal = Temporal || {};
         return Temporal.__formatISO__(this, "PlainDate");
     };
 
+    Temporal.PlainDate.prototype.toLocaleString = function (locales, options) {
+        if (!(this instanceof Temporal.PlainDate)) {
+            throw new TypeError("Temporal.PlainDate.prototype.toLocaleString called on incompatible receiver.");
+        }
+        if (Temporal.__hasIntlDateTimeFormat__()) {
+            return new Intl.DateTimeFormat(locales, options).format(this);
+        }
+        return this.toString();
+    };
+
     Temporal.PlainDate.prototype.toJSON = function () {
         return this.toString();
     };

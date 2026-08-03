@@ -12,9 +12,8 @@ The implementation stores one integer epoch-millisecond value. It does not emula
 ## Files
 
 - Active implementation: `Lib/Temporal.Instant.js`
-- Tests: `Test/tests-Instant.js`; optional host-local adapter tests: `Test/tests-LocaleDate.js`
+- Tests: `Test/tests-Instant.js`; locale integration tests: `Test/tests-LocaleString.js`, `Test/tests-LocaleString-Intl.js`
 - Required includes: `Lib/Temporal-core.js`, `Lib/Temporal.Duration.js`, `Lib/Temporal.Instant.js`
-- Optional final include: `Lib/Temporal.LocaleDate.js`
 
 ```javascript
 //@include "Lib/Temporal-core.js"
@@ -37,7 +36,7 @@ The implementation stores one integer epoch-millisecond value. It does not emula
 - `instant.equals(other)`
 - `instant.toString(options)`
 - `instant.toJSON()`
-- `instant.toLocaleString()` when `Lib/Temporal.LocaleDate.js` is loaded
+- `instant.toLocaleString(locales, options)`
 - `instant.valueOf()` rejection
 
 ## Construction
@@ -166,18 +165,23 @@ Extended years and pre-epoch values are formatted without relying on native `Dat
 
 `toJSON()` returns the default ISO string. `valueOf()` always throws; use `Temporal.Instant.compare()` or `equals()` instead.
 
-### Optional Host-Local ISO Formatting
+### Locale Formatting
 
-Loading `Lib/Temporal.LocaleDate.js` after Instant installs `Instant.prototype.toLocaleString()`. The result is a fixed numeric host-local ISO string, not locale-sensitive Intl output:
+`instant.toLocaleString(locales, options)` is implemented on `Temporal.Instant` itself.
+
+When the local Intl subset is not loaded, it falls back to `instant.toString()`:
 
 ```javascript
 Temporal.Instant.from("2026-01-15T12:34:56.123Z").toLocaleString();
-// Example on a UTC+01:00 host: "2026-01-15T13:34:56.123+01:00"
+// "2026-01-15T12:34:56.123Z"
 ```
 
-The adapter constructs native `Date` directly from `epochMilliseconds`, then reads `getFullYear()`, `getMonth()`, `getDate()`, `getHours()`, `getMinutes()`, `getSeconds()`, `getMilliseconds()`, and `getTimezoneOffset()`. It does not use native ISO parsing, native locale formatting, Date arithmetic, or Date-based Temporal validation.
+When `Intl-core.js` and `Intl.DateTimeFormat.js` from the local Intl subset are loaded, the method delegates to `Intl.DateTimeFormat`. That path projects `epochMilliseconds` through native `Date`, so it is host-local and intentionally has no selectable IANA time zone.
 
-The output always has millisecond precision. Extra locale and options arguments are intentionally ignored. See `LocaleDate-ReadMe.md` for the adapter contract and ESTK audit results.
+```javascript
+Temporal.Instant.from("2026-01-15T12:34:56.123Z").toLocaleString("hu-HU");
+// Example on a UTC+01:00 host: "2026. 01. 15. 13:34:56,123"
+```
 
 ## Intentional Limits
 

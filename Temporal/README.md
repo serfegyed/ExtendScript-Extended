@@ -108,7 +108,7 @@ Current coverage includes:
 - `instant.equals(...)`
 - `instant.toString(...)`
 - `instant.toJSON()`
-- optional `instant.toLocaleString()` through `Lib/Temporal.LocaleDate.js`
+- `instant.toLocaleString()`, using the local `Intl.DateTimeFormat` subset when loaded and falling back to `toString()`
 - `instant.valueOf()` rejection
 
 Instant values use an integer epoch-millisecond representation. Because ExtendScript has no BigInt, the public constructor accepts epoch milliseconds; `fromEpochMilliseconds()` and `from()` are equivalent creation paths for their respective inputs.
@@ -119,37 +119,24 @@ The public runtime module is kept in `Lib/`.
 
 Tests: `Test/tests-Instant.js`
 
-### Temporal.LocaleDate Adapter
+### Temporal.toLocaleString And Intl
 
-The optional active adapter lives in `Lib/Temporal.LocaleDate.js` and should be included after all Temporal object modules. It adds:
+Each supported Temporal object owns its own `toLocaleString()` method. Temporal core does not require Intl, and the methods fall back to `toString()` unless the local Intl subset has been included.
 
-- `Temporal.Instant.prototype.toLocaleString()`
-- `Temporal.PlainDateTime.prototype.toLocaleString()`
-- `Temporal.PlainDate.prototype.toLocaleString()`
-- `Temporal.PlainTime.prototype.toLocaleString()`
-- `Temporal.PlainYearMonth.prototype.toLocaleString()`
-- `Temporal.PlainMonthDay.prototype.toLocaleString()`
+Implemented Intl-aware paths:
 
-`Duration.prototype.toLocaleString()` already exists in the Duration module as a direct ISO `toString()` alias.
+- `Temporal.Duration.prototype.toLocaleString()` delegates to `Intl.DurationFormat`
+- `Temporal.Instant.prototype.toLocaleString()` delegates to `Intl.DateTimeFormat` through host-local native `Date` projection
+- `Temporal.PlainDate.prototype.toLocaleString()` delegates to `Intl.DateTimeFormat`
+- `Temporal.PlainTime.prototype.toLocaleString()` delegates to `Intl.DateTimeFormat`
+- `Temporal.PlainDateTime.prototype.toLocaleString()` delegates to `Intl.DateTimeFormat`
 
-Despite the familiar method name, this is not Intl localization. It returns a fixed, language-independent host-local ISO string:
+`Temporal.PlainYearMonth` and `Temporal.PlainMonthDay` expose `toLocaleString()` too. When the local `Intl.DateTimeFormat.formatToParts()` subset is loaded, they use localized partial-date output without inventing visible day or year fields. Without Intl, they fall back to ISO `toString()`.
 
-```javascript
-Temporal.Instant.from("2026-07-15T12:34:56.123Z").toLocaleString();
-// Example on a UTC+02:00 host: "2026-07-15T14:34:56.123+02:00"
-```
+Tests:
 
-Instant passes its already validated integer `epochMilliseconds` directly to native `Date`. PlainDateTime constructs a host-local Date from its numeric fields; DST gaps and overlaps are resolved by that host Date. Both paths read numeric local fields and `getTimezoneOffset()` and format the result internally. The adapter never passes an ISO string to the host Date parser and never calls `Date.prototype.toLocaleString()`.
-
-Objects without a complete date-time do not invent missing context: PlainDate, PlainTime, PlainYearMonth, and PlainMonthDay return their own ISO field representation without an offset. Duration keeps its existing ISO alias.
-
-The output always contains year, month, day, hour, minute, second, three millisecond digits, and a numeric offset. Locale and options arguments are intentionally ignored. Only the machine's current time-zone rules are available; there is no selectable zone or IANA database.
-
-The public runtime module is kept in `Lib/`.
-
-Tests: `Test/tests-LocaleDate.js`
-
-All-object tests: `Test/tests-LocaleString.js`
+- `Test/tests-LocaleString.js`
+- `Test/tests-LocaleString-Intl.js`
 
 ### Temporal.Now
 
@@ -358,14 +345,13 @@ Lib/
   Temporal.PlainDateTime.js
   Temporal.PlainYearMonth.js
   Temporal.PlainMonthDay.js
-  Temporal.LocaleDate.js
 
 Test/
   tests-Temporal-core.js
   tests-Duration.js
   tests-Instant.js
-  tests-LocaleDate.js
   tests-LocaleString.js
+  tests-LocaleString-Intl.js
   audit-HostLocalDate.js
   tests-Now.js
   tests-PlainYearMonth.js
@@ -387,7 +373,7 @@ For the complete public subset, include the package entry file:
 //@include "Temporal.js"
 ```
 
-`Temporal.js` contains only ordered `#include` directives. If a script needs only part of the library, individual files can instead be included from `Lib/`, with Core first and LocaleDate after all Temporal object modules:
+`Temporal.js` contains only ordered `#include` directives. If a script needs only part of the library, individual files can instead be included from `Lib/`, with Core first:
 
 ```javascript
 //@include "Lib/Temporal-core.js"
@@ -399,7 +385,6 @@ For the complete public subset, include the package entry file:
 //@include "Lib/Temporal.PlainTime.js"
 //@include "Lib/Temporal.PlainDate.js"
 //@include "Lib/Temporal.PlainDateTime.js"
-//@include "Lib/Temporal.LocaleDate.js" // optional; load last
 ```
 
 Then use the available subset:
@@ -429,13 +414,13 @@ Test/tests-PlainDate.js          Passed: 10, Failed: 0
 Test/tests-PlainDateTime.js      Passed: 16, Failed: 0
 Test/tests-PlainTime.js          Passed: 10, Failed: 0
 Test/tests-UTCProjection.js      Passed: 13, Failed: 0
-Test/tests-LocaleDate.js         Passed: 10, Failed: 0
-Test/tests-LocaleString.js       Passed: 10, Failed: 0
+Test/tests-LocaleString.js       Passed: 5,  Failed: 0
+Test/tests-LocaleString-Intl.js  Passed: 8,  Failed: 0
 ```
 
 Each implemented behavior should have a matching project test. Where practical, expected behavior is derived from Node Temporal first, then copied into this repository's tests.
 
-`Test/tests-Now.js`, the 13-group UTC projection harness, the 10-group LocaleDate harness, and the 10-group all-object LocaleString harness pass under ExtendScript Toolkit. The host audit showed that ESTK ISO Date parsing is unusable (0/7), while direct epoch-millisecond construction is reliable across the Instant range (7/7); the adapter therefore never reparses ISO through Date.
+`Test/tests-Now.js`, the 13-group UTC projection harness, the 5-group Intl-free LocaleString harness, and the 8-group Intl-aware LocaleString harness are part of the local verification suite.
 
 ## Development Philosophy
 

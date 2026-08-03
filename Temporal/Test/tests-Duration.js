@@ -427,7 +427,7 @@ if (typeof require === "function" && typeof process !== "undefined") {
         }, "RangeError", "fractionalSecondDigits value is out of range.", "fractionalSecondDigits range");
     });
 
-    test("Duration.toLocaleString is a simple toString alias", function () {
+    test("Duration.toLocaleString falls back to toString without the local Intl subset", function () {
         assertEquals(Temporal.Duration.from("P1DT2H").toLocaleString(), "P1DT2H", "locale string alias");
         assertEquals(new Temporal.Duration().toLocaleString(), "PT0S", "zero locale string alias");
     });

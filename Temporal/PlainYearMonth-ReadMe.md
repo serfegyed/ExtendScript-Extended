@@ -141,13 +141,13 @@ At the global ISO limits, the resulting PlainDate must also be valid. For exampl
 - no `monthCode`, `calendarId`, `era`, or `eraYear` fields
 - no optional calendar/reference-day constructor overload; the supported constructor is `(year, month)`
 - no `withCalendar()`
-- no Intl localization or locale/options processing
+- no localized YearMonth formatting; `toLocaleString()` currently keeps ISO output
 - no named-zone rule lookup, DST calculation, or time-zone APIs
 - no full Node object-shape parity
 
 The native `referenceISODay` behavior was audited for range handling, but it is not stored or exposed by this two-argument subset. The YearMonth endpoints are validated directly, so omitting that overload does not reintroduce the invalid-first-day boundary bug.
 
-Loading the optional `Lib/Temporal.LocaleDate.js` adapter installs `toLocaleString()` as a language-independent `YYYY-MM` alias. It does not invent a day or time-zone offset.
+`toLocaleString(locales, options)` is implemented on `Temporal.PlainYearMonth`. It delegates to the local `Intl.DateTimeFormat.formatToParts()` subset when that formatter is loaded, using only `year` and `month` parts so no synthetic day is visible. Without Intl, it falls back to `toString()`.
 
 ## Verification
 

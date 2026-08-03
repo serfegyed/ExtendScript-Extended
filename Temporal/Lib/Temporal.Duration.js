@@ -556,11 +556,17 @@
 	/**
 	 * Returns a locale string for the Duration.
 	 *
-	 * ExtendScript has no Intl.DurationFormat, so this intentionally aliases toString().
+	 * Uses Intl.DurationFormat when the local Intl subset is loaded; otherwise aliases toString().
 	 *
 	 * @returns {string} ISO 8601 duration string.
 	 */
-	Temporal.Duration.prototype.toLocaleString = function () {
+	Temporal.Duration.prototype.toLocaleString = function (locales, options) {
+		if (!(this instanceof Temporal.Duration)) {
+			throw new TypeError("Temporal.Duration.prototype.toLocaleString called on incompatible receiver.");
+		}
+		if (Temporal.__hasIntlDurationFormat__()) {
+			return new Intl.DurationFormat(locales, options).format(this);
+		}
 		return this.toString();
 	};
 

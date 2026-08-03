@@ -220,7 +220,8 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assertEquals(typeof monthDay.subtract, "undefined", "PlainMonthDay.subtract stays unsupported");
         assertEquals(typeof monthDay.until, "undefined", "PlainMonthDay.until stays unsupported");
         assertEquals(typeof monthDay.since, "undefined", "PlainMonthDay.since stays unsupported");
-        assertEquals(monthDay.toLocaleString, Object.prototype.toLocaleString, "Intl-dependent toLocaleString stays unsupported");
+        assertEquals(typeof monthDay.toLocaleString, "function", "PlainMonthDay owns toLocaleString");
+        assertEquals(monthDay.toLocaleString("hu-HU"), "02-29", "PlainMonthDay.toLocaleString keeps ISO fallback");
         assertEquals(typeof monthDay.withCalendar, "undefined", "multi-calendar API stays unsupported");
     });
 
