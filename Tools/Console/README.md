@@ -12,11 +12,12 @@ If a `console` object already exists, as it does in Node.js, the polyfill leaves
 - **console.assert(assertion, ...args)**: Outputs a message when an assertion is false.
 - **console.error(...args)**: Outputs a message prefixed with `Error:`.
 - **console.warn(...args)**: Outputs a message prefixed with `Warning:`.
+- **console.table(data, columns)**: Outputs simple tabular data as an ASCII table.
 - **console.time(label)**: Starts a named timer.
 - **console.timeLog(label, ...args)**: Outputs the current elapsed milliseconds without stopping the timer.
 - **console.timeEnd(label)**: Stops a named timer and outputs its elapsed milliseconds.
 
-Arguments are converted to strings and separated by spaces. Web-console format specifiers such as `%s`, `%d`, and `%o`, and interactive object inspection, are not implemented.
+Arguments are converted to strings and separated by spaces. Web-console format specifiers such as `%s`, `%d`, and `%o`, and interactive object inspection, are not implemented. `console.table()` supports flat arrays and objects, optional selected columns, and ASCII text output only.
 
 ## Installation
 
@@ -36,6 +37,10 @@ console.log("This is a log message");
 console.assert(myVariable !== undefined, "myVariable should not be undefined");
 console.error("This is an error message");
 console.warn("This is a warning message");
+console.table([
+    { name: "A", age: 1 },
+    { name: "B", age: 2 }
+]);
 
 console.time("work");
 // Do some work.

@@ -56,6 +56,7 @@ test("installs the complete fallback when console is absent", function () {
     equal(typeof environment.console.assert, "function");
     equal(typeof environment.console.error, "function");
     equal(typeof environment.console.warn, "function");
+    equal(typeof environment.console.table, "function");
     equal(typeof environment.console.time, "function");
     equal(typeof environment.console.timeLog, "function");
     equal(typeof environment.console.timeEnd, "function");
@@ -146,6 +147,52 @@ test("timeLog warns when the timer does not exist", function () {
     var environment = createEnvironment([]);
     environment.console.timeLog("missing", "checkpoint");
     equal(environment.output.join("\n"), 'Warning: No such timer: "missing"');
+});
+
+test("table formats object rows with an ASCII border", function () {
+    var environment = createEnvironment([]);
+    environment.console.table([
+        { name: "A", age: 1 },
+        { name: "BB", age: 22 }
+    ]);
+    equal(environment.output.join("\n"), [
+        "+---------+------+-----+",
+        "| (index) | name | age |",
+        "+---------+------+-----+",
+        "| 0       | A    | 1   |",
+        "| 1       | BB   | 22  |",
+        "+---------+------+-----+"
+    ].join("\n"));
+});
+
+test("table supports selected columns and primitive rows", function () {
+    var environment = createEnvironment([]);
+    environment.console.table([
+        { name: "A", age: 1 },
+        { name: "B", age: 2 }
+    ], ["age"]);
+    environment.console.table(["A", null, undefined]);
+    equal(environment.output.join("\n"), [
+        "+---------+-----+",
+        "| (index) | age |",
+        "+---------+-----+",
+        "| 0       | 1   |",
+        "| 1       | 2   |",
+        "+---------+-----+",
+        "+---------+-----------+",
+        "| (index) | value     |",
+        "+---------+-----------+",
+        "| 0       | A         |",
+        "| 1       | null      |",
+        "| 2       | undefined |",
+        "+---------+-----------+"
+    ].join("\n"));
+});
+
+test("table falls back to log for scalar values", function () {
+    var environment = createEnvironment([]);
+    environment.console.table("not tabular");
+    equal(environment.output.join("\n"), "not tabular");
 });
 
 test("accepts hasOwnProperty as a timer label", function () {

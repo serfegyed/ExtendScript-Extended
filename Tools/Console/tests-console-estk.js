@@ -30,6 +30,13 @@
         console.assert(false, "TEST OUTPUT: assert", 4);
     });
 
+    test("table output method executes", function () {
+        console.table([
+            { name: "A", age: 1 },
+            { name: "B", age: 2 }
+        ]);
+    });
+
     test("hasOwnProperty is a valid timer label", function () {
         console.time("hasOwnProperty");
         console.timeLog("hasOwnProperty", "checkpoint");
