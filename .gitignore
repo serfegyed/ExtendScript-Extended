@@ -20,3 +20,5 @@ Array/.DS_Store
 /Intl/DateTimeFormat/
 /Intl/DurationFormat/
 /Intl/DisplayNames/
+/Intl/ListFormat/
+/Intl/PluralRules/

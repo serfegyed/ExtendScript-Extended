@@ -1,7 +1,7 @@
 /*
  * Intl.DisplayNames subset tests for ESTK and Node.js.
  */
-//@include "../../Tools/Console/console.js"
+//@include "../../ExtendScript-Extended/Tools/Console/console.js"
 //@include "../Intl-core.js"
 //@include "../Intl.DisplayNames.js"
 

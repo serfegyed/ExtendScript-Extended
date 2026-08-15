@@ -62,7 +62,24 @@ var Intl = Intl || {};
                         "long": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
                     }
                 },
-                collation: { recordMap: "generic" }
+                collation: { recordMap: "generic" },
+                listFormat: {
+                    conjunction: {
+                        "long": { pair: "{0} and {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, and {1}" },
+                        "short": { pair: "{0} & {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, & {1}" },
+                        "narrow": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" }
+                    },
+                    disjunction: {
+                        "long": { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, or {1}" },
+                        "short": { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, or {1}" },
+                        "narrow": { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, or {1}" }
+                    },
+                    unit: {
+                        "long": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" },
+                        "short": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" },
+                        "narrow": { pair: "{0} {1}", start: "{0} {1}", middle: "{0} {1}", end: "{0} {1}" }
+                    }
+                }
             },
             "en-GB": {
                 number: {
@@ -89,7 +106,24 @@ var Intl = Intl || {};
                         "long": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
                     }
                 },
-                collation: { recordMap: "generic" }
+                collation: { recordMap: "generic" },
+                listFormat: {
+                    conjunction: {
+                        "long": { pair: "{0} and {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} and {1}" },
+                        "short": { pair: "{0} and {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} and {1}" },
+                        "narrow": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" }
+                    },
+                    disjunction: {
+                        "long": { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} or {1}" },
+                        "short": { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} or {1}" },
+                        "narrow": { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} or {1}" }
+                    },
+                    unit: {
+                        "long": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" },
+                        "short": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" },
+                        "narrow": { pair: "{0} {1}", start: "{0} {1}", middle: "{0} {1}", end: "{0} {1}" }
+                    }
+                }
             },
             "de-DE": {
                 number: {
@@ -116,7 +150,24 @@ var Intl = Intl || {};
                         "long": ["Januar", "Februar", "M\u00E4rz", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
                     }
                 },
-                collation: { recordMap: "generic" }
+                collation: { recordMap: "generic" },
+                listFormat: {
+                    conjunction: {
+                        "long": { pair: "{0} und {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} und {1}" },
+                        "short": { pair: "{0} und {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} und {1}" },
+                        "narrow": { pair: "{0} und {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} und {1}" }
+                    },
+                    disjunction: {
+                        "long": { pair: "{0} oder {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} oder {1}" },
+                        "short": { pair: "{0} oder {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} oder {1}" },
+                        "narrow": { pair: "{0} oder {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} oder {1}" }
+                    },
+                    unit: {
+                        "long": { pair: "{0} und {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} und {1}" },
+                        "short": { pair: "{0} und {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} und {1}" },
+                        "narrow": { pair: "{0} und {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} und {1}" }
+                    }
+                }
             },
             "fr-FR": {
                 number: {
@@ -143,7 +194,24 @@ var Intl = Intl || {};
                         "long": ["janvier", "f\u00E9vrier", "mars", "avril", "mai", "juin", "juillet", "ao\u00FBt", "septembre", "octobre", "novembre", "d\u00E9cembre"]
                     }
                 },
-                collation: { recordMap: "generic" }
+                collation: { recordMap: "generic" },
+                listFormat: {
+                    conjunction: {
+                        "long": { pair: "{0} et {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} et {1}" },
+                        "short": { pair: "{0} et {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} et {1}" },
+                        "narrow": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" }
+                    },
+                    disjunction: {
+                        "long": { pair: "{0} ou {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} ou {1}" },
+                        "short": { pair: "{0} ou {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} ou {1}" },
+                        "narrow": { pair: "{0} ou {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} ou {1}" }
+                    },
+                    unit: {
+                        "long": { pair: "{0} et {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} et {1}" },
+                        "short": { pair: "{0} et {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} et {1}" },
+                        "narrow": { pair: "{0} {1}", start: "{0} {1}", middle: "{0} {1}", end: "{0} {1}" }
+                    }
+                }
             },
             "hu-HU": {
                 number: {
@@ -171,7 +239,24 @@ var Intl = Intl || {};
                         "long": ["janu\u00E1r", "febru\u00E1r", "m\u00E1rcius", "\u00E1prilis", "m\u00E1jus", "j\u00FAnius", "j\u00FAlius", "augusztus", "szeptember", "okt\u00F3ber", "november", "december"]
                     }
                 },
-                collation: { recordMap: "hungarian" }
+                collation: { recordMap: "hungarian" },
+                listFormat: {
+                    conjunction: {
+                        "long": { pair: "{0} \u00E9s {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} \u00E9s {1}" },
+                        "short": { pair: "{0} & {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} & {1}" },
+                        "narrow": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" }
+                    },
+                    disjunction: {
+                        "long": { pair: "{0} vagy {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} vagy {1}" },
+                        "short": { pair: "{0} vagy {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} vagy {1}" },
+                        "narrow": { pair: "{0}/{1}", start: "{0}/{1}", middle: "{0}/{1}", end: "{0}/{1}" }
+                    },
+                    unit: {
+                        "long": { pair: "{0} \u00E9s {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} \u00E9s {1}" },
+                        "short": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" },
+                        "narrow": { pair: "{0} {1}", start: "{0} {1}", middle: "{0} {1}", end: "{0} {1}" }
+                    }
+                }
             }
         },
         currencies: {
@@ -179,6 +264,28 @@ var Intl = Intl || {};
             "USD": { symbol: "$", symbols: { "en-GB": "US$", "fr-FR": "$US", "hu-HU": "USD" }, fractionMin: 2, fractionMax: 2 },
             "GBP": { symbol: "\u00A3", symbols: { "fr-FR": "\u00A3GB", "hu-HU": "GBP" }, fractionMin: 2, fractionMax: 2 },
             "HUF": { symbol: "HUF", symbols: { "hu-HU": "Ft" }, fractionMin: 0, fractionMax: 2 }
+        },
+        pluralRules: {
+            "en-US": {
+                cardinal: ["one", "other"],
+                ordinal: ["one", "two", "few", "other"]
+            },
+            "en-GB": {
+                cardinal: ["one", "other"],
+                ordinal: ["one", "two", "few", "other"]
+            },
+            "de-DE": {
+                cardinal: ["one", "other"],
+                ordinal: ["other"]
+            },
+            "fr-FR": {
+                cardinal: ["one", "many", "other"],
+                ordinal: ["one", "other"]
+            },
+            "hu-HU": {
+                cardinal: ["one", "other"],
+                ordinal: ["one", "other"]
+            }
         },
         displayNames: {
             regions: {
@@ -785,3 +892,4 @@ var Intl = Intl || {};
     }
     Intl.supportedValuesOf = supportedValuesOf;
 }());
+

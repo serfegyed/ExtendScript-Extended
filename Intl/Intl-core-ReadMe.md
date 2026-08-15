@@ -51,7 +51,9 @@ Implemented central sections:
 - `locales[locale].number`: separators, percent spacing, currency pattern, and currency names
 - `locales[locale].dateTime`: default date fields, default hour cycle, month names, and weekday names
 - `locales[locale].collation`: selected collation record map
+- `locales[locale].listFormat`: list patterns for conjunction, disjunction, and unit formatting
 - `currencies`: symbols and default fraction ranges for `EUR`, `USD`, `GBP`, and `HUF`
+- `pluralRules`: cardinal and ordinal category lists for the supported locales
 - `collation`: lowercase maps and small accent records
 - `durationUnitLabels`: `short`, `long`, `digital`, and `narrow` unit labels
 - `displayNames`: language, region, and currency name tables

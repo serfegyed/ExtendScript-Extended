@@ -1,6 +1,6 @@
 # ExtendScript Intl Subset
 
-This folder contains a deliberately small Intl-inspired subset for Adobe ExtendScript. It is not a complete Intl polyfill. The goal is to provide the locale and formatting behavior needed by ExtendScript scripts and by the local Temporal subset without bringing in CLDR, time zones, full BCP 47 parsing, PluralRules, or the rest of Intl.
+This folder contains a deliberately small Intl-inspired subset for Adobe ExtendScript. It is not a complete Intl polyfill. The goal is to provide the locale and formatting behavior needed by ExtendScript scripts and by the local Temporal subset without bringing in full CLDR, time zones, full BCP 47 parsing, or the rest of Intl.
 
 Node's Intl implementation is used as a development oracle for implemented behavior. It is not treated as a full compatibility target. Where ExtendScript limitations or project scope require it, this subset documents the intentional difference and keeps the implementation small.
 
@@ -12,6 +12,8 @@ Node's Intl implementation is used as a development oracle for implemented behav
 - `Intl.DateTimeFormat.js`: localized date and time formatting for the supported locales.
 - `Intl.DurationFormat.js`: short duration formatting for the supported locales.
 - `Intl.DisplayNames.js`: small table-driven display names for languages, regions, and currencies.
+- `Intl.ListFormat.js`: localized list joining for the supported locales.
+- `Intl.PluralRules.js`: small CLDR-backed plural category selection for the supported locales.
 
 Detailed notes:
 
@@ -21,6 +23,8 @@ Detailed notes:
 - `Intl.DateTimeFormat-ReadMe.md`
 - `Intl.DurationFormat-ReadMe.md`
 - `Intl.DisplayNames-ReadMe.md`
+- `Intl.ListFormat-ReadMe.md`
+- `Intl.PluralRules-ReadMe.md`
 
 Tests:
 
@@ -36,6 +40,10 @@ Tests:
 - `tests/tests-Intl-DurationFormat-examples.js`
 - `tests/tests-Intl-DisplayNames.js`
 - `tests/tests-Intl-DisplayNames-examples.js`
+- `tests/tests-Intl-ListFormat.js`
+- `tests/tests-Intl-ListFormat-examples.js`
+- `tests/tests-Intl-PluralRules.js`
+- `tests/tests-Intl-PluralRules-examples.js`
 
 The individual test files and `all_tests.js` run under both Node and ExtendScript Toolkit. Node is used for fast development verification; ExtendScript remains the production target.
 
@@ -50,6 +58,8 @@ The individual test files and `all_tests.js` run under both Node and ExtendScrip
 //@include "Intl.DateTimeFormat.js"
 //@include "Intl.DurationFormat.js"
 //@include "Intl.DisplayNames.js"
+//@include "Intl.ListFormat.js"
+//@include "Intl.PluralRules.js"
 ```
 
 ### NumberFormat
@@ -131,6 +141,48 @@ currencyNames.of("HUF");
 // "magyar forint"
 ```
 
+### ListFormat
+
+```javascript
+var list = new Intl.ListFormat("hu-HU", {
+    type: "conjunction",
+    style: "long"
+});
+list.format(["alma", "korte", "barack"]);
+// "alma, korte es barack"
+
+var compact = new Intl.ListFormat("hu-HU", {
+    type: "unit",
+    style: "narrow"
+});
+compact.format(["1 m", "20 cm", "3 mm"]);
+// "1 m 20 cm 3 mm"
+
+var characters = new Intl.ListFormat("hu-HU");
+characters.format("abc");
+// "a, b es c"
+```
+
+### PluralRules
+
+```javascript
+var cardinal = new Intl.PluralRules("hu-HU");
+cardinal.select(1);
+// "one"
+cardinal.select(2);
+// "other"
+
+var ordinal = new Intl.PluralRules("en-US", { type: "ordinal" });
+ordinal.select(1);
+// "one"
+ordinal.select(2);
+// "two"
+ordinal.select(3);
+// "few"
+ordinal.select(11);
+// "other"
+```
+
 ## Supported Locales
 
 - `en-US`
@@ -177,6 +229,8 @@ Central locale data:
 - Collator lowercase and accent tables
 - DurationFormat unit labels
 - DisplayNames language, region, and currency name tables
+- ListFormat list-pattern tables
+- PluralRules cardinal and ordinal category tables
 
 The formatter modules do not keep their own locale matrices. Adding a new locale should primarily mean extending `Intl-core.js` tables and then adding object-specific behavior only where a formatter really needs new logic.
 
@@ -388,12 +442,92 @@ Not implemented:
 - `style: "narrow"`
 - full CLDR display-name data
 
+### Intl.ListFormat
+
+Implemented:
+
+- callable and constructable `Intl.ListFormat(locales, options)`
+- `Intl.ListFormat.supportedLocalesOf(locales, options)`
+- `listFormat.format(list)`
+- `listFormat.resolvedOptions()`
+
+Implemented types:
+
+- `conjunction`
+- `disjunction`
+- `unit`
+
+Implemented styles:
+
+- `long`
+- `short`
+- `narrow`
+
+Implemented input:
+
+- `Array` of strings
+- `String`, treated as a character list
+
+Implemented options:
+
+- `type`
+- `style`
+- `localeMatcher`
+
+Not implemented:
+
+- `formatToParts()`
+- general iterable input
+- Set input
+- Map input
+- array-like object input
+- arrays containing non-string values
+- full CLDR list-pattern data
+
+### Intl.PluralRules
+
+Implemented:
+
+- callable and constructable `Intl.PluralRules(locales, options)`
+- `Intl.PluralRules.supportedLocalesOf(locales, options)`
+- `pluralRules.select(number)`
+- `pluralRules.resolvedOptions()`
+
+Implemented types:
+
+- `cardinal`
+- `ordinal`
+
+Implemented options:
+
+- `type`
+- `localeMatcher`
+
+Returned categories use standard CLDR/Intl strings, not localized category names:
+
+- `zero`
+- `one`
+- `two`
+- `few`
+- `many`
+- `other`
+
+Implemented category sets:
+
+- cardinal: English, German, and Hungarian `one|other`; French `one|many|other`
+- ordinal: English `one|two|few|other`; German `other`; French and Hungarian `one|other`
+
+Not implemented:
+
+- `selectRange()`
+- digit and rounding options
+- full CLDR plural-rule expression parsing
+- compact/exponent plural operands
+
 ## Not Implemented Intl Objects
 
 These are outside the current subset:
 
-- `Intl.ListFormat`
-- `Intl.PluralRules`
 - `Intl.RelativeTimeFormat`
 - `Intl.Segmenter`
 

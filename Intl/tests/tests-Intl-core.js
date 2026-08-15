@@ -1,7 +1,7 @@
 /*
  * Intl core subset tests for ESTK and Node.js.
  */
-//@include "../../Tools/Console/console.js"
+//@include "../../ExtendScript-Extended/Tools/Console/console.js"
 //@include "../Intl-core.js"
 
 var isNodeRuntime = typeof require === "function" &&
@@ -181,7 +181,9 @@ if (isNodeRuntime) {
         assertEquals(Intl.__getLocaleData__("hu-hu", "number").group, "\u00A0", "hu-HU number grouping");
         assertEquals(Intl.__getLocaleData__("fr-fr", "dateTime").months["long"][0], "janvier", "fr-FR month table");
         assertEquals(Intl.__getLocaleData__("hu-HU", "collation").recordMap, "hungarian", "hu-HU collation map");
+        assertEquals(Intl.__getLocaleData__("hu-HU", "listFormat").conjunction["short"].end, "{0} & {1}", "hu-HU ListFormat table");
         assertEquals(Intl.__getLocaleData__(undefined, "currencies").HUF.symbols["hu-HU"], "Ft", "currency symbol override");
+        assertEquals(Intl.__getLocaleData__(undefined, "pluralRules")["en-US"].ordinal[2], "few", "plural rules categories");
         assertEquals(Intl.__getLocaleData__(undefined, "durationUnitLabels")["narrow"]["hu-HU"].months[0], "h.", "duration labels");
         assertEquals(Intl.__getLocaleData__(undefined, "displayNames").regions["de-DE"].HU, "Ungarn", "display names");
         assertEquals(Intl.__getLocaleData__("banana", "number"), undefined, "unknown locale data");

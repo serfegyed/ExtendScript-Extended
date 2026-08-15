@@ -1,4 +1,4 @@
-//@include "../Tools/Console/console.js"
+//@include "../ExtendScript-Extended/Tools/Console/console.js"
 
 var IntlAllTests = (function () {
     var originalLog = console.log;
@@ -166,6 +166,10 @@ if (IntlAllTests.isNodeRuntime) {
     IntlAllTests.runNodeTest("tests-Intl-DurationFormat-examples.js", "tests-Intl-DurationFormat-examples.js");
     IntlAllTests.runNodeTest("tests-Intl-DisplayNames.js", "tests-Intl-DisplayNames.js");
     IntlAllTests.runNodeTest("tests-Intl-DisplayNames-examples.js", "tests-Intl-DisplayNames-examples.js");
+    IntlAllTests.runNodeTest("tests-Intl-ListFormat.js", "tests-Intl-ListFormat.js");
+    IntlAllTests.runNodeTest("tests-Intl-ListFormat-examples.js", "tests-Intl-ListFormat-examples.js");
+    IntlAllTests.runNodeTest("tests-Intl-PluralRules.js", "tests-Intl-PluralRules.js");
+    IntlAllTests.runNodeTest("tests-Intl-PluralRules-examples.js", "tests-Intl-PluralRules-examples.js");
 } else {
     IntlAllTests.begin("tests-Intl-core.js");
     intlAllTestsError = null;
@@ -261,6 +265,42 @@ if (IntlAllTests.isNodeRuntime) {
     intlAllTestsError = null;
     try {
         //@include "tests/tests-Intl-DisplayNames-examples.js"
+    } catch (error) {
+        intlAllTestsError = error;
+    }
+    IntlAllTests.end(intlAllTestsError);
+
+    IntlAllTests.begin("tests-Intl-ListFormat.js");
+    intlAllTestsError = null;
+    try {
+        //@include "tests/tests-Intl-ListFormat.js"
+    } catch (error) {
+        intlAllTestsError = error;
+    }
+    IntlAllTests.end(intlAllTestsError);
+
+    IntlAllTests.begin("tests-Intl-ListFormat-examples.js");
+    intlAllTestsError = null;
+    try {
+        //@include "tests/tests-Intl-ListFormat-examples.js"
+    } catch (error) {
+        intlAllTestsError = error;
+    }
+    IntlAllTests.end(intlAllTestsError);
+
+    IntlAllTests.begin("tests-Intl-PluralRules.js");
+    intlAllTestsError = null;
+    try {
+        //@include "tests/tests-Intl-PluralRules.js"
+    } catch (error) {
+        intlAllTestsError = error;
+    }
+    IntlAllTests.end(intlAllTestsError);
+
+    IntlAllTests.begin("tests-Intl-PluralRules-examples.js");
+    intlAllTestsError = null;
+    try {
+        //@include "tests/tests-Intl-PluralRules-examples.js"
     } catch (error) {
         intlAllTestsError = error;
     }
