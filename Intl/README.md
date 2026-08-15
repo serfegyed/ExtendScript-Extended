@@ -14,6 +14,7 @@ Node's Intl implementation is used as a development oracle for implemented behav
 - `Intl.DisplayNames.js`: small table-driven display names for languages, regions, and currencies.
 - `Intl.ListFormat.js`: localized list joining for the supported locales.
 - `Intl.PluralRules.js`: small CLDR-backed plural category selection for the supported locales.
+- `Intl.RelativeTimeFormat.js`: relative time phrase formatting for the supported locales.
 
 Detailed notes:
 
@@ -25,6 +26,7 @@ Detailed notes:
 - `Intl.DisplayNames-ReadMe.md`
 - `Intl.ListFormat-ReadMe.md`
 - `Intl.PluralRules-ReadMe.md`
+- `Intl.RelativeTimeFormat-ReadMe.md`
 
 Tests:
 
@@ -44,6 +46,8 @@ Tests:
 - `tests/tests-Intl-ListFormat-examples.js`
 - `tests/tests-Intl-PluralRules.js`
 - `tests/tests-Intl-PluralRules-examples.js`
+- `tests/tests-Intl-RelativeTimeFormat.js`
+- `tests/tests-Intl-RelativeTimeFormat-examples.js`
 
 The individual test files and `all_tests.js` run under both Node and ExtendScript Toolkit. Node is used for fast development verification; ExtendScript remains the production target.
 
@@ -60,6 +64,7 @@ The individual test files and `all_tests.js` run under both Node and ExtendScrip
 //@include "Intl.DisplayNames.js"
 //@include "Intl.ListFormat.js"
 //@include "Intl.PluralRules.js"
+//@include "Intl.RelativeTimeFormat.js"
 ```
 
 ### NumberFormat
@@ -182,6 +187,25 @@ ordinal.select(3);
 ordinal.select(11);
 // "other"
 ```
+### RelativeTimeFormat
+
+```javascript
+var relative = new Intl.RelativeTimeFormat("hu-HU");
+relative.format(-2, "second");
+// "2 mésodperccel ezelőtt"
+relative.format(2, "month");
+// "2 hónap múlva"
+
+var automatic = new Intl.RelativeTimeFormat("hu-HU", { numeric: "auto" });
+automatic.format(-2, "day");
+// "tegnapelőtt"
+automatic.format(2, "day");
+// "holnapután"
+
+var compact = new Intl.RelativeTimeFormat("en-US", { style: "narrow" });
+compact.format(2, "week");
+// "+2w"
+```
 
 ## Supported Locales
 
@@ -231,6 +255,7 @@ Central locale data:
 - DisplayNames language, region, and currency name tables
 - ListFormat list-pattern tables
 - PluralRules cardinal and ordinal category tables
+- RelativeTimeFormat phrase and unit-label tables
 
 The formatter modules do not keep their own locale matrices. Adding a new locale should primarily mean extending `Intl-core.js` tables and then adding object-specific behavior only where a formatter really needs new logic.
 
@@ -524,11 +549,49 @@ Not implemented:
 - full CLDR plural-rule expression parsing
 - compact/exponent plural operands
 
+### Intl.RelativeTimeFormat
+
+Implemented:
+
+- callable and constructable `Intl.RelativeTimeFormat(locales, options)`
+- `Intl.RelativeTimeFormat.supportedLocalesOf(locales, options)`
+- `relativeTimeFormat.format(value, unit)`
+- `relativeTimeFormat.resolvedOptions()`
+
+Implemented units:
+
+- `second`, `seconds`
+- `minute`, `minutes`
+- `hour`, `hours`
+- `day`, `days`
+- `week`, `weeks`
+- `month`, `months`
+- `year`, `years`
+
+Implemented options:
+
+- `style`: `long`, `short`, `narrow`
+- `numeric`: `always`, `auto`
+- `localeMatcher`
+
+Implemented value behavior:
+
+- `Number(value)` coercion
+- negative zero as a past value
+- `RangeError` for `NaN`, `Infinity`, and `-Infinity`
+
+Not implemented:
+
+- `formatToParts()`
+- `quarter` / `quarters`
+- broad unit alias tables beyond singular and plural English unit names
+- full CLDR grammar, inflection, and contextual forms
+- non-`latn` numbering systems
+
 ## Not Implemented Intl Objects
 
 These are outside the current subset:
 
-- `Intl.RelativeTimeFormat`
 - `Intl.Segmenter`
 
 Some of these may be added later as similarly small, table-driven subsets.

@@ -287,6 +287,33 @@ var Intl = Intl || {};
                 ordinal: ["one", "other"]
             }
         },
+        relativeTimeFormat: {
+            "en-US": {
+                "long": { past: "{0} {1} ago", future: "in {0} {1}", units: { second: ["second", "seconds"], minute: ["minute", "minutes"], hour: ["hour", "hours"], day: ["day", "days"], week: ["week", "weeks"], month: ["month", "months"], year: ["year", "years"] }, auto: { day: { "-1": "yesterday", "0": "today", "1": "tomorrow" } } },
+                "short": { past: "{0} {1} ago", future: "in {0} {1}", units: { second: ["sec.", "sec."], minute: ["min.", "min."], hour: ["hr.", "hr."], day: ["day", "days"], week: ["wk.", "wk."], month: ["mo.", "mo."], year: ["yr.", "yr."] }, auto: { day: { "-1": "yesterday", "0": "today", "1": "tomorrow" } } },
+                "narrow": { past: "-{0}{1}", future: "+{0}{1}", units: { second: ["s", "s"], minute: ["m", "m"], hour: ["h", "h"], day: ["d", "d"], week: ["w", "w"], month: ["mo", "mo"], year: ["y", "y"] }, auto: { day: { "-1": "yesterday", "0": "today", "1": "tomorrow" } } }
+            },
+            "en-GB": {
+                "long": { past: "{0} {1} ago", future: "in {0} {1}", units: { second: ["second", "seconds"], minute: ["minute", "minutes"], hour: ["hour", "hours"], day: ["day", "days"], week: ["week", "weeks"], month: ["month", "months"], year: ["year", "years"] }, auto: { day: { "-1": "yesterday", "0": "today", "1": "tomorrow" } } },
+                "short": { past: "{0} {1} ago", future: "in {0} {1}", units: { second: ["sec", "sec"], minute: ["min", "min"], hour: ["hr", "hr"], day: ["day", "days"], week: ["wk", "wk"], month: ["mo", "mo"], year: ["yr", "yr"] }, auto: { day: { "-1": "yesterday", "0": "today", "1": "tomorrow" } } },
+                "narrow": { past: "-{0}{1}", future: "+{0}{1}", units: { second: ["s", "s"], minute: ["m", "m"], hour: ["h", "h"], day: ["d", "d"], week: ["w", "w"], month: ["mo", "mo"], year: ["y", "y"] }, auto: { day: { "-1": "yesterday", "0": "today", "1": "tomorrow" } } }
+            },
+            "de-DE": {
+                "long": { past: "vor {0} {1}", future: "in {0} {1}", units: { second: ["Sekunde", "Sekunden"], minute: ["Minute", "Minuten"], hour: ["Stunde", "Stunden"], day: ["Tag", "Tagen"], week: ["Woche", "Wochen"], month: ["Monat", "Monaten"], year: ["Jahr", "Jahren"] }, auto: { day: { "-2": "vorgestern", "-1": "gestern", "0": "heute", "1": "morgen", "2": "\u00FCbermorgen" } } },
+                "short": { past: "vor {0} {1}", future: "in {0} {1}", units: { second: ["Sek.", "Sek."], minute: ["Min.", "Min."], hour: ["Std.", "Std."], day: ["Tag", "Tagen"], week: ["Wo.", "Wo."], month: ["Mon.", "Mon."], year: ["J", "J"] }, auto: { day: { "-2": "vorgestern", "-1": "gestern", "0": "heute", "1": "morgen", "2": "\u00FCbermorgen" } } },
+                "narrow": { past: "-{0} {1}", future: "+{0} {1}", units: { second: ["s", "s"], minute: ["Min.", "Min."], hour: ["Std.", "Std."], day: ["T", "T"], week: ["W", "W"], month: ["M", "M"], year: ["J", "J"] }, auto: { day: { "-2": "vorgestern", "-1": "gestern", "0": "heute", "1": "morgen", "2": "\u00FCbermorgen" } } }
+            },
+            "fr-FR": {
+                "long": { past: "il y a {0} {1}", future: "dans {0} {1}", units: { second: ["seconde", "secondes"], minute: ["minute", "minutes"], hour: ["heure", "heures"], day: ["jour", "jours"], week: ["semaine", "semaines"], month: ["mois", "mois"], year: ["an", "ans"] }, auto: { day: { "-2": "avant-hier", "-1": "hier", "0": "aujourd\u2019hui", "1": "demain", "2": "apr\u00E8s-demain" } } },
+                "short": { past: "il y a {0}\u00A0{1}", future: "dans {0}\u00A0{1}", units: { second: ["s", "s"], minute: ["min", "min"], hour: ["h", "h"], day: ["j", "j"], week: ["sem.", "sem."], month: ["m.", "m."], year: ["a", "a"] }, auto: { day: { "-2": "avant-hier", "-1": "hier", "0": "aujourd\u2019hui", "1": "demain", "2": "apr\u00E8s-demain" } } },
+                "narrow": { past: "-{0} {1}", future: "+{0} {1}", units: { second: ["s", "s"], minute: ["min", "min"], hour: ["h", "h"], day: ["j", "j"], week: ["sem.", "sem."], month: ["m.", "m."], year: ["a", "a"] }, auto: { day: { "-2": "avant-hier", "-1": "hier", "0": "aujourd\u2019hui", "1": "demain", "2": "apr\u00E8s-demain" } } }
+            },
+            "hu-HU": {
+                "long": { past: "{0} {1} ezel\u0151tt", future: "{0} {1} m\u00FAlva", units: { second: ["m\u00E1sodperccel", "m\u00E1sodperccel"], minute: ["perccel", "perccel"], hour: ["\u00F3r\u00E1val", "\u00F3r\u00E1val"], day: ["nappal", "nappal"], week: ["h\u00E9ttel", "h\u00E9ttel"], month: ["h\u00F3nappal", "h\u00F3nappal"], year: ["\u00E9vvel", "\u00E9vvel"] }, futureUnits: { second: ["m\u00E1sodperc", "m\u00E1sodperc"], minute: ["perc", "perc"], hour: ["\u00F3ra", "\u00F3ra"], day: ["nap", "nap"], week: ["h\u00E9t", "h\u00E9t"], month: ["h\u00F3nap", "h\u00F3nap"], year: ["\u00E9v", "\u00E9v"] }, auto: { day: { "-2": "tegnapel\u0151tt", "-1": "tegnap", "0": "ma", "1": "holnap", "2": "holnaput\u00E1n" } } },
+                "short": { past: "{0} {1} ezel\u0151tt", future: "{0} {1} m\u00FAlva", units: { second: ["mp-cel", "mp-cel"], minute: ["perccel", "perccel"], hour: ["\u00F3r\u00E1val", "\u00F3r\u00E1val"], day: ["napja", "napja"], week: ["hete", "hete"], month: ["h\u00F3napja", "h\u00F3napja"], year: ["\u00E9ve", "\u00E9ve"] }, futureUnits: { second: ["mp", "mp"], minute: ["perc", "perc"], hour: ["\u00F3ra", "\u00F3ra"], day: ["nap", "nap"], week: ["h\u00E9t", "h\u00E9t"], month: ["h\u00F3nap", "h\u00F3nap"], year: ["\u00E9v", "\u00E9v"] }, pastPattern: "{0} {1}", auto: { day: { "-2": "tegnapel\u0151tt", "-1": "tegnap", "0": "ma", "1": "holnap", "2": "holnaput\u00E1n" } } },
+                "narrow": { past: "{0} {1}", future: "{0} {1} m\u00FAlva", units: { second: ["mp-e", "mp-e"], minute: ["p-e", "p-e"], hour: ["\u00F3r\u00E1ja", "\u00F3r\u00E1ja"], day: ["napja", "napja"], week: ["hete", "hete"], month: ["h\u00F3napja", "h\u00F3napja"], year: ["\u00E9ve", "\u00E9ve"] }, futureUnits: { second: ["mp", "mp"], minute: ["p", "p"], hour: ["\u00F3", "\u00F3"], day: ["n", "n"], week: ["h", "h"], month: ["h\u00F3", "h\u00F3"], year: ["\u00E9v", "\u00E9v"] }, auto: { day: { "-2": "tegnapel\u0151tt", "-1": "tegnap", "0": "ma", "1": "holnap", "2": "holnaput\u00E1n" } } }
+            }
+        },
         displayNames: {
             regions: {
                     "en-US": {

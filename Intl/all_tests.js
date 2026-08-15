@@ -170,6 +170,8 @@ if (IntlAllTests.isNodeRuntime) {
     IntlAllTests.runNodeTest("tests-Intl-ListFormat-examples.js", "tests-Intl-ListFormat-examples.js");
     IntlAllTests.runNodeTest("tests-Intl-PluralRules.js", "tests-Intl-PluralRules.js");
     IntlAllTests.runNodeTest("tests-Intl-PluralRules-examples.js", "tests-Intl-PluralRules-examples.js");
+    IntlAllTests.runNodeTest("tests-Intl-RelativeTimeFormat.js", "tests-Intl-RelativeTimeFormat.js");
+    IntlAllTests.runNodeTest("tests-Intl-RelativeTimeFormat-examples.js", "tests-Intl-RelativeTimeFormat-examples.js");
 } else {
     IntlAllTests.begin("tests-Intl-core.js");
     intlAllTestsError = null;
@@ -301,6 +303,24 @@ if (IntlAllTests.isNodeRuntime) {
     intlAllTestsError = null;
     try {
         //@include "tests/tests-Intl-PluralRules-examples.js"
+    } catch (error) {
+        intlAllTestsError = error;
+    }
+    IntlAllTests.end(intlAllTestsError);
+
+    IntlAllTests.begin("tests-Intl-RelativeTimeFormat.js");
+    intlAllTestsError = null;
+    try {
+        //@include "tests/tests-Intl-RelativeTimeFormat.js"
+    } catch (error) {
+        intlAllTestsError = error;
+    }
+    IntlAllTests.end(intlAllTestsError);
+
+    IntlAllTests.begin("tests-Intl-RelativeTimeFormat-examples.js");
+    intlAllTestsError = null;
+    try {
+        //@include "tests/tests-Intl-RelativeTimeFormat-examples.js"
     } catch (error) {
         intlAllTestsError = error;
     }
