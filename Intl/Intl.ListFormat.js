@@ -57,6 +57,8 @@ var Intl = Intl || {};
     }
 
     function ListFormat(locales, options) {
+        var resolvedLocale;
+        var localeData;
         var resolvedOptions;
 
         if (!(this instanceof ListFormat)) {
@@ -65,14 +67,17 @@ var Intl = Intl || {};
 
         requireCore();
         resolvedOptions = readOptions(options);
-        this.__locale__ = Intl.__resolveLocale__(locales, undefined, "en-US");
+        resolvedLocale = Intl.__resolveLocale__(locales, undefined, "en-US");
+        localeData = Intl.__getModuleLocaleData__("ListFormat", resolvedLocale);
+        this.__locale__ = localeData.__locale__;
+        this.__listData__ = localeData;
         this.__type__ = resolvedOptions.type;
         this.__style__ = resolvedOptions.style;
     }
 
     ListFormat.prototype.format = function (list) {
         var values = toStringList(list);
-        var patterns = Intl.__getLocaleData__(this.__locale__, "listFormat")[this.__type__][this.__style__];
+        var patterns = this.__listData__[this.__type__][this.__style__];
         var result;
         var index;
 
@@ -102,8 +107,20 @@ var Intl = Intl || {};
     };
 
     ListFormat.supportedLocalesOf = function (locales, options) {
+        var requested;
+        var result = [];
+        var localeData;
+        var index;
+
         requireCore();
-        return Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.ListFormat");
+        requested = Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.ListFormat");
+        for (index = 0; index < requested.length; index++) {
+            localeData = Intl.__getModuleLocaleData__("ListFormat", requested[index]);
+            if (localeData.__locale__ === requested[index]) {
+                result.push(requested[index]);
+            }
+        }
+        return result;
     };
 
     if (!Intl.ListFormat) {

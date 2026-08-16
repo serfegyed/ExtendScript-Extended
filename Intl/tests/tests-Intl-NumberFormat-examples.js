@@ -12,6 +12,7 @@ if (isNodeRuntime) {
     Intl = undefined;
 
     (function () {
+        global.require = require;
         var fs = require("fs");
         var path = require("path");
 

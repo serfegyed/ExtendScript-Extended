@@ -1,0 +1,250 @@
+{
+    "en-GB": {
+        "conjunction": {
+            "long": {
+                "pair": "{0} and {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} and {1}"
+            },
+            "short": {
+                "pair": "{0} and {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} and {1}"
+            },
+            "narrow": {
+                "pair": "{0}, {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0}, {1}"
+            }
+        },
+        "disjunction": {
+            "long": {
+                "pair": "{0} or {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} or {1}"
+            },
+            "short": {
+                "pair": "{0} or {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} or {1}"
+            },
+            "narrow": {
+                "pair": "{0} or {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} or {1}"
+            }
+        },
+        "unit": {
+            "long": {
+                "pair": "{0}, {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0}, {1}"
+            },
+            "short": {
+                "pair": "{0}, {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0}, {1}"
+            },
+            "narrow": {
+                "pair": "{0} {1}",
+                "start": "{0} {1}",
+                "middle": "{0} {1}",
+                "end": "{0} {1}"
+            }
+        }
+    },
+    "de-DE": {
+        "conjunction": {
+            "long": {
+                "pair": "{0} und {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} und {1}"
+            },
+            "short": {
+                "pair": "{0} und {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} und {1}"
+            },
+            "narrow": {
+                "pair": "{0} und {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} und {1}"
+            }
+        },
+        "disjunction": {
+            "long": {
+                "pair": "{0} oder {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} oder {1}"
+            },
+            "short": {
+                "pair": "{0} oder {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} oder {1}"
+            },
+            "narrow": {
+                "pair": "{0} oder {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} oder {1}"
+            }
+        },
+        "unit": {
+            "long": {
+                "pair": "{0} und {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} und {1}"
+            },
+            "short": {
+                "pair": "{0} und {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} und {1}"
+            },
+            "narrow": {
+                "pair": "{0} und {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} und {1}"
+            }
+        }
+    },
+    "fr-FR": {
+        "conjunction": {
+            "long": {
+                "pair": "{0} et {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} et {1}"
+            },
+            "short": {
+                "pair": "{0} et {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} et {1}"
+            },
+            "narrow": {
+                "pair": "{0}, {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0}, {1}"
+            }
+        },
+        "disjunction": {
+            "long": {
+                "pair": "{0} ou {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} ou {1}"
+            },
+            "short": {
+                "pair": "{0} ou {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} ou {1}"
+            },
+            "narrow": {
+                "pair": "{0} ou {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} ou {1}"
+            }
+        },
+        "unit": {
+            "long": {
+                "pair": "{0} et {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} et {1}"
+            },
+            "short": {
+                "pair": "{0} et {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} et {1}"
+            },
+            "narrow": {
+                "pair": "{0} {1}",
+                "start": "{0} {1}",
+                "middle": "{0} {1}",
+                "end": "{0} {1}"
+            }
+        }
+    },
+    "hu-HU": {
+        "conjunction": {
+            "long": {
+                "pair": "{0} \u00E9s {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} \u00E9s {1}"
+            },
+            "short": {
+                "pair": "{0} & {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} & {1}"
+            },
+            "narrow": {
+                "pair": "{0}, {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0}, {1}"
+            }
+        },
+        "disjunction": {
+            "long": {
+                "pair": "{0} vagy {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} vagy {1}"
+            },
+            "short": {
+                "pair": "{0} vagy {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} vagy {1}"
+            },
+            "narrow": {
+                "pair": "{0}/{1}",
+                "start": "{0}/{1}",
+                "middle": "{0}/{1}",
+                "end": "{0}/{1}"
+            }
+        },
+        "unit": {
+            "long": {
+                "pair": "{0} \u00E9s {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0} \u00E9s {1}"
+            },
+            "short": {
+                "pair": "{0}, {1}",
+                "start": "{0}, {1}",
+                "middle": "{0}, {1}",
+                "end": "{0}, {1}"
+            },
+            "narrow": {
+                "pair": "{0} {1}",
+                "start": "{0} {1}",
+                "middle": "{0} {1}",
+                "end": "{0} {1}"
+            }
+        }
+    }
+}

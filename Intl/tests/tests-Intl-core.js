@@ -13,9 +13,9 @@ if (isNodeRuntime) {
     Intl = undefined;
 
     (function () {
+        global.require = require;
         var fs = require("fs");
         var path = require("path");
-
         (0, eval)(fs.readFileSync(path.join(__dirname, "..", "Intl-core.js"), "utf8"));
     }());
 }
@@ -177,18 +177,74 @@ if (isNodeRuntime) {
         }, "RangeError", "unsupported localeMatcher rejected");
     });
 
-    test("central locale data exposes shared formatter tables", function () {
-        assertEquals(Intl.__getLocaleData__("hu-hu", "number").group, "\u00A0", "hu-HU number grouping");
-        assertEquals(Intl.__getLocaleData__("fr-fr", "dateTime").months["long"][0], "janvier", "fr-FR month table");
-        assertEquals(Intl.__getLocaleData__("hu-HU", "collation").recordMap, "hungarian", "hu-HU collation map");
-        assertEquals(Intl.__getLocaleData__("hu-HU", "listFormat").conjunction["short"].end, "{0} & {1}", "hu-HU ListFormat table");
+    test("shared registry data exposes formatter tables", function () {
         assertEquals(Intl.__getLocaleData__(undefined, "currencies").HUF.symbols["hu-HU"], "Ft", "currency symbol override");
-        assertEquals(Intl.__getLocaleData__(undefined, "pluralRules")["en-US"].ordinal[2], "few", "plural rules categories");
-        assertEquals(Intl.__getLocaleData__(undefined, "durationUnitLabels")["narrow"]["hu-HU"].months[0], "h.", "duration labels");
-        assertEquals(Intl.__getLocaleData__(undefined, "displayNames").regions["de-DE"].HU, "Ungarn", "display names");
-        assertEquals(Intl.__getLocaleData__("banana", "number"), undefined, "unknown locale data");
+        assertEquals(Intl.__getLocaleData__(undefined, "collation").hungarian["\u00F6"].base, "oz", "collation character record");
+        assertEquals(Intl.__getLocaleData__("banana"), undefined, "unknown locale data");
     });
 
+
+    test("module locale data loads only requested module data with en-US fallback", function () {
+        var collatorEn = Intl.__getModuleLocaleData__("Collator", "en-US");
+        var collatorHu = Intl.__getModuleLocaleData__("Collator", "hu-HU");
+        var dateTimeEn = Intl.__getModuleLocaleData__("DateTimeFormat", "en-US");
+        var dateTimeFr = Intl.__getModuleLocaleData__("DateTimeFormat", "fr-FR");
+        var displayEn = Intl.__getModuleLocaleData__("DisplayNames", "en-US");
+        var displayDe = Intl.__getModuleLocaleData__("DisplayNames", "de-DE");
+        var durationEn = Intl.__getModuleLocaleData__("DurationFormat", "en-US");
+        var durationHu = Intl.__getModuleLocaleData__("DurationFormat", "hu-HU");
+        var listEn = Intl.__getModuleLocaleData__("ListFormat", "en-US");
+        var listHu = Intl.__getModuleLocaleData__("ListFormat", "hu-HU");
+        var numberEn = Intl.__getModuleLocaleData__("NumberFormat", "en-US");
+        var numberHu = Intl.__getModuleLocaleData__("NumberFormat", "hu-HU");
+        var relativeEn = Intl.__getModuleLocaleData__("RelativeTimeFormat", "en-US");
+        var relativeDe = Intl.__getModuleLocaleData__("RelativeTimeFormat", "de-DE");
+        var en = Intl.__getModuleLocaleData__("PluralRules", "en-US");
+        var hu = Intl.__getModuleLocaleData__("PluralRules", "hu-HU");
+        var fr = Intl.__getModuleLocaleData__("PluralRules", "fr-FR");
+        var fallback = Intl.__getModuleLocaleData__("PluralRules", "banana");
+
+        assertEquals(collatorEn.__locale__, "en-US", "Collator en-US baseline locale");
+        assertEquals(collatorEn.recordMap, "generic", "Collator en-US baseline record map");
+        assertEquals(collatorHu.__locale__, "hu-HU", "Collator hu-HU JSON locale");
+        assertEquals(collatorHu.recordMap, "hungarian", "Collator hu-HU JSON record map");
+        assertEquals(dateTimeEn.__locale__, "en-US", "DateTimeFormat en-US baseline locale");
+        assertEquals(dateTimeEn.months["long"][0], "January", "DateTimeFormat en-US baseline month table");
+        assertEquals(dateTimeFr.__locale__, "fr-FR", "DateTimeFormat fr-FR JSON locale");
+        assertEquals(dateTimeFr.months["long"][0], "janvier", "DateTimeFormat fr-FR JSON month table");
+        assertEquals(displayEn.__locale__, "en-US", "DisplayNames en-US baseline locale");
+        assertEquals(displayEn.regions.HU, "Hungary", "DisplayNames en-US baseline region");
+        assertEquals(displayDe.__locale__, "de-DE", "DisplayNames de-DE JSON locale");
+        assertEquals(displayDe.regions.HU, "Ungarn", "DisplayNames de-DE JSON region");
+        assertEquals(displayDe.languages.dialect["fr-FR"], "Franz\u00F6sisch (Frankreich)", "DisplayNames de-DE JSON language");
+        assertEquals(durationEn.__locale__, "en-US", "DurationFormat en-US baseline locale");
+        assertEquals(durationEn.labels["narrow"].months[0], "m", "DurationFormat en-US baseline labels");
+        assertEquals(durationHu.__locale__, "hu-HU", "DurationFormat hu-HU JSON locale");
+        assertEquals(durationHu.labels["narrow"].months[0], "h.", "DurationFormat hu-HU JSON labels");
+        assertEquals(durationHu.join.connectorRules[0].connector, " \u00E9s ", "DurationFormat hu-HU JSON connector");
+        assertEquals(listEn.__locale__, "en-US", "ListFormat en-US baseline locale");
+        assertEquals(listEn.conjunction["short"].end, "{0}, & {1}", "ListFormat en-US baseline pattern");
+        assertEquals(listHu.__locale__, "hu-HU", "ListFormat hu-HU JSON locale");
+        assertEquals(listHu.conjunction["short"].end, "{0} & {1}", "ListFormat hu-HU JSON pattern");
+        assertEquals(numberEn.__locale__, "en-US", "NumberFormat en-US baseline locale");
+        assertEquals(numberEn.group, ",", "NumberFormat en-US baseline grouping");
+        assertEquals(numberHu.__locale__, "hu-HU", "NumberFormat hu-HU JSON locale");
+        assertEquals(numberHu.group, "\u00A0", "NumberFormat hu-HU JSON grouping");
+        assertEquals(relativeEn.__locale__, "en-US", "RelativeTimeFormat en-US baseline locale");
+        assertEquals(relativeEn["long"].auto.day["-1"], "yesterday", "RelativeTimeFormat en-US baseline auto day");
+        assertEquals(relativeDe.__locale__, "de-DE", "RelativeTimeFormat de-DE JSON locale");
+        assertEquals(relativeDe["long"].auto.day["2"], "\u00FCbermorgen", "RelativeTimeFormat de-DE JSON auto day");
+        assertEquals(en.__locale__, "en-US", "en-US baseline locale");
+        assertEquals(en.ordinal[2], "few", "en-US baseline ordinal data");
+        assertEquals(hu.__locale__, "hu-HU", "hu-HU JSON locale");
+        assertEquals(hu.ordinal.join("|"), "one|other", "hu-HU JSON categories");
+        assertEquals(fr.cardinal.join("|"), "one|many|other", "fr-FR JSON categories");
+        assertEquals(fallback.__locale__, "en-US", "missing module locale falls back to en-US");
+
+        assertThrowsWith(function () {
+            Intl.__getModuleLocaleData__("MissingModule", "hu-HU");
+        }, "Error", "missing en-US baseline is a development error");
+    });
     test("shared internal helpers cover narrow module needs", function () {
         var options = { style: new String("short") };
 

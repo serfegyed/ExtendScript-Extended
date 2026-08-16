@@ -73,6 +73,8 @@ var Intl = Intl || {};
     }
 
     function DisplayNames(locales, options) {
+        var resolvedLocale;
+        var localeData;
         var resolvedOptions;
 
         if (!(this instanceof DisplayNames)) {
@@ -81,7 +83,10 @@ var Intl = Intl || {};
 
         requireCore();
         resolvedOptions = validateOptions(options);
-        this.__locale__ = Intl.__resolveLocale__(locales, undefined, "en-US");
+        resolvedLocale = Intl.__resolveLocale__(locales, undefined, "en-US");
+        localeData = Intl.__getModuleLocaleData__("DisplayNames", resolvedLocale);
+        this.__locale__ = localeData.__locale__;
+        this.__displayNamesData__ = localeData;
         this.__style__ = resolvedOptions.style;
         this.__type__ = resolvedOptions.type;
         this.__fallback__ = resolvedOptions.fallback;
@@ -98,17 +103,17 @@ var Intl = Intl || {};
 
         if (this.__type__ === "language") {
             value = canonicalizeLanguageCode(code);
-            names = Intl.__getLocaleData__(undefined, "displayNames").languages[this.__languageDisplay__][this.__locale__];
+            names = this.__displayNamesData__.languages[this.__languageDisplay__];
             return hasOwnProperty.call(names, value) ? names[value] : fallbackValue(value, this.__fallback__);
         }
         if (this.__type__ === "region") {
             value = canonicalizeRegionCode(code);
-            names = Intl.__getLocaleData__(undefined, "displayNames").regions[this.__locale__];
+            names = this.__displayNamesData__.regions;
             return hasOwnProperty.call(names, value) ? names[value] : fallbackValue(value, this.__fallback__);
         }
 
         value = canonicalizeCurrencyCode(code);
-        names = Intl.__getLocaleData__(undefined, "displayNames").currencies[this.__locale__];
+        names = this.__displayNamesData__.currencies;
         return hasOwnProperty.call(names, value) ? names[value] : fallbackValue(value, this.__fallback__);
     };
 
@@ -128,8 +133,20 @@ var Intl = Intl || {};
     };
 
     DisplayNames.supportedLocalesOf = function (locales, options) {
+        var requested;
+        var result = [];
+        var localeData;
+        var index;
+
         requireCore();
-        return Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.DisplayNames");
+        requested = Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.DisplayNames");
+        for (index = 0; index < requested.length; index++) {
+            localeData = Intl.__getModuleLocaleData__("DisplayNames", requested[index]);
+            if (localeData.__locale__ === requested[index]) {
+                result.push(requested[index]);
+            }
+        }
+        return result;
     };
 
     if (!Intl.DisplayNames) {

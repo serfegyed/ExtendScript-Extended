@@ -4,6 +4,8 @@
 
 `Intl-core.js` must be loaded before this file.
 
+`en-US` DisplayNames language, region, and currency tables are built into `Intl-core.js`; non-`en-US` DisplayNames locale data lives in `Data/DisplayNames.json`.
+
 Language, region, and currency display-name tables are supplied by `Intl-core.js`.
 
 ## Constructor and Methods

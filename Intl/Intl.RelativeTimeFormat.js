@@ -88,6 +88,8 @@ var Intl = Intl || {};
         requireCore();
         resolvedOptions = readOptions(options);
         this.__locale__ = Intl.__resolveLocale__(locales, undefined, "en-US");
+        this.__relativeTimeData__ = Intl.__getModuleLocaleData__("RelativeTimeFormat", this.__locale__);
+        this.__locale__ = this.__relativeTimeData__.__locale__;
         this.__style__ = resolvedOptions.style;
         this.__numeric__ = resolvedOptions.numeric;
     }
@@ -108,7 +110,7 @@ var Intl = Intl || {};
             throw new RangeError("Intl.RelativeTimeFormat error: value must be a finite number.");
         }
 
-        data = Intl.__getLocaleData__(undefined, "relativeTimeFormat")[this.__locale__][this.__style__];
+        data = this.__relativeTimeData__[this.__style__];
         if (this.__numeric__ === "auto") {
             autoData = data.auto && data.auto[normalizedUnit];
             autoKey = String(numberValue);
@@ -133,8 +135,20 @@ var Intl = Intl || {};
     };
 
     RelativeTimeFormat.supportedLocalesOf = function (locales, options) {
+        var requested;
+        var result = [];
+        var index;
+        var localeData;
+
         requireCore();
-        return Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.RelativeTimeFormat");
+        requested = Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.RelativeTimeFormat");
+        for (index = 0; index < requested.length; index++) {
+            localeData = Intl.__getModuleLocaleData__("RelativeTimeFormat", requested[index]);
+            if (localeData.__locale__ === requested[index]) {
+                result.push(requested[index]);
+            }
+        }
+        return result;
     };
 
     if (!Intl.RelativeTimeFormat) {

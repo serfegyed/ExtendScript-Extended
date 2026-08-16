@@ -2,9 +2,9 @@
 
 `Intl.PluralRules.js` implements a focused, ExtendScript-friendly subset of `Intl.PluralRules`. It uses small hand-written rules based on CLDR plural categories for the supported locales.
 
-`Intl-core.js` must be loaded before this file.
+`Intl-core.js` must be loaded before this file. It explicitly includes the Public `JSON.parse.js` helper, so no separate JSON include is required for Intl.
 
-Plural category tables are supplied by `Intl-core.js`.
+The `en-US` category baseline is built into `Intl-core.js`; non-`en-US` category tables are read from `Data/PluralRules.json` through Core.
 
 ## Constructor and Methods
 
@@ -141,5 +141,6 @@ These options throw `RangeError` when provided:
 
 - `tests/tests-Intl-PluralRules.js`
 - `tests/tests-Intl-PluralRules-examples.js`
+- `Data/PluralRules.json`
 
 The harness runs under both Node and ExtendScript Toolkit.

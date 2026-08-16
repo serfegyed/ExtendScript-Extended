@@ -1,0 +1,10 @@
+# Development snapshots
+/Intl-core/
+/NumberFormat/
+/Collator/
+/DateTimeFormat/
+/DisplayNames/
+/DurationFormat/
+/ListFormat/
+/PluralRules/
+/RelativeTimeFormat/

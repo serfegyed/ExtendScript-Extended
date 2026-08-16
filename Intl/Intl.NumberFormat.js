@@ -186,8 +186,8 @@ var Intl = Intl || {};
         return rounded.toFixed(fractionDigits);
     }
 
-    function currencyName(locale, currency, absoluteValue) {
-        var names = Intl.__getLocaleData__(locale, "number").currencyNames;
+    function currencyName(numberData, currency, absoluteValue) {
+        var names = numberData.currencyNames;
         var entry = names[currency];
 
         return entry[Math.abs(absoluteValue) < 2 ? 0 : 1];
@@ -215,7 +215,7 @@ var Intl = Intl || {};
         var dotIndex = fixed.indexOf(".");
         var integerPart = dotIndex === -1 ? fixed : fixed.substring(0, dotIndex);
         var fractionPart = dotIndex === -1 ? "" : fixed.substring(dotIndex + 1);
-        var data = Intl.__getLocaleData__(record.locale, "number");
+        var data = record.numberData;
         var formatted;
         var stripFraction = record.trailingZeroDisplay === "stripIfInteger" && /^0*$/.test(fractionPart);
 
@@ -243,7 +243,7 @@ var Intl = Intl || {};
         } else if (record.style === "currency") {
             var symbol;
             if (record.currencyDisplay === "name") {
-                formatted += " " + currencyName(record.locale, record.currency, absolute);
+                formatted += " " + currencyName(data, record.currency, absolute);
             } else {
                 symbol = currencySymbol(record.locale, record.currency, record.currencyDisplay);
                 if (data.currencyPattern === "prefix") {
@@ -271,6 +271,7 @@ var Intl = Intl || {};
 
     function NumberFormat(locales, options) {
         var resolvedOptions;
+        var localeData;
 
         if (!(this instanceof NumberFormat)) {
             return new NumberFormat(locales, options);
@@ -278,7 +279,9 @@ var Intl = Intl || {};
 
         requireCore();
         resolvedOptions = validateOptions(options);
-        this.__locale__ = Intl.__resolveLocale__(locales);
+        localeData = Intl.__getModuleLocaleData__("NumberFormat", Intl.__resolveLocale__(locales, undefined, "en-US"));
+        this.__locale__ = localeData.__locale__;
+        this.__numberData__ = localeData;
         this.__style__ = resolvedOptions.style;
         this.__numberingSystem__ = resolvedOptions.numberingSystem;
         this.__currency__ = resolvedOptions.currency;
@@ -307,17 +310,18 @@ var Intl = Intl || {};
             useGrouping: this.__useGrouping__,
             signDisplay: this.__signDisplay__,
             trailingZeroDisplay: this.__trailingZeroDisplay__,
-            originalValue: valueBeforeNumberCoercion
+            originalValue: valueBeforeNumberCoercion,
+            numberData: this.__numberData__
         };
 
         if (isNaN(number)) {
-            return this.__style__ === "percent" ? "NaN" + Intl.__getLocaleData__(this.__locale__, "number").percent : "NaN";
+            return this.__style__ === "percent" ? "NaN" + this.__numberData__.percent : "NaN";
         }
         if (number === Infinity) {
-            return this.__style__ === "percent" ? "\u221E" + Intl.__getLocaleData__(this.__locale__, "number").percent : "\u221E";
+            return this.__style__ === "percent" ? "\u221E" + this.__numberData__.percent : "\u221E";
         }
         if (number === -Infinity) {
-            return this.__style__ === "percent" ? "-\u221E" + Intl.__getLocaleData__(this.__locale__, "number").percent : "-\u221E";
+            return this.__style__ === "percent" ? "-\u221E" + this.__numberData__.percent : "-\u221E";
         }
         return formatFiniteNumber(number, record);
     };
@@ -359,8 +363,20 @@ var Intl = Intl || {};
     };
 
     NumberFormat.supportedLocalesOf = function (locales, options) {
+        var requested;
+        var result = [];
+        var localeData;
+        var index;
+
         requireCore();
-        return Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.NumberFormat");
+        requested = Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.NumberFormat");
+        for (index = 0; index < requested.length; index++) {
+            localeData = Intl.__getModuleLocaleData__("NumberFormat", requested[index]);
+            if (localeData.__locale__ === requested[index]) {
+                result.push(requested[index]);
+            }
+        }
+        return result;
     };
 
     Intl.NumberFormat = NumberFormat;

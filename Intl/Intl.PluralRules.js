@@ -125,6 +125,7 @@ var Intl = Intl || {};
 
     function PluralRules(locales, options) {
         var resolvedOptions;
+        var localeData;
 
         if (!(this instanceof PluralRules)) {
             return new PluralRules(locales, options);
@@ -132,7 +133,9 @@ var Intl = Intl || {};
 
         requireCore();
         resolvedOptions = readOptions(options);
-        this.__locale__ = Intl.__resolveLocale__(locales, undefined, "en-US");
+        localeData = Intl.__getModuleLocaleData__("PluralRules", Intl.__resolveLocale__(locales, undefined, "en-US"));
+        this.__locale__ = localeData.__locale__;
+        this.__localeData__ = localeData;
         this.__type__ = resolvedOptions.type;
     }
 
@@ -146,8 +149,7 @@ var Intl = Intl || {};
     };
 
     PluralRules.prototype.resolvedOptions = function () {
-        var data = Intl.__getLocaleData__(undefined, "pluralRules")[this.__locale__];
-        var categories = data[this.__type__];
+        var categories = this.__localeData__[this.__type__];
         var resultCategories = [];
         var index;
 
@@ -163,8 +165,20 @@ var Intl = Intl || {};
     };
 
     PluralRules.supportedLocalesOf = function (locales, options) {
+        var requested;
+        var localeData;
+        var result = [];
+        var index;
+
         requireCore();
-        return Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.PluralRules");
+        requested = Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.PluralRules");
+        for (index = 0; index < requested.length; index++) {
+            localeData = Intl.__getModuleLocaleData__("PluralRules", requested[index]);
+            if (localeData.__locale__ === requested[index]) {
+                result.push(requested[index]);
+            }
+        }
+        return result;
     };
 
     if (!Intl.PluralRules) {

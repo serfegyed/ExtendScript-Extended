@@ -2,9 +2,9 @@
 
 `Intl.RelativeTimeFormat.js` implements a focused, ExtendScript-friendly subset of `Intl.RelativeTimeFormat`. It is table-driven and intentionally limited to direct relative time formatting.
 
-`Intl-core.js` and `Intl.PluralRules.js` must be loaded before this file.
+`Intl-core.js` and `Intl.PluralRules.js` must be loaded before this file. `Intl-core.js` explicitly includes the Public `JSON.parse.js` helper, so no separate JSON include is required for Intl.
 
-Relative time phrase tables are supplied by `Intl-core.js`.
+`en-US` RelativeTimeFormat phrase tables are built into `Intl-core.js`; non-`en-US` RelativeTimeFormat locale data lives in `Data/RelativeTimeFormat.json`.
 
 ## Constructor and Methods
 

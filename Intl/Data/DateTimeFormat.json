@@ -1,0 +1,50 @@
+{
+  "en-GB": {
+    "defaultHourCycle": "h23",
+    "defaultDateOptions": { "year": "numeric", "month": "2-digit", "day": "2-digit" },
+    "weekdays": {
+      "short": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      "long": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    },
+    "months": {
+      "short": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      "long": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    }
+  },
+  "de-DE": {
+    "defaultHourCycle": "h23",
+    "defaultDateOptions": { "year": "numeric", "month": "numeric", "day": "numeric" },
+    "weekdays": {
+      "short": ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+      "long": ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"]
+    },
+    "months": {
+      "short": ["Jan.", "Feb.", "M\u00E4rz", "Apr.", "Mai", "Juni", "Juli", "Aug.", "Sept.", "Okt.", "Nov.", "Dez."],
+      "long": ["Januar", "Februar", "M\u00E4rz", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
+    }
+  },
+  "fr-FR": {
+    "defaultHourCycle": "h23",
+    "defaultDateOptions": { "year": "numeric", "month": "2-digit", "day": "2-digit" },
+    "weekdays": {
+      "short": ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."],
+      "long": ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"]
+    },
+    "months": {
+      "short": ["janv.", "f\u00E9vr.", "mars", "avr.", "mai", "juin", "juil.", "ao\u00FBt", "sept.", "oct.", "nov.", "d\u00E9c."],
+      "long": ["janvier", "f\u00E9vrier", "mars", "avril", "mai", "juin", "juillet", "ao\u00FBt", "septembre", "octobre", "novembre", "d\u00E9cembre"]
+    }
+  },
+  "hu-HU": {
+    "defaultHourCycle": "h23",
+    "defaultDateOptions": { "year": "numeric", "month": "2-digit", "day": "2-digit" },
+    "weekdays": {
+      "short": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+      "long": ["vas\u00E1rnap", "h\u00E9tf\u0151", "kedd", "szerda", "cs\u00FCt\u00F6rt\u00F6k", "p\u00E9ntek", "szombat"]
+    },
+    "months": {
+      "short": ["jan.", "febr.", "m\u00E1rc.", "\u00E1pr.", "m\u00E1j.", "j\u00FAn.", "j\u00FAl.", "aug.", "szept.", "okt.", "nov.", "dec."],
+      "long": ["janu\u00E1r", "febru\u00E1r", "m\u00E1rcius", "\u00E1prilis", "m\u00E1jus", "j\u00FAnius", "j\u00FAlius", "augusztus", "szeptember", "okt\u00F3ber", "november", "december"]
+    }
+  }
+}

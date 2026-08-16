@@ -29,6 +29,7 @@ Errors:
 - `Intl.__resolveLocale__(locales, availableLocales, fallbackLocale)`
 - `Intl.__supportedLocalesOf__(locales, availableLocales, options, ownerName)`
 - `Intl.__getLocaleData__(locale, section)`
+- `Intl.__getModuleLocaleData__(moduleName, locale)`
 - `Intl.__requireCore__(ownerName, needsCanonicalLocales)`
 - `Intl.__toObject__(options, ownerName)`
 - `Intl.__readStringOption__(options, name, allowed, defaultValue, ownerName)`
@@ -38,29 +39,32 @@ Errors:
 
 `Intl.__supportedLocalesOf__()` returns the canonical requested locales that are implemented by the caller. It preserves requested order, drops unsupported locales, accepts `localeMatcher: "best fit"` and `"lookup"` with identical behavior, and throws `RangeError` for other `localeMatcher` values.
 
-`Intl.__getLocaleData__()` returns the central table data used by the formatter modules. With a locale argument it returns that locale's table. With `undefined` or `null` as the locale argument it returns top-level shared tables such as currencies, collation maps, duration unit labels, and DisplayNames tables.
+`Intl.__getLocaleData__()` returns the central table data used by the formatter modules. With a locale argument it returns that locale's table. With `undefined` or `null` as the locale argument it returns top-level shared tables such as currencies and collation maps.
+
+`Intl.__getModuleLocaleData__()` reads module-specific JSON data on demand. `Intl-core.js` explicitly includes the Public `JSON.parse.js` helper for parsing that data. `en-US` baseline data is built into Core; missing module locale data falls back to `en-US`. If a module has no `en-US` baseline, that is a development error.
 
 The other internal helpers are small shared primitives used by the formatter modules. They are not public Intl APIs.
 
-## Central Locale Data
+## Data Files
 
-The core file owns the supported locale matrices so a new locale does not require duplicating basic tables across every formatter module.
+The core file owns the loader helpers and the `en-US` baselines for module-specific JSON data. Shared registries and module-specific non-`en-US` data live under `Data/`.
 
-Implemented central sections:
+Shared registry JSON data:
 
-- `locales[locale].number`: separators, percent spacing, currency pattern, and currency names
-- `locales[locale].dateTime`: default date fields, default hour cycle, month names, and weekday names
-- `locales[locale].collation`: selected collation record map
-- `locales[locale].listFormat`: list patterns for conjunction, disjunction, and unit formatting
-- `currencies`: symbols and default fraction ranges for `EUR`, `USD`, `GBP`, and `HUF`
-- `pluralRules`: cardinal and ordinal category lists for the supported locales
-- `relativeTimeFormat`: phrase and unit-label tables for the supported locales
-- `collation`: lowercase maps and small accent records
-- `durationUnitLabels`: `short`, `long`, `digital`, and `narrow` unit labels
-- `displayNames`: language, region, and currency name tables
+- `Data/Currencies.json`: currency symbols and default fraction ranges
+- `Data/Collation.json`: Collator lowercase maps and small accent records
+- `Data/Locales.json`: locale aliases, language-only canonicalization, and the global supported-locale registry
 
-Formatter modules may still contain object-specific algorithms and option validation. They should not reintroduce per-locale matrices unless that table is genuinely private to one algorithm.
+Module-specific JSON data:
 
+- `Data/Collator.json`: non-`en-US` Collator record-map choices
+- `Data/DateTimeFormat.json`: non-`en-US` DateTimeFormat defaults, month names, and weekday names
+- `Data/DisplayNames.json`: non-`en-US` language, region, and currency name tables for `Intl.DisplayNames`
+- `Data/DurationFormat.json`: non-`en-US` DurationFormat labels, spacing, joining, and fractional separators
+- `Data/ListFormat.json`: non-`en-US` ListFormat list-pattern tables
+- `Data/NumberFormat.json`: non-`en-US` number separators, percent spacing, currency patterns, and currency-name tables for `Intl.NumberFormat`
+- `Data/PluralRules.json`: non-`en-US` cardinal and ordinal category lists for `Intl.PluralRules`
+- `Data/RelativeTimeFormat.json`: non-`en-US` phrase and unit-label tables for `Intl.RelativeTimeFormat`
 ## `Intl.supportedValuesOf()`
 
 Implemented as a forgiving subset query. It returns a new array each time and does not throw for unknown keys.

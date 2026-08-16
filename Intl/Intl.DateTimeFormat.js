@@ -42,7 +42,7 @@ var Intl = Intl || {};
         return value;
     }
 
-    function validateOptions(options, locale) {
+    function validateOptions(options, locale, dateTimeData) {
         var index;
         var localeMatcher;
         var numberingSystem;
@@ -83,7 +83,7 @@ var Intl = Intl || {};
             }
         }
 
-        defaults = defaultDateOptions(locale);
+        defaults = defaultDateOptions(dateTimeData);
         year = Intl.__readStringOption__(options, "year", ["numeric", "2-digit"], hasExplicitFormatFields(options) ? undefined : defaults.year, "Intl.DateTimeFormat");
         month = Intl.__readStringOption__(options, "month", ["numeric", "2-digit", "short", "long"], hasExplicitFormatFields(options) ? undefined : defaults.month, "Intl.DateTimeFormat");
         day = Intl.__readStringOption__(options, "day", ["numeric", "2-digit"], hasExplicitFormatFields(options) ? undefined : defaults.day, "Intl.DateTimeFormat");
@@ -95,7 +95,7 @@ var Intl = Intl || {};
         if (fractionalSecondDigits !== undefined && second === undefined) {
             throw new RangeError("Intl.DateTimeFormat error: fractionalSecondDigits requires second in this subset.");
         }
-        hourCycle = Intl.__readStringOption__(options, "hourCycle", ["h11", "h12", "h23", "h24"], defaultHourCycle(locale), "Intl.DateTimeFormat");
+        hourCycle = Intl.__readStringOption__(options, "hourCycle", ["h11", "h12", "h23", "h24"], defaultHourCycle(dateTimeData), "Intl.DateTimeFormat");
         if (options.hour12 !== undefined) {
             hour12 = Boolean(options.hour12);
             hourCycle = hour12 ? "h12" : "h23";
@@ -116,12 +116,12 @@ var Intl = Intl || {};
         });
     }
 
-    function defaultHourCycle(locale) {
-        return Intl.__getLocaleData__(locale, "dateTime").defaultHourCycle;
+    function defaultHourCycle(dateTimeData) {
+        return dateTimeData.defaultHourCycle;
     }
 
-    function defaultDateOptions(locale) {
-        return Intl.__getLocaleData__(locale, "dateTime").defaultDateOptions;
+    function defaultDateOptions(dateTimeData) {
+        return dateTimeData.defaultDateOptions;
     }
 
     function normalizeWidths(locale, options) {
@@ -151,7 +151,7 @@ var Intl = Intl || {};
         return String(year);
     }
 
-    function formatMonth(locale, month, width) {
+    function formatMonth(dateTimeData, month, width) {
         if (width === undefined) {
             return undefined;
         }
@@ -161,14 +161,14 @@ var Intl = Intl || {};
         if (width === "numeric") {
             return String(month);
         }
-        return Intl.__getLocaleData__(locale, "dateTime").months[width][month - 1];
+        return dateTimeData.months[width][month - 1];
     }
 
-    function formatWeekday(locale, dayOfWeek, width) {
+    function formatWeekday(dateTimeData, dayOfWeek, width) {
         if (width === undefined) {
             return undefined;
         }
-        return Intl.__getLocaleData__(locale, "dateTime").weekdays[width][dayOfWeek];
+        return dateTimeData.weekdays[width][dayOfWeek];
     }
 
     function formatDay(day, width) {
@@ -631,12 +631,12 @@ var Intl = Intl || {};
         return parts.year || parts.month || (parts.day === undefined ? undefined : parts.day + ".");
     }
 
-    function formatFields(locale, options, fields) {
+    function formatFields(locale, dateTimeData, options, fields) {
         var parts = {
             year: formatYear(fields.year, options.year),
-            month: formatMonth(locale, fields.month, options.month),
+            month: formatMonth(dateTimeData, fields.month, options.month),
             day: formatDay(fields.day, options.day),
-            weekday: formatWeekday(locale, fields.dayOfWeek, options.weekday)
+            weekday: formatWeekday(dateTimeData, fields.dayOfWeek, options.weekday)
         };
 
         var dateText;
@@ -659,12 +659,12 @@ var Intl = Intl || {};
         return combineDateAndTime(locale, dateText, timeText, hasDate);
     }
 
-    function formatFieldsToParts(locale, options, fields) {
+    function formatFieldsToParts(locale, dateTimeData, options, fields) {
         var values = {
             year: formatYear(fields.year, options.year),
-            month: formatMonth(locale, fields.month, options.month),
+            month: formatMonth(dateTimeData, fields.month, options.month),
             day: formatDay(fields.day, options.day),
-            weekday: formatWeekday(locale, fields.dayOfWeek, options.weekday)
+            weekday: formatWeekday(dateTimeData, fields.dayOfWeek, options.weekday)
         };
         var dateParts;
         var timeParts = formatTimeParts(locale, options, fields);
@@ -688,6 +688,7 @@ var Intl = Intl || {};
 
     function DateTimeFormat(locales, options) {
         var resolvedLocale;
+        var localeData;
         var resolvedOptions;
 
         if (!(this instanceof DateTimeFormat)) {
@@ -696,9 +697,12 @@ var Intl = Intl || {};
 
         requireCore();
         resolvedLocale = Intl.__resolveLocale__(locales, undefined, "en-US");
-        resolvedOptions = validateOptions(options, resolvedLocale);
+        localeData = Intl.__getModuleLocaleData__("DateTimeFormat", resolvedLocale);
+        resolvedLocale = localeData.__locale__;
+        resolvedOptions = validateOptions(options, resolvedLocale, localeData);
 
         this.__locale__ = resolvedLocale;
+        this.__dateTimeData__ = localeData;
         this.__calendar__ = "gregory";
         this.__numberingSystem__ = resolvedOptions.numberingSystem;
         this.__year__ = resolvedOptions.year;
@@ -714,7 +718,7 @@ var Intl = Intl || {};
     }
 
     DateTimeFormat.prototype.format = function (value) {
-        return formatFields(this.__locale__, {
+        return formatFields(this.__locale__, this.__dateTimeData__, {
             year: this.__year__,
             month: this.__month__,
             day: this.__day__,
@@ -729,7 +733,7 @@ var Intl = Intl || {};
     };
 
     DateTimeFormat.prototype.formatToParts = function (value) {
-        return formatFieldsToParts(this.__locale__, {
+        return formatFieldsToParts(this.__locale__, this.__dateTimeData__, {
             year: this.__year__,
             month: this.__month__,
             day: this.__day__,
@@ -776,8 +780,20 @@ var Intl = Intl || {};
     };
 
     DateTimeFormat.supportedLocalesOf = function (locales, options) {
+        var requested;
+        var result = [];
+        var localeData;
+        var index;
+
         requireCore();
-        return Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.DateTimeFormat");
+        requested = Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.DateTimeFormat");
+        for (index = 0; index < requested.length; index++) {
+            localeData = Intl.__getModuleLocaleData__("DateTimeFormat", requested[index]);
+            if (localeData.__locale__ === requested[index]) {
+                result.push(requested[index]);
+            }
+        }
+        return result;
     };
 
     Intl.DateTimeFormat = DateTimeFormat;

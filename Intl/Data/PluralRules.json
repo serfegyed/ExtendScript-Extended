@@ -1,0 +1,18 @@
+{
+  "en-GB": {
+    "cardinal": ["one", "other"],
+    "ordinal": ["one", "two", "few", "other"]
+  },
+  "de-DE": {
+    "cardinal": ["one", "other"],
+    "ordinal": ["other"]
+  },
+  "fr-FR": {
+    "cardinal": ["one", "many", "other"],
+    "ordinal": ["one", "other"]
+  },
+  "hu-HU": {
+    "cardinal": ["one", "other"],
+    "ordinal": ["one", "other"]
+  }
+}

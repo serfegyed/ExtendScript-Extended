@@ -12,9 +12,9 @@ if (isNodeRuntime) {
     Intl = undefined;
 
     (function () {
+        global.require = require;
         var fs = require("fs");
         var path = require("path");
-
         (0, eval)(fs.readFileSync(path.join(__dirname, "..", "Intl-core.js"), "utf8"));
         (0, eval)(fs.readFileSync(path.join(__dirname, "..", "Intl.PluralRules.js"), "utf8"));
     }());
@@ -187,6 +187,7 @@ if (isNodeRuntime) {
         assertEquals(cardinal.select(-Infinity), "other", "-Infinity cardinal");
         assertEquals(ordinal.select(1.2), "other", "fraction ordinal");
         assertEquals(new Intl.PluralRules("banana").resolvedOptions().locale, "en-US", "fallback locale");
+        assertEquals(new Intl.PluralRules("hu-HU").resolvedOptions().locale, "hu-HU", "module JSON locale remains supported");
     });
 
     test("values are coerced with Number", function () {

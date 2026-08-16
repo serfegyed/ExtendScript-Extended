@@ -1,0 +1,18 @@
+{
+    "aliases": {
+        "en-uk": "en-GB"
+    },
+    "languageOnlyLocales": {
+        "en": "en",
+        "de": "de",
+        "fr": "fr",
+        "hu": "hu"
+    },
+    "availableLocales": {
+        "en-US": true,
+        "en-GB": true,
+        "de-DE": true,
+        "fr-FR": true,
+        "hu-HU": true
+    }
+}

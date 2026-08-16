@@ -1,0 +1,89 @@
+{
+  "en-GB": {
+    "labels": {
+      "short": {
+        "years": ["yr", "yrs"], "months": ["mth", "mths"], "weeks": ["wk", "wks"], "days": ["day", "days"],
+        "hours": ["hr", "hrs"], "minutes": ["min", "mins"], "seconds": ["sec", "secs"], "milliseconds": ["ms", "ms"]
+      },
+      "long": {
+        "years": ["year", "years"], "months": ["month", "months"], "weeks": ["week", "weeks"], "days": ["day", "days"],
+        "hours": ["hour", "hours"], "minutes": ["minute", "minutes"], "seconds": ["second", "seconds"], "milliseconds": ["millisecond", "milliseconds"]
+      },
+      "narrow": {
+        "years": ["y", "y"], "months": ["m", "m"], "weeks": ["w", "w"], "days": ["d", "d"],
+        "hours": ["h", "h"], "minutes": ["m", "m"], "seconds": ["s", "s"], "milliseconds": ["ms", "ms"]
+      }
+    },
+    "spaces": { "short": { "default": " " }, "long": { "default": " " }, "narrow": { "default": "" } },
+    "join": { "defaultSeparator": ", ", "narrowSeparator": " ", "connectorRules": [] },
+    "fractionalSeparator": "."
+  },
+  "de-DE": {
+    "labels": {
+      "short": {
+        "years": ["J", "J"], "months": ["Mon.", "Mon."], "weeks": ["Wo.", "Wo."], "days": ["Tg.", "Tg."],
+        "hours": ["Std.", "Std."], "minutes": ["Min.", "Min."], "seconds": ["Sek.", "Sek."], "milliseconds": ["ms", "ms"]
+      },
+      "long": {
+        "years": ["Jahr", "Jahre"], "months": ["Monat", "Monate"], "weeks": ["Woche", "Wochen"], "days": ["Tag", "Tage"],
+        "hours": ["Stunde", "Stunden"], "minutes": ["Minute", "Minuten"], "seconds": ["Sekunde", "Sekunden"], "milliseconds": ["Millisekunde", "Millisekunden"]
+      },
+      "narrow": {
+        "years": ["J", "J"], "months": ["M", "M"], "weeks": ["W", "W"], "days": ["T", "T"],
+        "hours": ["h", "h"], "minutes": ["Min.", "Min."], "seconds": ["Sek.", "Sek."], "milliseconds": ["ms", "ms"]
+      }
+    },
+    "spaces": { "short": { "default": " " }, "long": { "default": " " }, "narrow": { "default": " ", "hours": "" } },
+    "join": {
+      "defaultSeparator": ", ",
+      "connectorRules": [
+        { "styles": ["short"], "minParts": 2, "lastFields": ["seconds"], "connector": " und " },
+        { "styles": ["long", "digital"], "minParts": 3, "lastFields": ["days", "seconds", "milliseconds"], "connector": " und " },
+        { "styles": ["narrow"], "minParts": 3, "lastFields": ["seconds", "milliseconds"], "connector": " und " }
+      ]
+    },
+    "fractionalSeparator": ","
+  },
+  "fr-FR": {
+    "labels": {
+      "short": {
+        "years": ["an", "ans"], "months": ["m.", "m."], "weeks": ["sem.", "sem."], "days": ["j", "j"],
+        "hours": ["h", "h"], "minutes": ["min", "min"], "seconds": ["s", "s"], "milliseconds": ["ms", "ms"]
+      },
+      "long": {
+        "years": ["an", "ans"], "months": ["mois", "mois"], "weeks": ["semaine", "semaines"], "days": ["jour", "jours"],
+        "hours": ["heure", "heures"], "minutes": ["minute", "minutes"], "seconds": ["seconde", "secondes"], "milliseconds": ["milliseconde", "millisecondes"]
+      },
+      "narrow": {
+        "years": ["a", "a"], "months": ["m.", "m."], "weeks": ["sem.", "sem."], "days": ["j", "j"],
+        "hours": ["h", "h"], "minutes": ["min", "min"], "seconds": ["s", "s"], "milliseconds": ["ms", "ms"]
+      }
+    },
+    "spaces": {
+      "short": { "default": "\u202F", "years": "\u00A0", "minutes": "\u00A0" },
+      "long": { "default": "\u00A0", "minutes": " " },
+      "narrow": { "default": "" }
+    },
+    "join": { "defaultSeparator": ", ", "narrowSeparator": " ", "connectorRules": [ { "styles": ["short", "long", "digital"], "minParts": 2, "connector": " et " } ] },
+    "fractionalSeparator": ","
+  },
+  "hu-HU": {
+    "labels": {
+      "short": {
+        "years": ["\u00E9v", "\u00E9v"], "months": ["h\u00F3nap", "h\u00F3nap"], "weeks": ["h\u00E9t", "h\u00E9t"], "days": ["nap", "nap"],
+        "hours": ["\u00F3", "\u00F3"], "minutes": ["p", "p"], "seconds": ["mp", "mp"], "milliseconds": ["ms", "ms"]
+      },
+      "long": {
+        "years": ["\u00E9v", "\u00E9v"], "months": ["h\u00F3nap", "h\u00F3nap"], "weeks": ["h\u00E9t", "h\u00E9t"], "days": ["nap", "nap"],
+        "hours": ["\u00F3ra", "\u00F3ra"], "minutes": ["perc", "perc"], "seconds": ["m\u00E1sodperc", "m\u00E1sodperc"], "milliseconds": ["ezredm\u00E1sodperc", "ezredm\u00E1sodperc"]
+      },
+      "narrow": {
+        "years": ["\u00E9v", "\u00E9v"], "months": ["h.", "h."], "weeks": ["h\u00E9t", "h\u00E9t"], "days": ["nap", "nap"],
+        "hours": ["\u00F3", "\u00F3"], "minutes": ["p", "p"], "seconds": ["mp", "mp"], "milliseconds": ["ms", "ms"]
+      }
+    },
+    "spaces": { "short": { "default": " " }, "long": { "default": " " }, "narrow": { "default": " " } },
+    "join": { "defaultSeparator": ", ", "connectorRules": [ { "styles": ["short", "long", "digital", "narrow"], "minParts": 2, "connector": " \u00E9s " } ] },
+    "fractionalSeparator": ","
+  }
+}

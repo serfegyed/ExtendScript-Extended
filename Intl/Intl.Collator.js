@@ -114,8 +114,8 @@ var Intl = Intl || {};
         return { base: lower, accent: 0 };
     }
 
-    function characterRecord(character, locale) {
-        return mappedRecord(character, Intl.__getLocaleData__(locale, "collation").recordMap);
+    function characterRecord(character, collationData) {
+        return mappedRecord(character, collationData.recordMap);
     }
 
     function isAsciiDigit(character) {
@@ -140,8 +140,8 @@ var Intl = Intl || {};
         };
     }
 
-    function pushCharacterToken(tokens, character, locale, caseFirst) {
-        var record = characterRecord(character, locale);
+    function pushCharacterToken(tokens, character, collationData, caseFirst) {
+        var record = characterRecord(character, collationData);
 
         tokens.push({
             type: "text",
@@ -151,7 +151,7 @@ var Intl = Intl || {};
         });
     }
 
-    function makeKey(value, locale, ignorePunctuation, caseFirst, numeric) {
+    function makeKey(value, collationData, ignorePunctuation, caseFirst, numeric) {
         var string = String(value);
         var primary = "";
         var accent = "";
@@ -179,11 +179,11 @@ var Intl = Intl || {};
                 });
                 continue;
             }
-            record = characterRecord(character, locale);
+            record = characterRecord(character, collationData);
             primary += record.base;
             accent += String(record.accent);
             cssCase += isUpperCaseLetter(character) ? (caseFirst === "upper" ? "0" : "1") : (caseFirst === "upper" ? "1" : "0");
-            pushCharacterToken(tokens, character, locale, caseFirst);
+            pushCharacterToken(tokens, character, collationData, caseFirst);
         }
 
         return {
@@ -250,9 +250,9 @@ var Intl = Intl || {};
         return 0;
     }
 
-    function compareValues(left, right, locale, options) {
-        var leftKey = makeKey(left, locale, options.ignorePunctuation, options.caseFirst, options.numeric);
-        var rightKey = makeKey(right, locale, options.ignorePunctuation, options.caseFirst, options.numeric);
+    function compareValues(left, right, collationData, options) {
+        var leftKey = makeKey(left, collationData, options.ignorePunctuation, options.caseFirst, options.numeric);
+        var rightKey = makeKey(right, collationData, options.ignorePunctuation, options.caseFirst, options.numeric);
         var result;
 
         result = options.numeric ?
@@ -285,6 +285,7 @@ var Intl = Intl || {};
 
     function Collator(locales, options) {
         var resolvedOptions;
+        var localeData;
 
         if (!(this instanceof Collator)) {
             return new Collator(locales, options);
@@ -292,7 +293,9 @@ var Intl = Intl || {};
 
         requireCore();
         resolvedOptions = validateOptions(options);
-        this.__locale__ = Intl.__resolveLocale__(locales, undefined, "en-US");
+        localeData = Intl.__getModuleLocaleData__("Collator", Intl.__resolveLocale__(locales, undefined, "en-US"));
+        this.__locale__ = localeData.__locale__;
+        this.__collationData__ = localeData;
         this.__usage__ = resolvedOptions.usage;
         this.__sensitivity__ = resolvedOptions.sensitivity;
         this.__ignorePunctuation__ = resolvedOptions.ignorePunctuation;
@@ -302,7 +305,7 @@ var Intl = Intl || {};
     }
 
     Collator.prototype.compare = function (a, b) {
-        return compareValues(a, b, this.__locale__, {
+        return compareValues(a, b, this.__collationData__, {
             sensitivity: this.__sensitivity__,
             ignorePunctuation: this.__ignorePunctuation__,
             numeric: this.__numeric__,
@@ -323,8 +326,20 @@ var Intl = Intl || {};
     };
 
     Collator.supportedLocalesOf = function (locales, options) {
+        var requested;
+        var result = [];
+        var localeData;
+        var index;
+
         requireCore();
-        return Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.Collator");
+        requested = Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.Collator");
+        for (index = 0; index < requested.length; index++) {
+            localeData = Intl.__getModuleLocaleData__("Collator", requested[index]);
+            if (localeData.__locale__ === requested[index]) {
+                result.push(requested[index]);
+            }
+        }
+        return result;
     };
 
     Intl.Collator = Collator;

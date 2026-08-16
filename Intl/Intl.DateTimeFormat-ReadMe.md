@@ -4,7 +4,7 @@
 
 `Intl-core.js` must be loaded before this file.
 
-Locale date defaults, hour-cycle defaults, month names, and weekday names are supplied by `Intl-core.js`.
+`en-US` locale date defaults, hour-cycle defaults, month names, and weekday names are built into `Intl-core.js`; non-`en-US` DateTimeFormat locale data lives in `Data/DateTimeFormat.json`.
 
 ## Constructor and Methods
 

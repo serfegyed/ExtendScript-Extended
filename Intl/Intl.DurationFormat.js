@@ -237,56 +237,67 @@ var Intl = Intl || {};
         return Math.abs(value) !== 1;
     }
 
-    function fieldSpace(locale, field, style) {
-        if (style === "narrow") {
-            if (locale === "en-US" || locale === "en-GB" || locale === "fr-FR") {
-                return "";
-            }
-            if (locale === "de-DE" && field === "hours") {
-                return "";
-            }
+    function fieldSpace(durationData, field, style) {
+        var spaces = durationData.spaces[style];
+
+        if (spaces[field] !== undefined) {
+            return spaces[field];
         }
-        if (locale === "fr-FR" && style === "long") {
-            return field === "minutes" ? " " : "\u00A0";
-        }
-        if (locale === "fr-FR") {
-            return field === "years" || field === "minutes" ? "\u00A0" : "\u202F";
-        }
-        return " ";
+        return spaces["default"];
     }
 
-    function formatUnit(locale, style, field, value) {
-        var labels = Intl.__getLocaleData__(undefined, "durationUnitLabels")[style][locale][field];
+    function formatUnit(durationData, style, field, value) {
+        var labels = durationData.labels[style][field];
         var label = labels[isPlural(value) ? 1 : 0];
 
-        return String(value) + fieldSpace(locale, field, style) + label;
+        return String(value) + fieldSpace(durationData, field, style) + label;
     }
 
-    function shouldGermanUseUnd(parts, style) {
-        if (parts.length < 2) {
+    function ruleMatches(rule, style, parts) {
+        var index;
+
+        if (rule.styles !== undefined) {
+            for (index = 0; index < rule.styles.length; index++) {
+                if (rule.styles[index] === style) {
+                    break;
+                }
+            }
+            if (index >= rule.styles.length) {
+                return false;
+            }
+        }
+        if (parts.length < rule.minParts) {
             return false;
         }
-        if (style === "narrow") {
-            return parts.length > 2 && (
-                parts[parts.length - 1].field === "seconds" ||
-                parts[parts.length - 1].field === "milliseconds"
-            );
+        if (rule.lastFields !== undefined) {
+            for (index = 0; index < rule.lastFields.length; index++) {
+                if (parts[parts.length - 1].field === rule.lastFields[index]) {
+                    return true;
+                }
+            }
+            return false;
         }
-        if (style === "short") {
-            return parts[parts.length - 1].field === "seconds";
-        }
-        return parts.length > 2 && (
-            parts[parts.length - 1].field === "days" ||
-            parts[parts.length - 1].field === "seconds" ||
-            parts[parts.length - 1].field === "milliseconds"
-        );
+        return true;
     }
 
-    function joinParts(locale, style, parts) {
+    function findConnectorRule(durationData, style, parts) {
+        var rules = durationData.join.connectorRules;
+        var index;
+
+        for (index = 0; index < rules.length; index++) {
+            if (ruleMatches(rules[index], style, parts)) {
+                return rules[index];
+            }
+        }
+        return undefined;
+    }
+
+    function joinParts(durationData, style, parts) {
         var texts = [];
         var index;
         var last;
-        var connector;
+        var connectorRule;
+        var separator;
 
         if (parts.length === 0) {
             return "";
@@ -299,17 +310,14 @@ var Intl = Intl || {};
             texts.push(parts[index].text);
         }
 
-        if (style === "narrow" && (locale === "en-US" || locale === "en-GB" || locale === "fr-FR")) {
-            return texts.join(" ");
-        }
-
-        if ((style !== "narrow" && locale === "fr-FR") || locale === "hu-HU" || (locale === "de-DE" && shouldGermanUseUnd(parts, style))) {
+        connectorRule = findConnectorRule(durationData, style, parts);
+        separator = style === "narrow" && durationData.join.narrowSeparator !== undefined ? durationData.join.narrowSeparator : durationData.join.defaultSeparator;
+        if (connectorRule !== undefined) {
             last = texts.pop();
-            connector = locale === "de-DE" ? " und " : (locale === "fr-FR" ? " et " : " \u00E9s ");
-            return texts.join(", ") + connector + last;
+            return texts.join(durationData.join.defaultSeparator) + connectorRule.connector + last;
         }
 
-        return texts.join(", ");
+        return texts.join(separator);
     }
 
     function hasDateFields(record) {
@@ -320,20 +328,20 @@ var Intl = Intl || {};
         return record.hours !== 0 || record.minutes !== 0 || record.seconds !== 0 || record.milliseconds !== 0;
     }
 
-    function fractionalSeparator(locale) {
-        return locale === "en-US" || locale === "en-GB" ? "." : ",";
+    function fractionalSeparator(durationData) {
+        return durationData.fractionalSeparator;
     }
 
-    function formatDigitalTime(locale, record) {
+    function formatDigitalTime(durationData, record) {
         var text = String(record.hours) + ":" + Intl.__pad__(record.minutes, 2) + ":" + Intl.__pad__(record.seconds, 2);
 
         if (record.milliseconds !== 0) {
-            text += fractionalSeparator(locale) + Intl.__pad__(record.milliseconds, 3);
+            text += fractionalSeparator(durationData) + Intl.__pad__(record.milliseconds, 3);
         }
         return text;
     }
 
-    function formatRecord(locale, style, record) {
+    function formatRecord(durationData, style, record) {
         var parts = [];
         var index;
         var field;
@@ -346,17 +354,17 @@ var Intl = Intl || {};
                 if (value !== 0) {
                     parts.push({
                         field: field,
-                        text: formatUnit(locale, "short", field, value)
+                        text: formatUnit(durationData, "short", field, value)
                     });
                 }
             }
             if (hasDateFields(record) || hasTimeFields(record) || record.__hasField__) {
                 parts.push({
                     field: "digitalTime",
-                    text: formatDigitalTime(locale, record)
+                    text: formatDigitalTime(durationData, record)
                 });
             }
-            return joinParts(locale, "digital", parts);
+            return joinParts(durationData, "digital", parts);
         }
 
         for (index = 0; index < durationFields.length; index++) {
@@ -365,15 +373,16 @@ var Intl = Intl || {};
             if (value !== 0) {
                 parts.push({
                     field: field,
-                    text: formatUnit(locale, style, field, value)
+                    text: formatUnit(durationData, style, field, value)
                 });
             }
         }
-        return joinParts(locale, style, parts);
+        return joinParts(durationData, style, parts);
     }
 
     function DurationFormat(locales, options) {
         var resolvedLocale;
+        var localeData;
         var resolvedOptions;
 
         if (!(this instanceof DurationFormat)) {
@@ -382,15 +391,18 @@ var Intl = Intl || {};
 
         requireCore();
         resolvedLocale = Intl.__resolveLocale__(locales, undefined, "en-US");
+        localeData = Intl.__getModuleLocaleData__("DurationFormat", resolvedLocale);
+        resolvedLocale = localeData.__locale__;
         resolvedOptions = validateOptions(options);
 
         this.__locale__ = resolvedLocale;
+        this.__durationData__ = localeData;
         this.__numberingSystem__ = resolvedOptions.numberingSystem;
         this.__style__ = resolvedOptions.style;
     }
 
     DurationFormat.prototype.format = function (value) {
-        return formatRecord(this.__locale__, this.__style__, durationRecord(value));
+        return formatRecord(this.__durationData__, this.__style__, durationRecord(value));
     };
 
     DurationFormat.prototype.resolvedOptions = function () {
@@ -416,8 +428,20 @@ var Intl = Intl || {};
     };
 
     DurationFormat.supportedLocalesOf = function (locales, options) {
+        var requested;
+        var result = [];
+        var localeData;
+        var index;
+
         requireCore();
-        return Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.DurationFormat");
+        requested = Intl.__supportedLocalesOf__(locales, undefined, options, "Intl.DurationFormat");
+        for (index = 0; index < requested.length; index++) {
+            localeData = Intl.__getModuleLocaleData__("DurationFormat", requested[index]);
+            if (localeData.__locale__ === requested[index]) {
+                result.push(requested[index]);
+            }
+        }
+        return result;
     };
 
     Intl.DurationFormat = DurationFormat;

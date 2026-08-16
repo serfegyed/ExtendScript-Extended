@@ -6,7 +6,7 @@ Node's Intl implementation is used as a development oracle for implemented behav
 
 ## Implemented Files
 
-- `Intl-core.js`: locale canonicalization, locale resolution helpers, and the central locale data tables.
+- `Intl-core.js`: locale canonicalization, locale resolution helpers, shared data loading, and formatter baselines.
 - `Intl.NumberFormat.js`: decimal, percent, and currency number formatting for the supported locales.
 - `Intl.Collator.js`: small table-driven string comparison for the supported locales.
 - `Intl.DateTimeFormat.js`: localized date and time formatting for the supported locales.
@@ -15,6 +15,7 @@ Node's Intl implementation is used as a development oracle for implemented behav
 - `Intl.ListFormat.js`: localized list joining for the supported locales.
 - `Intl.PluralRules.js`: small CLDR-backed plural category selection for the supported locales.
 - `Intl.RelativeTimeFormat.js`: relative time phrase formatting for the supported locales.
+- `Data/`: shared registry and module-specific locale data loaded on demand; currently `Data/Collation.json`, `Data/Collator.json`, `Data/Currencies.json`, `Data/DateTimeFormat.json`, `Data/DisplayNames.json`, `Data/DurationFormat.json`, `Data/ListFormat.json`, `Data/Locales.json`, `Data/NumberFormat.json`, `Data/PluralRules.json`, and `Data/RelativeTimeFormat.json`.
 
 Detailed notes:
 
@@ -54,6 +55,8 @@ The individual test files and `all_tests.js` run under both Node and ExtendScrip
 ## Quick Examples
 
 ### Loading
+
+`Intl-core.js` explicitly includes the Public `JSON.parse.js` helper used for module-specific JSON data. User scripts should include `Intl-core.js` before any Intl formatter module; no separate JSON include is required for Intl.
 
 ```javascript
 //@include "Intl-core.js"
@@ -217,6 +220,33 @@ compact.format(2, "week");
 
 The legacy input `en-UK` is accepted as an alias for `en-GB`.
 
+## Developer Notes
+
+### Adding A Locale
+
+A data-only locale change should not require editing JavaScript files. For a new locale such as `pl-PL`, update only the relevant JSON files under `Data/`:
+
+- `Data/Locales.json`: add the canonical locale to `availableLocales`; add an alias or language-only rule only when needed.
+- `Data/NumberFormat.json`, `Data/DateTimeFormat.json`, `Data/DisplayNames.json`, `Data/DurationFormat.json`, `Data/ListFormat.json`, `Data/PluralRules.json`, `Data/RelativeTimeFormat.json`: add the locale only for modules that are actually implemented for that locale.
+- `Data/Collator.json`: add the locale-to-record-map choice when Collator should support the locale.
+- `Data/Currencies.json`: add or adjust currency records when a new currency code, symbol override, or fraction range is needed.
+- `Data/Collation.json`: add shared character tables only when the Collator algorithm needs new shared records.
+
+If a locale is present in `Data/Locales.json` but a formatter module has no matching entry, that module falls back to the built-in `en-US` baseline. In that case `resolvedOptions().locale` reports `en-US`, so partial locale support is explicit rather than hidden.
+
+### Data Shape
+
+The JSON files intentionally use simple object maps, not generated CLDR blobs:
+
+- `Data/Locales.json` contains `aliases`, `languageOnlyLocales`, and `availableLocales` maps.
+- `Data/Currencies.json` maps currency codes to `{ symbol, symbols, fractionMin, fractionMax }` records.
+- `Data/Collation.json` contains shared Collator maps such as `lowercase`, `generic`, and locale-specific record maps used by `Data/Collator.json`.
+- Module locale files use canonical locale tags as top-level keys. Each value has the same shape as that module's `en-US` baseline in `Intl-core.js`.
+
+Keep all `Data/*.json` files ASCII-only. Non-ASCII text should be stored with `\u....` escapes so ExtendScript Toolkit reads the files reliably.
+
+JavaScript files should only change when adding a new module, a new option, a new algorithmic behavior, or a new kind of shared registry data.
+
 ## Implemented Intl Surface
 
 ### Intl Core
@@ -244,20 +274,9 @@ Current `Intl.supportedValuesOf()` tables:
 - `timeZone`: empty
 - `unit`: empty
 
-Central locale data:
+Shared registry data lives in `Data/Currencies.json`, `Data/Collation.json`, and `Data/Locales.json`.
 
-- supported locale list and aliases
-- number separators, percent spacing, currency patterns, and currency-name data
-- currency symbols and default fraction ranges
-- DateTimeFormat defaults, month names, and weekday names
-- Collator lowercase and accent tables
-- DurationFormat unit labels
-- DisplayNames language, region, and currency name tables
-- ListFormat list-pattern tables
-- PluralRules cardinal and ordinal category tables
-- RelativeTimeFormat phrase and unit-label tables
-
-The formatter modules do not keep their own locale matrices. Adding a new locale should primarily mean extending `Intl-core.js` tables and then adding object-specific behavior only where a formatter really needs new logic.
+Collator, DateTimeFormat, DisplayNames, DurationFormat, ListFormat, NumberFormat, PluralRules, and RelativeTimeFormat use module-specific locale data: each module keeps its `en-US` baseline in Core, and non-`en-US` locale tables live in `Data/Collator.json`, `Data/DateTimeFormat.json`, `Data/DisplayNames.json`, `Data/DurationFormat.json`, `Data/ListFormat.json`, `Data/NumberFormat.json`, `Data/PluralRules.json`, and `Data/RelativeTimeFormat.json`. `Intl-core.js` includes the Public `JSON.parse.js` helper for this. Adding module-specific locale data should happen in that module JSON file.
 
 ### Intl.NumberFormat
 

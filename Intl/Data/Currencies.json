@@ -1,0 +1,37 @@
+{
+    "EUR": {
+        "symbol": "\u20AC",
+        "symbols": {
+            "hu-HU": "EUR"
+        },
+        "fractionMin": 2,
+        "fractionMax": 2
+    },
+    "USD": {
+        "symbol": "$",
+        "symbols": {
+            "en-GB": "US$",
+            "fr-FR": "$US",
+            "hu-HU": "USD"
+        },
+        "fractionMin": 2,
+        "fractionMax": 2
+    },
+    "GBP": {
+        "symbol": "\u00A3",
+        "symbols": {
+            "fr-FR": "\u00A3GB",
+            "hu-HU": "GBP"
+        },
+        "fractionMin": 2,
+        "fractionMax": 2
+    },
+    "HUF": {
+        "symbol": "HUF",
+        "symbols": {
+            "hu-HU": "Ft"
+        },
+        "fractionMin": 0,
+        "fractionMax": 2
+    }
+}

@@ -1,0 +1,158 @@
+{
+  "en-GB": {
+    "regions": {
+      "US": "United States",
+      "GB": "United Kingdom",
+      "DE": "Germany",
+      "FR": "France",
+      "HU": "Hungary"
+    },
+    "currencies": {
+      "USD": "US Dollar",
+      "GBP": "British Pound",
+      "EUR": "Euro",
+      "HUF": "Hungarian Forint"
+    },
+    "languages": {
+      "dialect": {
+        "en": "English",
+        "en-US": "American English",
+        "en-GB": "British English",
+        "de": "German",
+        "de-DE": "German (Germany)",
+        "fr": "French",
+        "fr-FR": "French (France)",
+        "hu": "Hungarian",
+        "hu-HU": "Hungarian (Hungary)"
+      },
+      "standard": {
+        "en": "English",
+        "en-US": "English (United States)",
+        "en-GB": "English (United Kingdom)",
+        "de": "German",
+        "de-DE": "German (Germany)",
+        "fr": "French",
+        "fr-FR": "French (France)",
+        "hu": "Hungarian",
+        "hu-HU": "Hungarian (Hungary)"
+      }
+    }
+  },
+  "de-DE": {
+    "regions": {
+      "US": "Vereinigte Staaten",
+      "GB": "Vereinigtes Königreich",
+      "DE": "Deutschland",
+      "FR": "Frankreich",
+      "HU": "Ungarn"
+    },
+    "currencies": {
+      "USD": "US-Dollar",
+      "GBP": "Britisches Pfund",
+      "EUR": "Euro",
+      "HUF": "Ungarischer Forint"
+    },
+    "languages": {
+      "dialect": {
+        "en": "Englisch",
+        "en-US": "Englisch (Vereinigte Staaten)",
+        "en-GB": "Englisch (Vereinigtes Königreich)",
+        "de": "Deutsch",
+        "de-DE": "Deutsch (Deutschland)",
+        "fr": "Französisch",
+        "fr-FR": "Französisch (Frankreich)",
+        "hu": "Ungarisch",
+        "hu-HU": "Ungarisch (Ungarn)"
+      },
+      "standard": {
+        "en": "Englisch",
+        "en-US": "Englisch (Vereinigte Staaten)",
+        "en-GB": "Englisch (Vereinigtes Königreich)",
+        "de": "Deutsch",
+        "de-DE": "Deutsch (Deutschland)",
+        "fr": "Französisch",
+        "fr-FR": "Französisch (Frankreich)",
+        "hu": "Ungarisch",
+        "hu-HU": "Ungarisch (Ungarn)"
+      }
+    }
+  },
+  "fr-FR": {
+    "regions": {
+      "US": "États-Unis",
+      "GB": "Royaume-Uni",
+      "DE": "Allemagne",
+      "FR": "France",
+      "HU": "Hongrie"
+    },
+    "currencies": {
+      "USD": "dollar des États-Unis",
+      "GBP": "livre sterling",
+      "EUR": "euro",
+      "HUF": "forint hongrois"
+    },
+    "languages": {
+      "dialect": {
+        "en": "anglais",
+        "en-US": "anglais américain",
+        "en-GB": "anglais britannique",
+        "de": "allemand",
+        "de-DE": "allemand (Allemagne)",
+        "fr": "français",
+        "fr-FR": "français (France)",
+        "hu": "hongrois",
+        "hu-HU": "hongrois (Hongrie)"
+      },
+      "standard": {
+        "en": "anglais",
+        "en-US": "anglais (États-Unis)",
+        "en-GB": "anglais (Royaume-Uni)",
+        "de": "allemand",
+        "de-DE": "allemand (Allemagne)",
+        "fr": "français",
+        "fr-FR": "français (France)",
+        "hu": "hongrois",
+        "hu-HU": "hongrois (Hongrie)"
+      }
+    }
+  },
+  "hu-HU": {
+    "regions": {
+      "US": "Egyesült Államok",
+      "GB": "Egyesült Királyság",
+      "DE": "Németország",
+      "FR": "Franciaország",
+      "HU": "Magyarország"
+    },
+    "currencies": {
+      "USD": "USA-dollár",
+      "GBP": "angol font",
+      "EUR": "euró",
+      "HUF": "magyar forint"
+    },
+    "languages": {
+      "dialect": {
+        "en": "angol",
+        "en-US": "amerikai angol",
+        "en-GB": "brit angol",
+        "de": "német",
+        "de-DE": "német (Németország)",
+        "fr": "francia",
+        "fr-FR": "francia (Franciaország)",
+        "hu": "magyar",
+        "hu-HU": "magyar (Magyarország)"
+      },
+      "standard": {
+        "en": "angol",
+        "en-US": "angol (Egyesült Államok)",
+        "en-GB": "angol (Egyesült Királyság)",
+        "de": "német",
+        "de-DE": "német (Németország)",
+        "fr": "francia",
+        "fr-FR": "francia (Franciaország)",
+        "hu": "magyar",
+        "hu-HU": "magyar (Magyarország)"
+      }
+    }
+  }
+}

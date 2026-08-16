@@ -10,696 +10,314 @@
  * - Intl.__resolveLocale__(locales, availableLocales, fallbackLocale)
  * - Intl.__supportedLocalesOf__(locales, availableLocales, options, ownerName)
  * - Intl.__getLocaleData__(locale, section)
+ * - Intl.__getModuleLocaleData__(moduleName, locale)
  * - Intl.__requireCore__(ownerName, needsCanonicalLocales)
  * - Intl.__toObject__(options, ownerName)
  * - Intl.__readStringOption__(options, name, allowed, defaultValue, ownerName)
  * - Intl.__pad__(value, length)
  */
+//@include "../JSON/JSON.parse.js"
 var Intl = Intl || {};
 
 (function () {
     var hasOwnProperty = Object.prototype.hasOwnProperty;
-    var localeAliases = {
-        "en-uk": "en-GB"
-    };
-    var languageOnlyLocales = {
-        "en": "en",
-        "de": "de",
-        "fr": "fr",
-        "hu": "hu"
-    };
-    var availableLocales = {
-        "en-US": true,
-        "en-GB": true,
-        "de-DE": true,
-        "fr-FR": true,
-        "hu-HU": true
-    };
+    var nodeRequire = typeof require === "function" ? require : ((typeof process !== "undefined" && typeof process.getBuiltinModule === "function") ? function (name) { return process.getBuiltinModule(name); } : null);
+    var localeAliases = {};
+    var languageOnlyLocales = {};
+    var availableLocales = { "en-US": true };
+    var localeRegistryLoaded = false;
     var localeData = {
-        locales: {
+        locales: {}
+    };
+    var moduleLocaleData = {
+        DateTimeFormat: {
             "en-US": {
-                number: {
-                    group: ",",
-                    decimal: ".",
-                    percent: "%",
-                    currencyPattern: "prefix",
-                    currencyNames: {
-                        "EUR": ["euros", "euros"],
-                        "USD": ["US dollars", "US dollars"],
-                        "GBP": ["British pounds", "British pounds"],
-                        "HUF": ["Hungarian forint", "Hungarian forints"]
-                    }
+                defaultHourCycle: "h12",
+                defaultDateOptions: { year: "numeric", month: "numeric", day: "numeric" },
+                weekdays: {
+                    "short": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+                    "long": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
                 },
-                dateTime: {
-                    defaultHourCycle: "h12",
-                    defaultDateOptions: { year: "numeric", month: "numeric", day: "numeric" },
-                    weekdays: {
-                        "short": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-                        "long": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-                    },
-                    months: {
-                        "short": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                        "long": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-                    }
-                },
-                collation: { recordMap: "generic" },
-                listFormat: {
-                    conjunction: {
-                        "long": { pair: "{0} and {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, and {1}" },
-                        "short": { pair: "{0} & {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, & {1}" },
-                        "narrow": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" }
-                    },
-                    disjunction: {
-                        "long": { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, or {1}" },
-                        "short": { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, or {1}" },
-                        "narrow": { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, or {1}" }
-                    },
-                    unit: {
-                        "long": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" },
-                        "short": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" },
-                        "narrow": { pair: "{0} {1}", start: "{0} {1}", middle: "{0} {1}", end: "{0} {1}" }
-                    }
-                }
-            },
-            "en-GB": {
-                number: {
-                    group: ",",
-                    decimal: ".",
-                    percent: "%",
-                    currencyPattern: "prefix",
-                    currencyNames: {
-                        "EUR": ["euros", "euros"],
-                        "USD": ["US dollars", "US dollars"],
-                        "GBP": ["British pounds", "British pounds"],
-                        "HUF": ["Hungarian forint", "Hungarian forints"]
-                    }
-                },
-                dateTime: {
-                    defaultHourCycle: "h23",
-                    defaultDateOptions: { year: "numeric", month: "2-digit", day: "2-digit" },
-                    weekdays: {
-                        "short": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-                        "long": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-                    },
-                    months: {
-                        "short": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                        "long": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-                    }
-                },
-                collation: { recordMap: "generic" },
-                listFormat: {
-                    conjunction: {
-                        "long": { pair: "{0} and {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} and {1}" },
-                        "short": { pair: "{0} and {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} and {1}" },
-                        "narrow": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" }
-                    },
-                    disjunction: {
-                        "long": { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} or {1}" },
-                        "short": { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} or {1}" },
-                        "narrow": { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} or {1}" }
-                    },
-                    unit: {
-                        "long": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" },
-                        "short": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" },
-                        "narrow": { pair: "{0} {1}", start: "{0} {1}", middle: "{0} {1}", end: "{0} {1}" }
-                    }
-                }
-            },
-            "de-DE": {
-                number: {
-                    group: ".",
-                    decimal: ",",
-                    percent: "\u00A0%",
-                    currencyPattern: "suffix",
-                    currencyNames: {
-                        "EUR": ["Euro", "Euro"],
-                        "USD": ["US-Dollar", "US-Dollar"],
-                        "GBP": ["Britische Pfund", "Britische Pfund"],
-                        "HUF": ["Ungarischer Forint", "Ungarische Forint"]
-                    }
-                },
-                dateTime: {
-                    defaultHourCycle: "h23",
-                    defaultDateOptions: { year: "numeric", month: "numeric", day: "numeric" },
-                    weekdays: {
-                        "short": ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
-                        "long": ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"]
-                    },
-                    months: {
-                        "short": ["Jan.", "Feb.", "M\u00E4rz", "Apr.", "Mai", "Juni", "Juli", "Aug.", "Sept.", "Okt.", "Nov.", "Dez."],
-                        "long": ["Januar", "Februar", "M\u00E4rz", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
-                    }
-                },
-                collation: { recordMap: "generic" },
-                listFormat: {
-                    conjunction: {
-                        "long": { pair: "{0} und {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} und {1}" },
-                        "short": { pair: "{0} und {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} und {1}" },
-                        "narrow": { pair: "{0} und {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} und {1}" }
-                    },
-                    disjunction: {
-                        "long": { pair: "{0} oder {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} oder {1}" },
-                        "short": { pair: "{0} oder {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} oder {1}" },
-                        "narrow": { pair: "{0} oder {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} oder {1}" }
-                    },
-                    unit: {
-                        "long": { pair: "{0} und {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} und {1}" },
-                        "short": { pair: "{0} und {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} und {1}" },
-                        "narrow": { pair: "{0} und {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} und {1}" }
-                    }
-                }
-            },
-            "fr-FR": {
-                number: {
-                    group: "\u00A0",
-                    decimal: ",",
-                    percent: "\u00A0%",
-                    currencyPattern: "suffix",
-                    currencyNames: {
-                        "EUR": ["euro", "euros"],
-                        "USD": ["dollar des \u00C9tats-Unis", "dollars des \u00C9tats-Unis"],
-                        "GBP": ["livre sterling", "livres sterling"],
-                        "HUF": ["forint hongrois", "forints hongrois"]
-                    }
-                },
-                dateTime: {
-                    defaultHourCycle: "h23",
-                    defaultDateOptions: { year: "numeric", month: "2-digit", day: "2-digit" },
-                    weekdays: {
-                        "short": ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."],
-                        "long": ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"]
-                    },
-                    months: {
-                        "short": ["janv.", "f\u00E9vr.", "mars", "avr.", "mai", "juin", "juil.", "ao\u00FBt", "sept.", "oct.", "nov.", "d\u00E9c."],
-                        "long": ["janvier", "f\u00E9vrier", "mars", "avril", "mai", "juin", "juillet", "ao\u00FBt", "septembre", "octobre", "novembre", "d\u00E9cembre"]
-                    }
-                },
-                collation: { recordMap: "generic" },
-                listFormat: {
-                    conjunction: {
-                        "long": { pair: "{0} et {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} et {1}" },
-                        "short": { pair: "{0} et {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} et {1}" },
-                        "narrow": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" }
-                    },
-                    disjunction: {
-                        "long": { pair: "{0} ou {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} ou {1}" },
-                        "short": { pair: "{0} ou {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} ou {1}" },
-                        "narrow": { pair: "{0} ou {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} ou {1}" }
-                    },
-                    unit: {
-                        "long": { pair: "{0} et {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} et {1}" },
-                        "short": { pair: "{0} et {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} et {1}" },
-                        "narrow": { pair: "{0} {1}", start: "{0} {1}", middle: "{0} {1}", end: "{0} {1}" }
-                    }
-                }
-            },
-            "hu-HU": {
-                number: {
-                    group: "\u00A0",
-                    decimal: ",",
-                    percent: "%",
-                    currencyPattern: "suffix",
-                    minimumGroupingDigits: 2,
-                    currencyNames: {
-                        "EUR": ["eur\u00F3", "eur\u00F3"],
-                        "USD": ["USA-doll\u00E1r", "USA-doll\u00E1r"],
-                        "GBP": ["angol font", "angol font"],
-                        "HUF": ["magyar forint", "magyar forint"]
-                    }
-                },
-                dateTime: {
-                    defaultHourCycle: "h23",
-                    defaultDateOptions: { year: "numeric", month: "2-digit", day: "2-digit" },
-                    weekdays: {
-                        "short": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
-                        "long": ["vas\u00E1rnap", "h\u00E9tf\u0151", "kedd", "szerda", "cs\u00FCt\u00F6rt\u00F6k", "p\u00E9ntek", "szombat"]
-                    },
-                    months: {
-                        "short": ["jan.", "febr.", "m\u00E1rc.", "\u00E1pr.", "m\u00E1j.", "j\u00FAn.", "j\u00FAl.", "aug.", "szept.", "okt.", "nov.", "dec."],
-                        "long": ["janu\u00E1r", "febru\u00E1r", "m\u00E1rcius", "\u00E1prilis", "m\u00E1jus", "j\u00FAnius", "j\u00FAlius", "augusztus", "szeptember", "okt\u00F3ber", "november", "december"]
-                    }
-                },
-                collation: { recordMap: "hungarian" },
-                listFormat: {
-                    conjunction: {
-                        "long": { pair: "{0} \u00E9s {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} \u00E9s {1}" },
-                        "short": { pair: "{0} & {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} & {1}" },
-                        "narrow": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" }
-                    },
-                    disjunction: {
-                        "long": { pair: "{0} vagy {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} vagy {1}" },
-                        "short": { pair: "{0} vagy {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} vagy {1}" },
-                        "narrow": { pair: "{0}/{1}", start: "{0}/{1}", middle: "{0}/{1}", end: "{0}/{1}" }
-                    },
-                    unit: {
-                        "long": { pair: "{0} \u00E9s {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} \u00E9s {1}" },
-                        "short": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" },
-                        "narrow": { pair: "{0} {1}", start: "{0} {1}", middle: "{0} {1}", end: "{0} {1}" }
-                    }
+                months: {
+                    "short": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                    "long": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
                 }
             }
         },
-        currencies: {
-            "EUR": { symbol: "\u20AC", symbols: { "hu-HU": "EUR" }, fractionMin: 2, fractionMax: 2 },
-            "USD": { symbol: "$", symbols: { "en-GB": "US$", "fr-FR": "$US", "hu-HU": "USD" }, fractionMin: 2, fractionMax: 2 },
-            "GBP": { symbol: "\u00A3", symbols: { "fr-FR": "\u00A3GB", "hu-HU": "GBP" }, fractionMin: 2, fractionMax: 2 },
-            "HUF": { symbol: "HUF", symbols: { "hu-HU": "Ft" }, fractionMin: 0, fractionMax: 2 }
-        },
-        pluralRules: {
+        DisplayNames: {
             "en-US": {
-                cardinal: ["one", "other"],
-                ordinal: ["one", "two", "few", "other"]
-            },
-            "en-GB": {
-                cardinal: ["one", "other"],
-                ordinal: ["one", "two", "few", "other"]
-            },
-            "de-DE": {
-                cardinal: ["one", "other"],
-                ordinal: ["other"]
-            },
-            "fr-FR": {
-                cardinal: ["one", "many", "other"],
-                ordinal: ["one", "other"]
-            },
-            "hu-HU": {
-                cardinal: ["one", "other"],
-                ordinal: ["one", "other"]
-            }
-        },
-        relativeTimeFormat: {
-            "en-US": {
-                "long": { past: "{0} {1} ago", future: "in {0} {1}", units: { second: ["second", "seconds"], minute: ["minute", "minutes"], hour: ["hour", "hours"], day: ["day", "days"], week: ["week", "weeks"], month: ["month", "months"], year: ["year", "years"] }, auto: { day: { "-1": "yesterday", "0": "today", "1": "tomorrow" } } },
-                "short": { past: "{0} {1} ago", future: "in {0} {1}", units: { second: ["sec.", "sec."], minute: ["min.", "min."], hour: ["hr.", "hr."], day: ["day", "days"], week: ["wk.", "wk."], month: ["mo.", "mo."], year: ["yr.", "yr."] }, auto: { day: { "-1": "yesterday", "0": "today", "1": "tomorrow" } } },
-                "narrow": { past: "-{0}{1}", future: "+{0}{1}", units: { second: ["s", "s"], minute: ["m", "m"], hour: ["h", "h"], day: ["d", "d"], week: ["w", "w"], month: ["mo", "mo"], year: ["y", "y"] }, auto: { day: { "-1": "yesterday", "0": "today", "1": "tomorrow" } } }
-            },
-            "en-GB": {
-                "long": { past: "{0} {1} ago", future: "in {0} {1}", units: { second: ["second", "seconds"], minute: ["minute", "minutes"], hour: ["hour", "hours"], day: ["day", "days"], week: ["week", "weeks"], month: ["month", "months"], year: ["year", "years"] }, auto: { day: { "-1": "yesterday", "0": "today", "1": "tomorrow" } } },
-                "short": { past: "{0} {1} ago", future: "in {0} {1}", units: { second: ["sec", "sec"], minute: ["min", "min"], hour: ["hr", "hr"], day: ["day", "days"], week: ["wk", "wk"], month: ["mo", "mo"], year: ["yr", "yr"] }, auto: { day: { "-1": "yesterday", "0": "today", "1": "tomorrow" } } },
-                "narrow": { past: "-{0}{1}", future: "+{0}{1}", units: { second: ["s", "s"], minute: ["m", "m"], hour: ["h", "h"], day: ["d", "d"], week: ["w", "w"], month: ["mo", "mo"], year: ["y", "y"] }, auto: { day: { "-1": "yesterday", "0": "today", "1": "tomorrow" } } }
-            },
-            "de-DE": {
-                "long": { past: "vor {0} {1}", future: "in {0} {1}", units: { second: ["Sekunde", "Sekunden"], minute: ["Minute", "Minuten"], hour: ["Stunde", "Stunden"], day: ["Tag", "Tagen"], week: ["Woche", "Wochen"], month: ["Monat", "Monaten"], year: ["Jahr", "Jahren"] }, auto: { day: { "-2": "vorgestern", "-1": "gestern", "0": "heute", "1": "morgen", "2": "\u00FCbermorgen" } } },
-                "short": { past: "vor {0} {1}", future: "in {0} {1}", units: { second: ["Sek.", "Sek."], minute: ["Min.", "Min."], hour: ["Std.", "Std."], day: ["Tag", "Tagen"], week: ["Wo.", "Wo."], month: ["Mon.", "Mon."], year: ["J", "J"] }, auto: { day: { "-2": "vorgestern", "-1": "gestern", "0": "heute", "1": "morgen", "2": "\u00FCbermorgen" } } },
-                "narrow": { past: "-{0} {1}", future: "+{0} {1}", units: { second: ["s", "s"], minute: ["Min.", "Min."], hour: ["Std.", "Std."], day: ["T", "T"], week: ["W", "W"], month: ["M", "M"], year: ["J", "J"] }, auto: { day: { "-2": "vorgestern", "-1": "gestern", "0": "heute", "1": "morgen", "2": "\u00FCbermorgen" } } }
-            },
-            "fr-FR": {
-                "long": { past: "il y a {0} {1}", future: "dans {0} {1}", units: { second: ["seconde", "secondes"], minute: ["minute", "minutes"], hour: ["heure", "heures"], day: ["jour", "jours"], week: ["semaine", "semaines"], month: ["mois", "mois"], year: ["an", "ans"] }, auto: { day: { "-2": "avant-hier", "-1": "hier", "0": "aujourd\u2019hui", "1": "demain", "2": "apr\u00E8s-demain" } } },
-                "short": { past: "il y a {0}\u00A0{1}", future: "dans {0}\u00A0{1}", units: { second: ["s", "s"], minute: ["min", "min"], hour: ["h", "h"], day: ["j", "j"], week: ["sem.", "sem."], month: ["m.", "m."], year: ["a", "a"] }, auto: { day: { "-2": "avant-hier", "-1": "hier", "0": "aujourd\u2019hui", "1": "demain", "2": "apr\u00E8s-demain" } } },
-                "narrow": { past: "-{0} {1}", future: "+{0} {1}", units: { second: ["s", "s"], minute: ["min", "min"], hour: ["h", "h"], day: ["j", "j"], week: ["sem.", "sem."], month: ["m.", "m."], year: ["a", "a"] }, auto: { day: { "-2": "avant-hier", "-1": "hier", "0": "aujourd\u2019hui", "1": "demain", "2": "apr\u00E8s-demain" } } }
-            },
-            "hu-HU": {
-                "long": { past: "{0} {1} ezel\u0151tt", future: "{0} {1} m\u00FAlva", units: { second: ["m\u00E1sodperccel", "m\u00E1sodperccel"], minute: ["perccel", "perccel"], hour: ["\u00F3r\u00E1val", "\u00F3r\u00E1val"], day: ["nappal", "nappal"], week: ["h\u00E9ttel", "h\u00E9ttel"], month: ["h\u00F3nappal", "h\u00F3nappal"], year: ["\u00E9vvel", "\u00E9vvel"] }, futureUnits: { second: ["m\u00E1sodperc", "m\u00E1sodperc"], minute: ["perc", "perc"], hour: ["\u00F3ra", "\u00F3ra"], day: ["nap", "nap"], week: ["h\u00E9t", "h\u00E9t"], month: ["h\u00F3nap", "h\u00F3nap"], year: ["\u00E9v", "\u00E9v"] }, auto: { day: { "-2": "tegnapel\u0151tt", "-1": "tegnap", "0": "ma", "1": "holnap", "2": "holnaput\u00E1n" } } },
-                "short": { past: "{0} {1} ezel\u0151tt", future: "{0} {1} m\u00FAlva", units: { second: ["mp-cel", "mp-cel"], minute: ["perccel", "perccel"], hour: ["\u00F3r\u00E1val", "\u00F3r\u00E1val"], day: ["napja", "napja"], week: ["hete", "hete"], month: ["h\u00F3napja", "h\u00F3napja"], year: ["\u00E9ve", "\u00E9ve"] }, futureUnits: { second: ["mp", "mp"], minute: ["perc", "perc"], hour: ["\u00F3ra", "\u00F3ra"], day: ["nap", "nap"], week: ["h\u00E9t", "h\u00E9t"], month: ["h\u00F3nap", "h\u00F3nap"], year: ["\u00E9v", "\u00E9v"] }, pastPattern: "{0} {1}", auto: { day: { "-2": "tegnapel\u0151tt", "-1": "tegnap", "0": "ma", "1": "holnap", "2": "holnaput\u00E1n" } } },
-                "narrow": { past: "{0} {1}", future: "{0} {1} m\u00FAlva", units: { second: ["mp-e", "mp-e"], minute: ["p-e", "p-e"], hour: ["\u00F3r\u00E1ja", "\u00F3r\u00E1ja"], day: ["napja", "napja"], week: ["hete", "hete"], month: ["h\u00F3napja", "h\u00F3napja"], year: ["\u00E9ve", "\u00E9ve"] }, futureUnits: { second: ["mp", "mp"], minute: ["p", "p"], hour: ["\u00F3", "\u00F3"], day: ["n", "n"], week: ["h", "h"], month: ["h\u00F3", "h\u00F3"], year: ["\u00E9v", "\u00E9v"] }, auto: { day: { "-2": "tegnapel\u0151tt", "-1": "tegnap", "0": "ma", "1": "holnap", "2": "holnaput\u00E1n" } } }
-            }
-        },
-        displayNames: {
-            regions: {
-                    "en-US": {
-                        US: "United States",
-                        GB: "United Kingdom",
-                        DE: "Germany",
-                        FR: "France",
-                        HU: "Hungary"
-                    },
-                    "en-GB": {
-                        US: "United States",
-                        GB: "United Kingdom",
-                        DE: "Germany",
-                        FR: "France",
-                        HU: "Hungary"
-                    },
-                    "de-DE": {
-                        US: "Vereinigte Staaten",
-                        GB: "Vereinigtes K\u00F6nigreich",
-                        DE: "Deutschland",
-                        FR: "Frankreich",
-                        HU: "Ungarn"
-                    },
-                    "fr-FR": {
-                        US: "\u00C9tats-Unis",
-                        GB: "Royaume-Uni",
-                        DE: "Allemagne",
-                        FR: "France",
-                        HU: "Hongrie"
-                    },
-                    "hu-HU": {
-                        US: "Egyes\u00FClt \u00C1llamok",
-                        GB: "Egyes\u00FClt Kir\u00E1lys\u00E1g",
-                        DE: "N\u00E9metorsz\u00E1g",
-                        FR: "Franciaorsz\u00E1g",
-                        HU: "Magyarorsz\u00E1g"
-                    }
+                regions: {
+                    US: "United States",
+                    GB: "United Kingdom",
+                    DE: "Germany",
+                    FR: "France",
+                    HU: "Hungary"
                 },
-            currencies: {
-                    "en-US": {
-                        USD: "US Dollar",
-                        GBP: "British Pound",
-                        EUR: "Euro",
-                        HUF: "Hungarian Forint"
-                    },
-                    "en-GB": {
-                        USD: "US Dollar",
-                        GBP: "British Pound",
-                        EUR: "Euro",
-                        HUF: "Hungarian Forint"
-                    },
-                    "de-DE": {
-                        USD: "US-Dollar",
-                        GBP: "Britisches Pfund",
-                        EUR: "Euro",
-                        HUF: "Ungarischer Forint"
-                    },
-                    "fr-FR": {
-                        USD: "dollar des \u00C9tats-Unis",
-                        GBP: "livre sterling",
-                        EUR: "euro",
-                        HUF: "forint hongrois"
-                    },
-                    "hu-HU": {
-                        USD: "USA-doll\u00E1r",
-                        GBP: "angol font",
-                        EUR: "eur\u00F3",
-                        HUF: "magyar forint"
-                    }
+                currencies: {
+                    USD: "US Dollar",
+                    GBP: "British Pound",
+                    EUR: "Euro",
+                    HUF: "Hungarian Forint"
                 },
-            languages: {
+                languages: {
                     dialect: {
-                        "en-US": {
-                            en: "English",
-                            "en-US": "American English",
-                            "en-GB": "British English",
-                            de: "German",
-                            "de-DE": "German (Germany)",
-                            fr: "French",
-                            "fr-FR": "French (France)",
-                            hu: "Hungarian",
-                            "hu-HU": "Hungarian (Hungary)"
-                        },
-                        "en-GB": {
-                            en: "English",
-                            "en-US": "American English",
-                            "en-GB": "British English",
-                            de: "German",
-                            "de-DE": "German (Germany)",
-                            fr: "French",
-                            "fr-FR": "French (France)",
-                            hu: "Hungarian",
-                            "hu-HU": "Hungarian (Hungary)"
-                        },
-                        "de-DE": {
-                            en: "Englisch",
-                            "en-US": "Englisch (Vereinigte Staaten)",
-                            "en-GB": "Englisch (Vereinigtes K\u00F6nigreich)",
-                            de: "Deutsch",
-                            "de-DE": "Deutsch (Deutschland)",
-                            fr: "Franz\u00F6sisch",
-                            "fr-FR": "Franz\u00F6sisch (Frankreich)",
-                            hu: "Ungarisch",
-                            "hu-HU": "Ungarisch (Ungarn)"
-                        },
-                        "fr-FR": {
-                            en: "anglais",
-                            "en-US": "anglais am\u00E9ricain",
-                            "en-GB": "anglais britannique",
-                            de: "allemand",
-                            "de-DE": "allemand (Allemagne)",
-                            fr: "fran\u00E7ais",
-                            "fr-FR": "fran\u00E7ais (France)",
-                            hu: "hongrois",
-                            "hu-HU": "hongrois (Hongrie)"
-                        },
-                        "hu-HU": {
-                            en: "angol",
-                            "en-US": "amerikai angol",
-                            "en-GB": "brit angol",
-                            de: "n\u00E9met",
-                            "de-DE": "n\u00E9met (N\u00E9metorsz\u00E1g)",
-                            fr: "francia",
-                            "fr-FR": "francia (Franciaorsz\u00E1g)",
-                            hu: "magyar",
-                            "hu-HU": "magyar (Magyarorsz\u00E1g)"
-                        }
+                        en: "English",
+                        "en-US": "American English",
+                        "en-GB": "British English",
+                        de: "German",
+                        "de-DE": "German (Germany)",
+                        fr: "French",
+                        "fr-FR": "French (France)",
+                        hu: "Hungarian",
+                        "hu-HU": "Hungarian (Hungary)"
                     },
                     standard: {
-                        "en-US": {
-                            en: "English",
-                            "en-US": "English (United States)",
-                            "en-GB": "English (United Kingdom)",
-                            de: "German",
-                            "de-DE": "German (Germany)",
-                            fr: "French",
-                            "fr-FR": "French (France)",
-                            hu: "Hungarian",
-                            "hu-HU": "Hungarian (Hungary)"
-                        },
-                        "en-GB": {
-                            en: "English",
-                            "en-US": "English (United States)",
-                            "en-GB": "English (United Kingdom)",
-                            de: "German",
-                            "de-DE": "German (Germany)",
-                            fr: "French",
-                            "fr-FR": "French (France)",
-                            hu: "Hungarian",
-                            "hu-HU": "Hungarian (Hungary)"
-                        },
-                        "de-DE": {
-                            en: "Englisch",
-                            "en-US": "Englisch (Vereinigte Staaten)",
-                            "en-GB": "Englisch (Vereinigtes K\u00F6nigreich)",
-                            de: "Deutsch",
-                            "de-DE": "Deutsch (Deutschland)",
-                            fr: "Franz\u00F6sisch",
-                            "fr-FR": "Franz\u00F6sisch (Frankreich)",
-                            hu: "Ungarisch",
-                            "hu-HU": "Ungarisch (Ungarn)"
-                        },
-                        "fr-FR": {
-                            en: "anglais",
-                            "en-US": "anglais (\u00C9tats-Unis)",
-                            "en-GB": "anglais (Royaume-Uni)",
-                            de: "allemand",
-                            "de-DE": "allemand (Allemagne)",
-                            fr: "fran\u00E7ais",
-                            "fr-FR": "fran\u00E7ais (France)",
-                            hu: "hongrois",
-                            "hu-HU": "hongrois (Hongrie)"
-                        },
-                        "hu-HU": {
-                            en: "angol",
-                            "en-US": "angol (Egyes\u00FClt \u00C1llamok)",
-                            "en-GB": "angol (Egyes\u00FClt Kir\u00E1lys\u00E1g)",
-                            de: "n\u00E9met",
-                            "de-DE": "n\u00E9met (N\u00E9metorsz\u00E1g)",
-                            fr: "francia",
-                            "fr-FR": "francia (Franciaorsz\u00E1g)",
-                            hu: "magyar",
-                            "hu-HU": "magyar (Magyarorsz\u00E1g)"
-                        }
+                        en: "English",
+                        "en-US": "English (United States)",
+                        "en-GB": "English (United Kingdom)",
+                        de: "German",
+                        "de-DE": "German (Germany)",
+                        fr: "French",
+                        "fr-FR": "French (France)",
+                        hu: "Hungarian",
+                        "hu-HU": "Hungarian (Hungary)"
                     }
                 }
+            }
         },
-        durationUnitLabels: {
-            "short": {
-                "en-US": {
-                    years: ["yr", "yrs"],
-                    months: ["mth", "mths"],
-                    weeks: ["wk", "wks"],
-                    days: ["day", "days"],
-                    hours: ["hr", "hr"],
-                    minutes: ["min", "min"],
-                    seconds: ["sec", "sec"],
-                    milliseconds: ["ms", "ms"]
+        DurationFormat: {
+            "en-US": {
+                labels: {
+                    "short": {
+                        years: ["yr", "yrs"],
+                        months: ["mth", "mths"],
+                        weeks: ["wk", "wks"],
+                        days: ["day", "days"],
+                        hours: ["hr", "hr"],
+                        minutes: ["min", "min"],
+                        seconds: ["sec", "sec"],
+                        milliseconds: ["ms", "ms"]
+                    },
+                    "long": {
+                        years: ["year", "years"],
+                        months: ["month", "months"],
+                        weeks: ["week", "weeks"],
+                        days: ["day", "days"],
+                        hours: ["hour", "hours"],
+                        minutes: ["minute", "minutes"],
+                        seconds: ["second", "seconds"],
+                        milliseconds: ["millisecond", "milliseconds"]
+                    },
+                    narrow: {
+                        years: ["y", "y"],
+                        months: ["m", "m"],
+                        weeks: ["w", "w"],
+                        days: ["d", "d"],
+                        hours: ["h", "h"],
+                        minutes: ["m", "m"],
+                        seconds: ["s", "s"],
+                        milliseconds: ["ms", "ms"]
+                    }
                 },
-                "en-GB": {
-                    years: ["yr", "yrs"],
-                    months: ["mth", "mths"],
-                    weeks: ["wk", "wks"],
-                    days: ["day", "days"],
-                    hours: ["hr", "hrs"],
-                    minutes: ["min", "mins"],
-                    seconds: ["sec", "secs"],
-                    milliseconds: ["ms", "ms"]
+                spaces: {
+                    "short": { "default": " " },
+                    "long": { "default": " " },
+                    narrow: { "default": "" }
                 },
-                "de-DE": {
-                    years: ["J", "J"],
-                    months: ["Mon.", "Mon."],
-                    weeks: ["Wo.", "Wo."],
-                    days: ["Tg.", "Tg."],
-                    hours: ["Std.", "Std."],
-                    minutes: ["Min.", "Min."],
-                    seconds: ["Sek.", "Sek."],
-                    milliseconds: ["ms", "ms"]
+                join: {
+                    defaultSeparator: ", ",
+                    narrowSeparator: " ",
+                    connectorRules: []
                 },
-                "fr-FR": {
-                    years: ["an", "ans"],
-                    months: ["m.", "m."],
-                    weeks: ["sem.", "sem."],
-                    days: ["j", "j"],
-                    hours: ["h", "h"],
-                    minutes: ["min", "min"],
-                    seconds: ["s", "s"],
-                    milliseconds: ["ms", "ms"]
+                fractionalSeparator: "."
+            }
+        },
+        ListFormat: {
+            "en-US": {
+                conjunction: {
+                    "long": { pair: "{0} and {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, and {1}" },
+                    "short": { pair: "{0} & {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, & {1}" },
+                    narrow: { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" }
                 },
-                "hu-HU": {
-                    years: ["\u00E9v", "\u00E9v"],
-                    months: ["h\u00F3nap", "h\u00F3nap"],
-                    weeks: ["h\u00E9t", "h\u00E9t"],
-                    days: ["nap", "nap"],
-                    hours: ["\u00F3", "\u00F3"],
-                    minutes: ["p", "p"],
-                    seconds: ["mp", "mp"],
-                    milliseconds: ["ms", "ms"]
-                }
-            },
-            "long": {
-                "en-US": {
-                    years: ["year", "years"],
-                    months: ["month", "months"],
-                    weeks: ["week", "weeks"],
-                    days: ["day", "days"],
-                    hours: ["hour", "hours"],
-                    minutes: ["minute", "minutes"],
-                    seconds: ["second", "seconds"],
-                    milliseconds: ["millisecond", "milliseconds"]
+                disjunction: {
+                    "long": { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, or {1}" },
+                    "short": { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, or {1}" },
+                    narrow: { pair: "{0} or {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0} or {1}" }
                 },
-                "en-GB": {
-                    years: ["year", "years"],
-                    months: ["month", "months"],
-                    weeks: ["week", "weeks"],
-                    days: ["day", "days"],
-                    hours: ["hour", "hours"],
-                    minutes: ["minute", "minutes"],
-                    seconds: ["second", "seconds"],
-                    milliseconds: ["millisecond", "milliseconds"]
-                },
-                "de-DE": {
-                    years: ["Jahr", "Jahre"],
-                    months: ["Monat", "Monate"],
-                    weeks: ["Woche", "Wochen"],
-                    days: ["Tag", "Tage"],
-                    hours: ["Stunde", "Stunden"],
-                    minutes: ["Minute", "Minuten"],
-                    seconds: ["Sekunde", "Sekunden"],
-                    milliseconds: ["Millisekunde", "Millisekunden"]
-                },
-                "fr-FR": {
-                    years: ["an", "ans"],
-                    months: ["mois", "mois"],
-                    weeks: ["semaine", "semaines"],
-                    days: ["jour", "jours"],
-                    hours: ["heure", "heures"],
-                    minutes: ["minute", "minutes"],
-                    seconds: ["seconde", "secondes"],
-                    milliseconds: ["milliseconde", "millisecondes"]
-                },
-                "hu-HU": {
-                    years: ["\u00E9v", "\u00E9v"],
-                    months: ["h\u00F3nap", "h\u00F3nap"],
-                    weeks: ["h\u00E9t", "h\u00E9t"],
-                    days: ["nap", "nap"],
-                    hours: ["\u00F3ra", "\u00F3ra"],
-                    minutes: ["perc", "perc"],
-                    seconds: ["m\u00E1sodperc", "m\u00E1sodperc"],
-                    milliseconds: ["ezredm\u00E1sodperc", "ezredm\u00E1sodperc"]
-                }
-            },
-            "narrow": {
-                "en-US": {
-                    years: ["y", "y"],
-                    months: ["m", "m"],
-                    weeks: ["w", "w"],
-                    days: ["d", "d"],
-                    hours: ["h", "h"],
-                    minutes: ["m", "m"],
-                    seconds: ["s", "s"],
-                    milliseconds: ["ms", "ms"]
-                },
-                "en-GB": {
-                    years: ["y", "y"],
-                    months: ["m", "m"],
-                    weeks: ["w", "w"],
-                    days: ["d", "d"],
-                    hours: ["h", "h"],
-                    minutes: ["m", "m"],
-                    seconds: ["s", "s"],
-                    milliseconds: ["ms", "ms"]
-                },
-                "de-DE": {
-                    years: ["J", "J"],
-                    months: ["M", "M"],
-                    weeks: ["W", "W"],
-                    days: ["T", "T"],
-                    hours: ["h", "h"],
-                    minutes: ["Min.", "Min."],
-                    seconds: ["Sek.", "Sek."],
-                    milliseconds: ["ms", "ms"]
-                },
-                "fr-FR": {
-                    years: ["a", "a"],
-                    months: ["m.", "m."],
-                    weeks: ["sem.", "sem."],
-                    days: ["j", "j"],
-                    hours: ["h", "h"],
-                    minutes: ["min", "min"],
-                    seconds: ["s", "s"],
-                    milliseconds: ["ms", "ms"]
-                },
-                "hu-HU": {
-                    years: ["\u00E9v", "\u00E9v"],
-                    months: ["h.", "h."],
-                    weeks: ["h\u00E9t", "h\u00E9t"],
-                    days: ["nap", "nap"],
-                    hours: ["\u00F3", "\u00F3"],
-                    minutes: ["p", "p"],
-                    seconds: ["mp", "mp"],
-                    milliseconds: ["ms", "ms"]
+                unit: {
+                    "long": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" },
+                    "short": { pair: "{0}, {1}", start: "{0}, {1}", middle: "{0}, {1}", end: "{0}, {1}" },
+                    narrow: { pair: "{0} {1}", start: "{0} {1}", middle: "{0} {1}", end: "{0} {1}" }
                 }
             }
         },
-        collation: {
-            lowercase: {
-                "A": "a", "B": "b", "C": "c", "D": "d", "E": "e", "F": "f", "G": "g", "H": "h", "I": "i", "J": "j", "K": "k", "L": "l", "M": "m",
-                "N": "n", "O": "o", "P": "p", "Q": "q", "R": "r", "S": "s", "T": "t", "U": "u", "V": "v", "W": "w", "X": "x", "Y": "y", "Z": "z",
-                "\u00C0": "\u00E0", "\u00C1": "\u00E1", "\u00C2": "\u00E2", "\u00C4": "\u00E4", "\u00C7": "\u00E7", "\u00C8": "\u00E8", "\u00C9": "\u00E9", "\u00CA": "\u00EA",
-                "\u00CD": "\u00ED", "\u00D3": "\u00F3", "\u00D6": "\u00F6", "\u0150": "\u0151", "\u00DA": "\u00FA", "\u00DC": "\u00FC", "\u0170": "\u0171"
-            },
-            generic: {
-                "\u00E0": { base: "a", accent: 1 },
-                "\u00E1": { base: "a", accent: 1 },
-                "\u00E2": { base: "a", accent: 1 },
-                "\u00E4": { base: "a", accent: 1 },
-                "\u00E7": { base: "c", accent: 1 },
-                "\u00E8": { base: "e", accent: 1 },
-                "\u00E9": { base: "e", accent: 1 },
-                "\u00EA": { base: "e", accent: 1 },
-                "\u00ED": { base: "i", accent: 1 },
-                "\u00F3": { base: "o", accent: 1 },
-                "\u00F6": { base: "o", accent: 1 },
-                "\u0151": { base: "o", accent: 1 },
-                "\u00FA": { base: "u", accent: 1 },
-                "\u00FC": { base: "u", accent: 1 },
-                "\u0171": { base: "u", accent: 1 }
-            },
-            hungarian: {
-                "\u00E1": { base: "a", accent: 1 },
-                "\u00E9": { base: "e", accent: 1 },
-                "\u00ED": { base: "i", accent: 1 },
-                "\u00F3": { base: "o", accent: 1 },
-                "\u00F6": { base: "oz", accent: 0 },
-                "\u0151": { base: "oz", accent: 1 },
-                "\u00FA": { base: "u", accent: 1 },
-                "\u00FC": { base: "uz", accent: 0 },
-                "\u0171": { base: "uz", accent: 1 }
+        Collator: {
+            "en-US": { recordMap: "generic" }
+        },
+        NumberFormat: {
+            "en-US": {
+                group: ",",
+                decimal: ".",
+                percent: "%",
+                currencyPattern: "prefix",
+                currencyNames: {
+                    "EUR": ["euros", "euros"],
+                    "USD": ["US dollars", "US dollars"],
+                    "GBP": ["British pounds", "British pounds"],
+                    "HUF": ["Hungarian forint", "Hungarian forints"]
+                }
+            }
+        },
+        RelativeTimeFormat: {
+            "en-US": {
+          "long": {
+                    "past": "{0} {1} ago",
+                    "future": "in {0} {1}",
+                    "units": {
+                              "second": [
+                                        "second",
+                                        "seconds"
+                              ],
+                              "minute": [
+                                        "minute",
+                                        "minutes"
+                              ],
+                              "hour": [
+                                        "hour",
+                                        "hours"
+                              ],
+                              "day": [
+                                        "day",
+                                        "days"
+                              ],
+                              "week": [
+                                        "week",
+                                        "weeks"
+                              ],
+                              "month": [
+                                        "month",
+                                        "months"
+                              ],
+                              "year": [
+                                        "year",
+                                        "years"
+                              ]
+                    },
+                    "auto": {
+                              "day": {
+                                        "0": "today",
+                                        "1": "tomorrow",
+                                        "-1": "yesterday"
+                              }
+                    }
+          },
+          "short": {
+                    "past": "{0} {1} ago",
+                    "future": "in {0} {1}",
+                    "units": {
+                              "second": [
+                                        "sec.",
+                                        "sec."
+                              ],
+                              "minute": [
+                                        "min.",
+                                        "min."
+                              ],
+                              "hour": [
+                                        "hr.",
+                                        "hr."
+                              ],
+                              "day": [
+                                        "day",
+                                        "days"
+                              ],
+                              "week": [
+                                        "wk.",
+                                        "wk."
+                              ],
+                              "month": [
+                                        "mo.",
+                                        "mo."
+                              ],
+                              "year": [
+                                        "yr.",
+                                        "yr."
+                              ]
+                    },
+                    "auto": {
+                              "day": {
+                                        "0": "today",
+                                        "1": "tomorrow",
+                                        "-1": "yesterday"
+                              }
+                    }
+          },
+          "narrow": {
+                    "past": "-{0}{1}",
+                    "future": "+{0}{1}",
+                    "units": {
+                              "second": [
+                                        "s",
+                                        "s"
+                              ],
+                              "minute": [
+                                        "m",
+                                        "m"
+                              ],
+                              "hour": [
+                                        "h",
+                                        "h"
+                              ],
+                              "day": [
+                                        "d",
+                                        "d"
+                              ],
+                              "week": [
+                                        "w",
+                                        "w"
+                              ],
+                              "month": [
+                                        "mo",
+                                        "mo"
+                              ],
+                              "year": [
+                                        "y",
+                                        "y"
+                              ]
+                    },
+                    "auto": {
+                              "day": {
+                                        "0": "today",
+                                        "1": "tomorrow",
+                                        "-1": "yesterday"
+                              }
+                    }
+          }
+}
+        },
+        PluralRules: {
+            "en-US": {
+                cardinal: ["one", "other"],
+                ordinal: ["one", "two", "few", "other"]
             }
         }
+    };
+    var moduleDataFiles = {
+        Collation: "Data/Collation.json",
+        Collator: "Data/Collator.json",
+        Currencies: "Data/Currencies.json",
+        DateTimeFormat: "Data/DateTimeFormat.json",
+        DisplayNames: "Data/DisplayNames.json",
+        DurationFormat: "Data/DurationFormat.json",
+        Locales: "Data/Locales.json",
+        ListFormat: "Data/ListFormat.json",
+        NumberFormat: "Data/NumberFormat.json",
+        PluralRules: "Data/PluralRules.json",
+        RelativeTimeFormat: "Data/RelativeTimeFormat.json"
     };
     var supportedValues = {
         calendar: ["gregory"],
         collation: ["default", "standard"],
-        currency: ["EUR", "GBP", "HUF", "USD"],
         numberingSystem: ["latn"],
         timeZone: [],
         unit: []
@@ -708,6 +326,43 @@ var Intl = Intl || {};
 
     function isArrayLike(value) {
         return value !== null && typeof value === "object" && typeof value.length === "number";
+    }
+
+    function copyObject(source) {
+        var result = {};
+        var key;
+
+        if (!source) {
+            return result;
+        }
+        for (key in source) {
+            if (hasOwnProperty.call(source, key)) {
+                result[key] = source[key];
+            }
+        }
+        return result;
+    }
+
+    function ensureLocaleRegistry() {
+        var registry;
+        var locale;
+
+        if (localeRegistryLoaded) {
+            return;
+        }
+        localeRegistryLoaded = true;
+        registry = readModuleData("Locales");
+        localeAliases = copyObject(registry.aliases);
+        languageOnlyLocales = copyObject(registry.languageOnlyLocales);
+        availableLocales = copyObject(registry.availableLocales);
+        availableLocales["en-US"] = true;
+
+        localeData.locales = {};
+        for (locale in availableLocales) {
+            if (hasOwnProperty.call(availableLocales, locale)) {
+                localeData.locales[locale] = {};
+            }
+        }
     }
 
     function canonicalizeLocaleTag(locale) {
@@ -720,6 +375,7 @@ var Intl = Intl || {};
         if (tag === "") {
             throw new RangeError("Intl error: Invalid language tag.");
         }
+        ensureLocaleRegistry();
         if (hasOwnProperty.call(localeAliases, lowerTag)) {
             return localeAliases[lowerTag];
         }
@@ -778,6 +434,7 @@ var Intl = Intl || {};
         var normalized = {};
         var index;
 
+        ensureLocaleRegistry();
         if (locales === undefined) {
             return availableLocales;
         }
@@ -815,20 +472,151 @@ var Intl = Intl || {};
         return "en-US";
     }
 
+    function sharedDataModuleName(section) {
+        if (section === "currencies") {
+            return "Currencies";
+        }
+        if (section === "collation") {
+            return "Collation";
+        }
+        return null;
+    }
+
+    function getSharedLocaleData(section) {
+        var moduleName = sharedDataModuleName(section);
+
+        if (moduleName !== null && localeData[section] === undefined) {
+            localeData[section] = readModuleData(moduleName);
+        }
+        return localeData[section];
+    }
+
     function getLocaleData(locale, section) {
         var data;
 
         if (locale === undefined || locale === null) {
-            data = localeData;
-        } else {
-            data = localeData.locales[canonicalizeLocaleTag(locale)];
+            if (section !== undefined) {
+                return getSharedLocaleData(section);
+            }
+            return localeData;
         }
+        data = localeData.locales[canonicalizeLocaleTag(locale)];
         if (data === undefined) {
             return undefined;
         }
         return section === undefined ? data : data[section];
     }
 
+    function copyModuleLocaleRecord(record, locale) {
+        var result = {};
+        var key;
+
+        for (key in record) {
+            if (hasOwnProperty.call(record, key)) {
+                result[key] = record[key];
+            }
+        }
+        result.__locale__ = locale;
+        return result;
+    }
+
+    function readModuleDataText(moduleName) {
+        var relativePath = moduleDataFiles[moduleName];
+        var fs;
+        var path;
+        var candidates;
+        var index;
+        var file;
+        var text;
+        var base;
+
+        if (relativePath === undefined) {
+            return null;
+        }
+
+        if (nodeRequire !== null) {
+            try {
+                fs = nodeRequire("fs");
+                path = nodeRequire("path");
+                candidates = [];
+                if (typeof __dirname !== "undefined") {
+                    candidates.push(path.join(__dirname, "..", relativePath));
+                    candidates.push(path.join(__dirname, relativePath));
+                }
+                if (typeof process !== "undefined" && process.cwd) {
+                    candidates.push(path.join(process.cwd(), relativePath));
+                    candidates.push(path.join(process.cwd(), "..", relativePath));
+                }
+                for (index = 0; index < candidates.length; index++) {
+                    if (fs.existsSync(candidates[index])) {
+                        return fs.readFileSync(candidates[index], "utf8");
+                    }
+                }
+            } catch (ignoreNodeFileError) {
+            }
+        }
+
+        if (typeof $ !== "undefined" && typeof File === "function") {
+            candidates = [];
+            if (typeof $ !== "undefined" && $.fileName) {
+                base = File($.fileName).parent;
+                candidates.push(base + "/" + relativePath);
+                candidates.push(base + "/../" + relativePath);
+            }
+            candidates.push(relativePath);
+            candidates.push("../" + relativePath);
+
+            for (index = 0; index < candidates.length; index++) {
+                file = File(candidates[index]);
+                if (file.exists) {
+                    if (!file.open("r")) {
+                        return null;
+                    }
+                    text = file.read();
+                    file.close();
+                    return text;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    function readModuleData(moduleName) {
+        var text = readModuleDataText(moduleName);
+
+        if (text === null || typeof JSON === "undefined" || typeof JSON.parse !== "function") {
+            return {};
+        }
+        try {
+            return JSON.parse(text);
+        } catch (ignoreJSONError) {
+            return {};
+        }
+    }
+    function getModuleLocaleData(moduleName, locale) {
+        var moduleBaseline = moduleLocaleData[moduleName];
+        var baseline;
+        var canonical;
+        var moduleData;
+
+        if (moduleBaseline === undefined || moduleBaseline["en-US"] === undefined) {
+            throw new Error("Intl error: Missing en-US baseline data for " + moduleName + ".");
+        }
+
+        baseline = moduleBaseline["en-US"];
+        canonical = locale === undefined || locale === null ? "en-US" : canonicalizeLocaleTag(locale);
+        if (canonical === "en-US") {
+            return copyModuleLocaleRecord(baseline, "en-US");
+        }
+
+        moduleData = readModuleData(moduleName);
+        if (moduleData && hasOwnProperty.call(moduleData, canonical)) {
+            return copyModuleLocaleRecord(moduleData[canonical], canonical);
+        }
+
+        return copyModuleLocaleRecord(baseline, "en-US");
+    }
     function supportedLocalesOf(locales, supportedLocales, options, ownerName) {
         var requested = canonicalizeLocales(locales);
         var available = normalizeAvailableLocales(supportedLocales);
@@ -898,6 +686,19 @@ var Intl = Intl || {};
         var list = hasOwnProperty.call(supportedValues, value) ? supportedValues[value] : [];
         var result = [];
         var index;
+        var data;
+        var code;
+
+        if (value === "currency") {
+            data = getSharedLocaleData("currencies");
+            for (code in data) {
+                if (hasOwnProperty.call(data, code)) {
+                    result.push(code);
+                }
+            }
+            result.sort();
+            return result;
+        }
 
         for (index = 0; index < list.length; index++) {
             result.push(list[index]);
@@ -909,6 +710,7 @@ var Intl = Intl || {};
     Intl.__resolveLocale__ = resolveLocale;
     Intl.__supportedLocalesOf__ = supportedLocalesOf;
     Intl.__getLocaleData__ = getLocaleData;
+    Intl.__getModuleLocaleData__ = getModuleLocaleData;
     Intl.__requireCore__ = requireCore;
     Intl.__toObject__ = toObject;
     Intl.__readStringOption__ = readStringOption;

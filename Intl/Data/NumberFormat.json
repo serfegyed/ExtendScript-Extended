@@ -1,0 +1,99 @@
+{
+  "en-GB": {
+    "group": ",",
+    "decimal": ".",
+    "percent": "%",
+    "currencyPattern": "prefix",
+    "currencyNames": {
+      "EUR": [
+        "euros",
+        "euros"
+      ],
+      "USD": [
+        "US dollars",
+        "US dollars"
+      ],
+      "GBP": [
+        "British pounds",
+        "British pounds"
+      ],
+      "HUF": [
+        "Hungarian forint",
+        "Hungarian forints"
+      ]
+    }
+  },
+  "de-DE": {
+    "group": ".",
+    "decimal": ",",
+    "percent": " %",
+    "currencyPattern": "suffix",
+    "currencyNames": {
+      "EUR": [
+        "Euro",
+        "Euro"
+      ],
+      "USD": [
+        "US-Dollar",
+        "US-Dollar"
+      ],
+      "GBP": [
+        "Britische Pfund",
+        "Britische Pfund"
+      ],
+      "HUF": [
+        "Ungarischer Forint",
+        "Ungarische Forint"
+      ]
+    }
+  },
+  "fr-FR": {
+    "group": " ",
+    "decimal": ",",
+    "percent": " %",
+    "currencyPattern": "suffix",
+    "currencyNames": {
+      "EUR": [
+        "euro",
+        "euros"
+      ],
+      "USD": [
+        "dollar des États-Unis",
+        "dollars des États-Unis"
+      ],
+      "GBP": [
+        "livre sterling",
+        "livres sterling"
+      ],
+      "HUF": [
+        "forint hongrois",
+        "forints hongrois"
+      ]
+    }
+  },
+  "hu-HU": {
+    "group": " ",
+    "decimal": ",",
+    "percent": "%",
+    "currencyPattern": "suffix",
+    "minimumGroupingDigits": 2,
+    "currencyNames": {
+      "EUR": [
+        "euró",
+        "euró"
+      ],
+      "USD": [
+        "USA-dollár",
+        "USA-dollár"
+      ],
+      "GBP": [
+        "angol font",
+        "angol font"
+      ],
+      "HUF": [
+        "magyar forint",
+        "magyar forint"
+      ]
+    }
+  }
+}

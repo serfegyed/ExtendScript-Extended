@@ -4,7 +4,7 @@
 
 `Intl-core.js` must be loaded before this file.
 
-Locale number separators, percent spacing, currency symbols, currency fraction defaults, and currency-name tables are supplied by `Intl-core.js`.
+Locale number separators, percent spacing, currency patterns, and currency-name tables are supplied through `Intl.__getModuleLocaleData__("NumberFormat", locale)`: the `en-US` baseline is in `Intl-core.js`, and non-`en-US` tables live in `Data/NumberFormat.json`. Currency symbols and currency fraction defaults remain shared Core data.
 
 ## Constructor and Methods
 
@@ -299,5 +299,6 @@ Regression harness:
 Public examples harness:
 
 - `tests/tests-Intl-NumberFormat-examples.js`
+- `Data/NumberFormat.json`
 
 Both run under Node and ExtendScript Toolkit.

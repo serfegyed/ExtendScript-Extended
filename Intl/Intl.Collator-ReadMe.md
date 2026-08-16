@@ -194,5 +194,6 @@ Regression coverage is in:
 
 - `tests/tests-Intl-Collator.js`
 - `tests/tests-Intl-Collator-examples.js`
+- `Data/Collator.json`
 
 The test file runs under both Node and ExtendScript Toolkit. Node is used only for fast development verification and observed reference behavior; ExtendScript remains the production target.

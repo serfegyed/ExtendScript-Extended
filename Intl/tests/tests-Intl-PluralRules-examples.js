@@ -12,9 +12,9 @@ if (isNodeRuntime) {
     Intl = undefined;
 
     (function () {
+        global.require = require;
         var fs = require("fs");
         var path = require("path");
-
         (0, eval)(fs.readFileSync(path.join(__dirname, "..", "Intl-core.js"), "utf8"));
         (0, eval)(fs.readFileSync(path.join(__dirname, "..", "Intl.PluralRules.js"), "utf8"));
     }());

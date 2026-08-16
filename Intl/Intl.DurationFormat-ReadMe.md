@@ -4,6 +4,8 @@
 
 `Intl-core.js` must be loaded before this file.
 
+`en-US` DurationFormat labels, spacing, joining, and fractional separators are built into `Intl-core.js`; non-`en-US` DurationFormat locale data lives in `Data/DurationFormat.json`.
+
 Locale duration unit-label tables are supplied by `Intl-core.js`.
 
 ## Constructor and Methods
