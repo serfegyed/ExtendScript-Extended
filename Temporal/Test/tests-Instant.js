@@ -122,6 +122,7 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assertNodeEquals(Temporal.Instant.from("1970-01-01 00:00Z").epochMilliseconds, 0, "space date-time separator");
         assertNodeEquals(Temporal.Instant.from("1970-01-01t00:00z").epochMilliseconds, 0, "lowercase date-time markers");
         assertNodeEquals(Temporal.Instant.from("2024-01-01T00:00+01:30[Europe/Budapest]").epochMilliseconds, 1704061800000, "bracketed timezone name with numeric offset");
+        assertNodeEquals(Temporal.Instant.from({ toString: function () { return "1970-01-01T00:00Z"; } }).epochMilliseconds, 0, "string-coercible object input");
     });
 
     test("from handles extended years, pre-epoch values, and leap seconds", function () {

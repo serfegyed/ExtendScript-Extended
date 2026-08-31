@@ -6,6 +6,7 @@ var Temporal = Temporal || {};
     // v3 Apply directional rounding semantics to since
     // v4 Cap rounded month remainders only after choosing the increment boundary
     // v5 Project full Z and numeric-offset ISO strings to UTC year/month fields
+    // v7 - Keep add overflow validation without no-op assignment
 
     var YEAR_MONTH_UNITS = { year: true, month: true };
     var UNIT_RANK = { year: 2, month: 1 };
@@ -342,12 +343,10 @@ var Temporal = Temporal || {};
     };
 
     Temporal.PlainYearMonth.prototype.add = function (duration, options) {
-        var overflow = normalizeOverflow(options);
+        normalizeOverflow(options);
         var normalized = Temporal.Duration.from(duration);
         var resultIndex = monthIndex(this) + (normalized.years * 12) + normalized.months;
 
-        // Overflow has no observable effect for year/month-only arithmetic, but it is validated above.
-        overflow = overflow;
         return fromMonthIndex(resultIndex);
     };
 

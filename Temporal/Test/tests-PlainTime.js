@@ -196,6 +196,12 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assertNodeEquals(time.toString({ smallestUnit: "second", fractionalSecondDigits: 2 }), "10:20:30", "PlainTime.toString smallestUnit takes formatting precedence");
         assertNodeEquals(time.toString({ smallestUnit: "millisecond", fractionalSecondDigits: 2 }), "10:20:30.123", "PlainTime.toString millisecond takes formatting precedence");
         assertNodeEquals(Temporal.PlainTime.from("23:59:59.999").toString({ smallestUnit: "second", roundingMode: "halfExpand" }), "00:00:00", "PlainTime.toString second rollover");
+        assertThrowsWith(function () {
+            time.toString({ smallestUnit: "second", fractionalSecondDigits: 99 });
+        }, "RangeError", "PlainTime.toString validates fractionalSecondDigits with smallestUnit");
+        assertThrowsWith(function () {
+            time.toString({ smallestUnit: "minute", fractionalSecondDigits: "bad" });
+        }, "RangeError", "PlainTime.toString validates non-number fractionalSecondDigits with smallestUnit");
     });
 
     test("PlainTime integrates with PlainDate and PlainDateTime", function () {

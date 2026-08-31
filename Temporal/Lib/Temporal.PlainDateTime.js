@@ -1,4 +1,6 @@
+// v43 Reuse core roundingIncrement validation in round
 // v36 Project Z and numeric-offset ISO strings to UTC fields
+// v42 Extract PlainDateTime overflow option normalization
 // v35 Reuse Temporal-core20 fixed-time constants
 //
 // v5 This refactor is about the the change of methods parameter checking
@@ -34,6 +36,24 @@
 
 (function (Temporal) {
 
+    function normalizeOverflow(params) {
+        const validOverflow = { constrain: true, reject: true };
+
+        if (params !== undefined) {
+            if (typeof params !== 'object' || params === null) {
+                throw new TypeError("Invalid argument: 'params' must be an object.");
+            }
+
+            var overflow = params.overflow === undefined ? 'constrain' : params.overflow;
+            if (!validOverflow[overflow]) {
+                throw new RangeError("Invalid overflow: " + overflow);
+            };
+            return overflow;
+        };
+
+        return 'constrain';
+    }
+
     Temporal.PlainDateTime = function (year, month, day, hour, minute, second, millisecond) {
 
         if (!(this instanceof Temporal.PlainDateTime)) {
@@ -66,19 +86,7 @@
     };
 
     Temporal.PlainDateTime.from = function (value, params) {
-        const validOverflow = { constrain: true, reject: true };
-        var overflow = 'constrain';
-
-        if (params !== undefined) {
-            if (typeof params !== 'object' || params === null) {
-                throw new TypeError("Invalid argument: 'params' must be an object.");
-            }
-
-            overflow = params.overflow === undefined ? 'constrain' : params.overflow;
-            if (!validOverflow[overflow]) {
-                throw new RangeError("Invalid overflow: " + overflow);
-            };
-        };
+        var overflow = normalizeOverflow(params);
 
         if (value === undefined || value === null || typeof value === "number" || typeof value === "boolean") {
             throw new TypeError("Temporal error: DateTime argument must be object or string.");
@@ -186,8 +194,7 @@
     };
 
     Temporal.PlainDateTime.prototype.with = function (dateTimeLike, params) {
-        const validOverflow = { constrain: true, reject: true };
-        var overflow = 'constrain';
+        var overflow = normalizeOverflow(params);
         const validDateTimeField = {
             year: { low: Temporal.MIN_YEAR, high: Temporal.MAX_YEAR },
             day: { low: 1, high: 31 },
@@ -197,18 +204,6 @@
             millisecond: { low: 0, high: 999 }
         };
 
-        // Check params
-        if (params !== undefined) {
-            if (typeof params !== 'object' || params === null) {
-                throw new TypeError("Invalid argument: 'params' must be an object.");
-            }
-
-            overflow = params.overflow === undefined ? 'constrain' : params.overflow;
-            if (!validOverflow[overflow]) {
-                throw new RangeError("Invalid overflow: " + overflow);
-            };
-        };
-
         if (typeof dateTimeLike !== 'object' || dateTimeLike === null) {
             throw new TypeError("Temporal error: Argument to with() must contain some date/time fields.");
         }
@@ -216,10 +211,10 @@
         const validated = {};
         var hasField = false;
 
-		if (dateTimeLike.month !== undefined || dateTimeLike.monthCode !== undefined) {
-			validated.month = Temporal.__isBetween__(Temporal.__resolveISOMonth__(dateTimeLike), 1, 12, overflow);
-			hasField = true;
-		}
+        if (dateTimeLike.month !== undefined || dateTimeLike.monthCode !== undefined) {
+            validated.month = Temporal.__isBetween__(Temporal.__resolveISOMonth__(dateTimeLike), 1, 12, overflow);
+            hasField = true;
+        }
 
         for (var key in validDateTimeField) {
             if (validDateTimeField.hasOwnProperty(key) && dateTimeLike.hasOwnProperty(key) && dateTimeLike[key] !== undefined) {
@@ -273,20 +268,7 @@
     };
 
     Temporal.PlainDateTime.prototype.add = function (duration, params) {
-        const validOverflow = { constrain: true, reject: true };
-        var overflow = 'constrain';
-
-        // Check params
-        if (params !== undefined) {
-            if (typeof params !== 'object' || params === null) {
-                throw new TypeError("Invalid argument: 'params' must be an object.");
-            }
-
-            overflow = params.overflow === undefined ? 'constrain' : params.overflow;
-            if (!validOverflow[overflow]) {
-                throw new RangeError("Invalid overflow: " + overflow);
-            }
-        };
+        var overflow = normalizeOverflow(params);
 
         // To be sure of all duration's field exists
         const toAdd = (duration instanceof Temporal.Duration ? duration : Temporal.Duration.from(duration))
@@ -566,16 +548,15 @@
             throw new RangeError("Value " + roundingMode + " out of range for Temporal.PlainDateTime.prototype.round options property roundingMode");
         }
 
-        if (typeof roundingIncrement !== "number" || roundingIncrement < 1 || roundingIncrement % 1 !== 0) {
-            throw new RangeError("Temporal error: Integer out of range.");
+        if (smallestUnit === "day") {
+            if (roundingIncrement !== 1) {
+                throw new RangeError("Temporal error: roundingIncrement exceeds maximum");
+            }
+        } else {
+            roundingIncrement = Temporal.__validateTimeRoundingIncrement__(roundingIncrement, smallestUnit, false);
         }
 
         var smallestUnitMilliseconds = Temporal.__timeUnitToMilliseconds__(smallestUnit);
-        if (smallestUnitMilliseconds &&
-                Temporal.__timeUnitToMilliseconds__("day") % (smallestUnitMilliseconds * roundingIncrement) !== 0) {
-            throw new RangeError("Temporal error: dividend is not divisible by roundingIncrement");
-        }
-
         var totalMilliseconds = Temporal.__timeToMilliseconds__(this);
         var roundedMilliseconds = Temporal.__roundField__(totalMilliseconds, smallestUnitMilliseconds * roundingIncrement, roundingMode);
         var balancedTime = Temporal.__balanceTimeUnits__(0, 0, 0, roundedMilliseconds);

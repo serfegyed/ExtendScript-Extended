@@ -7,6 +7,9 @@ var Temporal = Temporal || {};
 	// v19 Share day-serial inversion and fixed-time Duration/rounding helpers
 	// v20 Share fixed-time and Instant-range constants across modules
 	// v21 Share Instant parsing and UTC ISO-field projection across modules
+	// v30 - Remove legacy copyFields alias
+	// v31 - Remove unreachable roundField increment guard
+	// v32 - Remove unreachable roundField mode default
 	const MIN_YEAR = -271821;
     const MAX_YEAR = 275760;
 	const MILLISECONDS_PER_SECOND = 1000;
@@ -553,7 +556,6 @@ var Temporal = Temporal || {};
 	// Helper: Round a numeric value to the nearest multiple of the given increment.
     // This function is used to round the "total" value for the field.
 	function roundField(value, increment, mode) {
-		if (increment <= 0) throw new Error("Increment must be positive"); // Already checked, maybe can be deleted
 
 		const scaled = value / increment; // Scale the number to a base of 1
 		var rounded;
@@ -605,8 +607,6 @@ var Temporal = Temporal || {};
 					rounded = baseRound;
 				}
 				break;
-			default:
-				throw new Error("Unknown rounding mode");
 		}
 
 		return rounded * increment; // Scale back to the original increment
@@ -910,7 +910,6 @@ var Temporal = Temporal || {};
 	Temporal.__projectOffsetISOStringToUTCFields__ = projectOffsetISOStringToUTCFields;
 	Temporal.__daysBetweenDates__ = daysBetweenDates;
 	Temporal.__copyFields__ = copyFields;
-	Temporal.__copyThisObject__ = copyFields;
 	Temporal.__roundField__ = roundField;
 	Temporal.__pad__ = pad;
 	Temporal.__singularUnit__ = singularUnit;

@@ -499,7 +499,7 @@ Temporal.PlainDateTime
 
 ## Related Standalone Objects
 
-`Temporal.PlainDate` and `Temporal.PlainTime` are separate audited modules. `PlainDateTime` uses them for `toPlainDate()`, `toPlainTime()`, and `withPlainTime()`.
+`Temporal.PlainDate` and `Temporal.PlainTime` are separate modules. `PlainDateTime` uses them for `toPlainDate()`, `toPlainTime()`, and `withPlainTime()`.
 
 - Active date implementation: `Lib/Temporal.PlainDate.js`
 - Active time implementation: `Lib/Temporal.PlainTime.js`

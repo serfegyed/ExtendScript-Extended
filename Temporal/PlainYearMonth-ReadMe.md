@@ -145,18 +145,7 @@ At the global ISO limits, the resulting PlainDate must also be valid. For exampl
 - no named-zone rule lookup, DST calculation, or time-zone APIs
 - no full Node object-shape parity
 
-The native `referenceISODay` behavior was audited for range handling, but it is not stored or exposed by this two-argument subset. The YearMonth endpoints are validated directly, so omitting that overload does not reintroduce the invalid-first-day boundary bug.
+The native `referenceISODay` overload is not stored or exposed by this two-argument subset. The YearMonth endpoints are validated directly.
 
 `toLocaleString(locales, options)` is implemented on `Temporal.PlainYearMonth`. It delegates to the local `Intl.DateTimeFormat.formatToParts()` subset when that formatter is loaded, using only `year` and `month` parts so no synthetic day is visible. Without Intl, it falls back to `toString()`.
 
-## Verification
-
-The branch-specific harness contains 10 test groups and runs under both ExtendScript and Node. It covers construction, parsing, overflow, ISO boundaries, arithmetic, signed calendar rounding, conversion to PlainDate, and the intentionally omitted compatibility surface.
-
-Current Node result:
-
-```text
-Passed: 10
-Failed: 0
-Skipped: 0
-```

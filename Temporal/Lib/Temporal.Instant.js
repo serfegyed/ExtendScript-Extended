@@ -3,6 +3,7 @@
 // v3 - Reuse Core fixed-time and Instant-range constants
 // v4 - Omit Intl- and time-zone-dependent toLocaleString
 // v5 - Reuse Core Instant parsing and UTC ISO-field projection helpers
+// v6 - Document string-coercible Instant input
 
 (function (Temporal) {
     function createInstant(epochMilliseconds) {
@@ -16,7 +17,7 @@
         if (typeof value === "string" || (typeof value === "object" && value !== null)) {
             return createInstant(Temporal.__parseInstantString__(value));
         }
-        throw new TypeError("Temporal error: Instant argument must be Instant or string.");
+        throw new TypeError("Temporal error: Instant argument must be Instant or string-coercible value.");
     }
 
     function toInstantTimeUnit(value, defaultValue) {

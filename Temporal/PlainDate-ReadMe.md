@@ -209,16 +209,3 @@ These limits keep the implementation aligned with the repository's ExtendScript/
 
 `toLocaleString(locales, options)` is implemented on `Temporal.PlainDate`. It delegates to the local `Intl.DateTimeFormat` subset when that formatter is loaded; otherwise it falls back to `toString()` and returns `YYYY-MM-DD`.
 
-## Verification
-
-The branch-specific harness contains 10 test groups and runs under both ExtendScript and Node. Expected values are derived from Node Temporal for the implemented surface.
-
-UTC/offset projection is covered separately by `Test/tests-UTCProjection.js`: 13 passed under both Node and ExtendScript Toolkit.
-
-Current Node result:
-
-```text
-Passed: 10
-Failed: 0
-Skipped: 0
-```

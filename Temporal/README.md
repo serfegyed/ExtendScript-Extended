@@ -289,7 +289,7 @@ Current coverage includes:
 - `plainDateTime.toPlainTime()`
 - `plainDateTime.valueOf()` rejection, matching Temporal's non-primitive comparison rule
 
-`Temporal.PlainDate` and `Temporal.PlainTime` are separate audited modules used by the conversion methods.
+`Temporal.PlainDate` and `Temporal.PlainTime` are separate modules used by the conversion methods.
 
 The public runtime module is kept in `Lib/`.
 
@@ -352,7 +352,6 @@ Test/
   tests-Instant.js
   tests-LocaleString.js
   tests-LocaleString-Intl.js
-  audit-HostLocalDate.js
   tests-Now.js
   tests-PlainYearMonth.js
   tests-PlainMonthDay.js
@@ -420,7 +419,7 @@ Test/tests-LocaleString-Intl.js  Passed: 8,  Failed: 0
 
 Each implemented behavior should have a matching project test. Where practical, expected behavior is derived from Node Temporal first, then copied into this repository's tests.
 
-`Test/tests-Now.js`, the 13-group UTC projection harness, the 5-group Intl-free LocaleString harness, and the 8-group Intl-aware LocaleString harness are part of the local verification suite.
+`Test/tests-Now.js`, `Test/tests-UTCProjection.js`, `Test/tests-LocaleString.js`, and `Test/tests-LocaleString-Intl.js` are part of the local test suite.
 
 ## Development Philosophy
 
@@ -431,7 +430,7 @@ This repository follows a narrow, practical rule:
 - keep unsupported areas explicit in this README
 - prefer predictable ISO and millisecond behavior over broad API surface
 - avoid depending on native `Date` behavior where it would introduce local time-zone or DST surprises
-- keep active root files simple to include, while preserving numbered development files for history
+- keep active root files simple to include
 
 After each completed subproject, this README should be updated with the current module status, supported methods, known limits, and test state.
 

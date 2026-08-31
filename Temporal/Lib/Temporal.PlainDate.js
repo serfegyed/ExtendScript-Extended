@@ -1,3 +1,5 @@
+// v25 Remove unreachable constructor checkedDate fallback
+// v24 Remove unreachable createDate checked fallback
 // v23 Project Z and numeric-offset ISO strings to UTC date fields
 // v22 Reuse Temporal-core20 fixed-time constants
 var Temporal = Temporal || {};
@@ -78,9 +80,6 @@ var Temporal = Temporal || {};
 
     function createDate(year, month, day, overflow) {
         var checked = Temporal.__validateDate__(Number(year), Number(month), Number(day), overflow);
-        if (!checked) {
-            throw new RangeError("Invalid PlainDate");
-        }
         return new Temporal.PlainDate(checked.year, checked.month, checked.day);
     }
 
@@ -338,9 +337,6 @@ var Temporal = Temporal || {};
         }
 
         var checkedDate = Temporal.__validateDate__(Number(year), Number(month), Number(day), "reject");
-        if (!checkedDate) {
-            throw new RangeError("Invalid PlainDate");
-        }
 
         var isoWeek;
 

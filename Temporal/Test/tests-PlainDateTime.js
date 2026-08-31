@@ -938,6 +938,12 @@ if (typeof require === "function" && typeof process !== "undefined") {
             dateTime.round({ smallestUnit: "hour", roundingIncrement: 7 });
         }, "RangeError", "round increment not dividing day should throw like Node");
         assertThrowsWith(function () {
+            dateTime.round({ smallestUnit: "hour", roundingIncrement: 24 });
+        }, "RangeError", "round hour increment maximum should throw like Node");
+        assertThrowsWith(function () {
+            dateTime.round({ smallestUnit: "day", roundingIncrement: 2 });
+        }, "RangeError", "round day increment maximum should throw like Node");
+        assertThrowsWith(function () {
             dateTime.round(null);
         }, "TypeError", "round null should throw like Node");
         assertThrowsWith(function () {

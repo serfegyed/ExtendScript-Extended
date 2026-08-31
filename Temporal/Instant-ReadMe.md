@@ -66,7 +66,7 @@ Fractional, infinite, NaN, and out-of-range values are rejected.
 
 ## String Parsing
 
-`Temporal.Instant.from()` accepts another Instant or a supported ISO date-time string with a UTC designator or numeric offset.
+`Temporal.Instant.from()` accepts another Instant, a supported ISO date-time string, or a string-coercible object with a UTC designator or numeric offset.
 
 ```javascript
 Temporal.Instant
@@ -195,17 +195,3 @@ Temporal.Instant.from("2026-01-15T12:34:56.123Z").toLocaleString("hu-HU");
 - no Intl-based locale formatting or locale/options processing
 - no `Temporal.Now` in this module
 
-## Verification
-
-The branch-specific harness contains 14 test groups and runs under both ExtendScript and Node.
-
-- Node reference: Node 26.3.1 Temporal
-- focused differential audit: 1027 passed, 0 failed
-- branch harness under Node: 14 passed, 0 failed
-- UTC projection harness under Node: 13 passed, 0 failed
-- UTC projection harness under ExtendScript Toolkit: 13 passed, 0 failed
-- LocaleDate harness under Node: 10 passed, 0 failed
-- LocaleDate harness under ExtendScript Toolkit: 10 passed, 0 failed
-- complete Node regression after implementation: 127 passed, 0 failed
-
-Expected values were captured from Node Temporal for matching inputs before being fixed in the project harness.

@@ -65,14 +65,3 @@ They require a local time-zone identity, time-zone conversion, or ZonedDateTime 
 
 There is no IANA time-zone database, `Temporal.ZonedDateTime`, locale formatting, or implicit local-time conversion in this module.
 
-## Verification
-
-The branch-specific harness contains 5 test groups and runs under both ExtendScript Toolkit and Node.
-
-- Node 26 branch harness: 5 passed, 0 failed
-- bundled Node 24 branch harness: 5 passed, 0 failed
-- ExtendScript Toolkit branch harness: 5 passed, 0 failed
-- system-clock differential invariants: 2000 passed, 0 failed
-- complete Node regression after implementation: 114 passed, 0 failed
-
-Because the current time is inherently variable, the tests use the same invariant verified against Node Temporal: the returned value is a fresh Instant with integer epoch milliseconds inside the surrounding native system-clock window.

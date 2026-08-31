@@ -11,6 +11,7 @@
 // v10 Align inherited fields, plural units, and toString option coercion
 // v11 Reuse shared Temporal-core16 helpers
 // v12 Align local ISO hour-only and date-time separator forms
+// v19 Normalize toString fractionalSecondDigits once
 // v14 Project full Z and numeric-offset ISO strings to UTC time fields
 // v13 Reuse Temporal-core20 fixed-time constants
 //
@@ -233,6 +234,15 @@
         if (!Temporal.__isValidRoundingMode__(roundingMode)) {
             throw new RangeError("Invalid roundingMode: " + roundingMode);
         }
+        var hasFractionalSecondDigits = fractionalSecondDigits !== undefined && fractionalSecondDigits !== "auto";
+        if (hasFractionalSecondDigits) {
+            if (typeof fractionalSecondDigits !== "number" || !isFinite(fractionalSecondDigits) ||
+                    fractionalSecondDigits < 0 || fractionalSecondDigits >= 4) {
+                throw new RangeError("fractionalSecondDigits value is out of range for the millisecond subset.");
+            }
+            fractionalSecondDigits = Math.floor(fractionalSecondDigits);
+        }
+
         var increment = 1;
         if (smallestUnit !== undefined) {
             smallestUnit = Temporal.__singularUnit__(smallestUnit);
@@ -240,22 +250,9 @@
                 throw new RangeError("Invalid smallestUnit: " + smallestUnit);
             }
             increment = Temporal.__timeUnitToMilliseconds__(smallestUnit);
-        } else if (fractionalSecondDigits !== undefined && fractionalSecondDigits !== "auto") {
-            if (typeof fractionalSecondDigits !== "number" || !isFinite(fractionalSecondDigits) ||
-                    fractionalSecondDigits < 0 || fractionalSecondDigits >= 4) {
-                throw new RangeError("fractionalSecondDigits value is out of range for the millisecond subset.");
-            }
-            fractionalSecondDigits = Math.floor(fractionalSecondDigits);
+        } else if (hasFractionalSecondDigits) {
             increment = fractionalSecondDigits === 0 ?
                 Temporal.__MILLISECONDS_PER_SECOND__ : Math.pow(10, 3 - fractionalSecondDigits);
-        }
-
-        if (smallestUnit !== undefined && fractionalSecondDigits !== undefined && fractionalSecondDigits !== "auto") {
-            if (typeof fractionalSecondDigits !== "number" || !isFinite(fractionalSecondDigits) ||
-                    fractionalSecondDigits < 0 || fractionalSecondDigits >= 4) {
-                throw new RangeError("fractionalSecondDigits value is out of range for the millisecond subset.");
-            }
-            fractionalSecondDigits = Math.floor(fractionalSecondDigits);
         }
 
         var rounded = millisecondsToTime(Temporal.__roundField__(Temporal.__timeToMilliseconds__(this), increment, roundingMode));

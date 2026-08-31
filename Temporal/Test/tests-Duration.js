@@ -417,6 +417,7 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assertEquals(Temporal.Duration.from("PT1.234S").toString({ fractionalSecondDigits: 2 }), "PT1.23S", "two fractional digits");
         assertEquals(Temporal.Duration.from("PT1.230S").toString({ fractionalSecondDigits: "auto" }), "PT1.23S", "auto fractional digits");
         assertEquals(Temporal.Duration.from("PT1.234S").toString({ smallestUnit: "second", roundingMode: "ceil" }), "PT2S", "ceil to second");
+        assertEquals(Temporal.Duration.from("-PT0.001S").toString({ fractionalSecondDigits: 2 }), "PT0.00S", "negative zero fractional output");
 
         assertThrowsWith(function () {
             Temporal.Duration.from("PT1H2M3.456S").toString({ smallestUnit: "minute" });

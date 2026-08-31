@@ -37,6 +37,10 @@
 // v47 - Reuse Temporal-core16 rounding-mode validation
 // v48-v50 - Superseded incomplete constant-extraction snapshots
 // v51 - Rebuild the Temporal-core20 fixed-time constant refactor
+// v58 - Remove unreachable Duration.with fallback
+// v59 - Drop negative zero sign in Duration.toString fixed fractional output
+// v60 - Remove duplicate integer validation from Duration sign check
+// v61 - Consolidate Duration.round roundingIncrement validation
 
 (function (Temporal) {
 
@@ -125,75 +129,7 @@
 		};
 	};
 
-	/**
-	 * Checks whether a parameter is present in a simple lookup object.
-	 *
-	 * @param {*} parameter The value to look up.
-	 * @param {Object} validKeys Object whose values are accepted parameters.
-	 * @throws {TypeError} If either argument is missing.
-	 * @returns {boolean} True when the parameter is accepted.
-	 */
-	function isValidParameter(parameter, validKeys) {
-		if (parameter === null || validKeys === null) {
-			throw new TypeError('Missing parameter'); // Handle empty inputs
-		};
 
-		for (var key in validKeys) {
-
-			if (validKeys[key] === parameter) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Checks that every own key in an object is present in a valid-key lookup.
-	 *
-	 * @param {Object} parameters Object to validate.
-	 * @param {Object} validKeys Object whose keys are accepted.
-	 * @throws {TypeError} If either argument is missing.
-	 * @returns {boolean} True when all keys are accepted.
-	 */
-	function isValidParameters(parameters, validKeys) {
-		if (parameters === null || validKeys === null) {
-			throw new TypeError('Missing parameter'); // Handle empty inputs
-		};
-
-		for (var key in parameters) {
-			if (!validKeys.hasOwnProperty(key)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Checks whether an object contains only Duration field names and metadata.
-	 *
-	 * @param {*} durationLike Candidate object.
-	 * @returns {boolean} True when the object has no unknown Duration keys.
-	 */
-	function isDurationLike(durationLike) {
-		if (typeof durationLike !== 'object' || durationLike === null) {
-			return false; // Handle non-object inputs
-		}
-
-		const validKeys = {
-			years: true,
-			months: true,
-			weeks: true,
-			days: true,
-			hours: true,
-			minutes: true,
-			seconds: true,
-			milliseconds: true,
-			sign: true,
-			blank: true
-		};
-
-		return isValidParameters(durationLike, validKeys);
-	}
 
 	/**
 	 * Checks whether an object provides at least one real Duration field.
@@ -263,12 +199,12 @@
 	}
 
 	/**
-	 * Checks the input values of a given object to ensure they are all integers and have the same sign.
+	 * Checks the input values of a normalized Duration record to ensure they have the same sign.
 	 * If the values are valid, it sets the `sign` and `blank` properties on the object.
-	 * If the values are invalid, it throws a RangeError.
+	 * If the signs are mixed, it throws a RangeError.
 	 *
 	 * @param {Object} fields The Duration fields to check.
-	 * @throws {RangeError} If the non-zero values have different signs or are not integers.
+	 * @throws {RangeError} If the non-zero values have different signs.
 	 * @returns {Object} The modified object with `sign` and `blank` properties set.
 	 */
 	function checkInputValues(fields) {
@@ -279,7 +215,6 @@
 
 		var hasNegative = false;
 		var hasPositive = false;
-		var allIntegers = true;
 
 		for (var i = 0; i < allValues.length; i++) {
 			if (!allValues[i]) continue;
@@ -288,13 +223,6 @@
 			} else if (allValues[i] > 0) {
 				hasPositive = true;
 			}
-			if (typeof allValues[i] !== 'number' || isNaN(allValues[i]) || !isFinite(allValues[i]) || Math.floor(allValues[i]) !== allValues[i]) {
-				allIntegers = false;
-			}
-		}
-
-		if (!allIntegers) {
-			throw new RangeError("Temporal error: Expected finite integer.");
 		}
 
 		if (hasNegative && hasPositive) {
@@ -683,11 +611,8 @@
 		};
 
 		// return a new Duration
-		if (checkInputValues(newDuration)) {
-			return Temporal.Duration.from(newDuration);
-		};
-
-		return this;
+		checkInputValues(newDuration);
+		return Temporal.Duration.from(newDuration);
 	};
 
 	/**
@@ -818,12 +743,6 @@
 		if (!Temporal.__isValidRoundingMode__(roundingMode)) {
 			throw new RangeError("Value " + roundingMode + " out of range for Temporal.Duration.prototype.round options property roundingMode");
 		};
-		if (isNaN(roundingIncrement) || !isFinite(roundingIncrement)) {
-			throw new RangeError("Temporal error: Expected finite integer.");
-		};
-		if (roundingIncrement !== Math.floor(roundingIncrement) || roundingIncrement < 1) {
-			throw new RangeError("Temporal error: Integer out of range.");
-		};
 		validateRoundingIncrement(roundingIncrement, smallestUnit);
 
 		var totalMs;
@@ -900,60 +819,6 @@
 	};
 
 
-	/**
-	 * Checks whether a unit is a time-only unit.
-	 *
-	 * @param {string} unit Unit name.
-	 * @returns {boolean} True for hour through millisecond.
-	 */
-	function isTimeUnit(unit) {
-		const validUnits = { hour: true, minute: true, second: true, millisecond: true };
-		return (unit in validUnits);
-	};
-
-	/**
-	 * Checks whether a unit is day or a time-only unit.
-	 *
-	 * @param {string} unit Unit name.
-	 * @returns {boolean} True for day through millisecond.
-	 */
-	function isTimeUnitWithDay(unit) {
-		const validUnits = { day: true, hour: true, minute: true, second: true, millisecond: true };
-		return (unit in validUnits);
-	};
-
-	/**
-	 * Checks whether a unit is a date unit.
-	 *
-	 * @param {string} unit Unit name.
-	 * @returns {boolean} True for year through day.
-	 */
-	function isDateUnit(unit) {
-		const validUnits = { year: true, month: true, week: true, day: true };
-		return (unit in validUnits);
-	};
-
-	/**
-	 * Checks whether a unit is a calendar unit excluding day.
-	 *
-	 * @param {string} unit Unit name.
-	 * @returns {boolean} True for year, month, or week.
-	 */
-	function isDateUnitWithoutDay(unit) {
-		const validUnits = { year: true, month: true, week: true };
-		return (unit in validUnits);
-	};
-
-	/**
-	 * Checks whether a unit is supported by Duration date/time math.
-	 *
-	 * @param {string} unit Unit name.
-	 * @returns {boolean} True for supported date and time units.
-	 */
-	function isDateTimeUnit(unit) {
-		const validUnits = { year: true, month: true, week: true, day: true, hour: true, minute: true, second: true, millisecond: true };
-		return (unit in validUnits);
-	};
 
 	/**
 	 * Normalizes singular and plural Duration unit names.
@@ -1005,10 +870,17 @@
 	 *
 	 * @param {number} roundingIncrement Increment value.
 	 * @param {string} smallestUnit Smallest unit.
-	 * @throws {RangeError} If the increment is too large or does not divide the unit.
+	 * @throws {RangeError} If the increment is not a valid integer, too large, or does not divide the unit.
 	 */
 	function validateRoundingIncrement(roundingIncrement, smallestUnit) {
 		var maximum;
+
+		if (isNaN(roundingIncrement) || !isFinite(roundingIncrement)) {
+			throw new RangeError("Temporal error: Expected finite integer.");
+		};
+		if (roundingIncrement !== Math.floor(roundingIncrement) || roundingIncrement < 1) {
+			throw new RangeError("Temporal error: Integer out of range.");
+		};
 
 		if (smallestUnit === "hour") {
 			maximum = 24;
@@ -1129,18 +1001,18 @@
 			return result.replace(/\.\d+S$/, "S");
 		};
 
-		var sign = rounded.sign === -1 ? "-" : "";
 		var millis = Math.abs(rounded.milliseconds || 0);
 		var seconds = Math.abs(rounded.seconds || 0);
 		var text = result;
 		var fraction = ("00" + millis).slice(-3).slice(0, fractionalSecondDigits);
+		var sign = rounded.sign === -1 && (seconds !== 0 || !/^0+$/.test(fraction)) ? "-" : "";
 
 		if (millis === 0 && seconds === 0 && result.indexOf("T") === -1) {
 			return result;
 		};
 
 		if (/\d+(?:\.\d+)?S$/.test(text)) {
-			text = text.replace(/(\d+)(?:\.\d+)?S$/, "$1." + fraction + "S");
+			text = sign + text.replace(/^-/, "").replace(/(\d+)(?:\.\d+)?S$/, "$1." + fraction + "S");
 		} else {
 			text = sign + result.replace(/^-/, "");
 			if (text.indexOf("T") === -1) {
@@ -1202,15 +1074,6 @@
 		return millisecondsToDuration(ms);
 	};
 
-	/**
-	 * Checks whether a Duration contains years or months.
-	 *
-	 * @param {Temporal.Duration|Object} duration Duration record.
-	 * @returns {boolean} True when years or months are non-zero.
-	 */
-	function hasYearsOrMonths(duration) {
-		return duration.years !== 0 || duration.months !== 0;
-	};
 
 	/**
 	 * Computes a fractional year or month total from milliseconds.

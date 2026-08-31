@@ -3,6 +3,7 @@ Array/.DS_Store
 /Tools/Linker/Catalog/Generated/
 
 # Temporal development-history folders are kept only in the private working tree.
+/Temporal/Date/
 /Temporal/Duration/
 /Temporal/Instant/
 /Temporal/LocaleDate/
