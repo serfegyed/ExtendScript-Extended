@@ -32,7 +32,7 @@ var Temporal = Temporal || {};
         var daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
         // Adjust February for leap years
-        if (Temporal.__isLeapYear__(year)) {
+        if (isLeapYear(year)) {
             daysInMonth[1] = 29;
         }
 
@@ -53,7 +53,7 @@ var Temporal = Temporal || {};
         var daysInMonthArray = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
         // Adjust February for leap years
-        if (month === 2 && Temporal.__isLeapYear__(year)) {
+        if (month === 2 && isLeapYear(year)) {
             return 29;
         }
 
@@ -433,7 +433,7 @@ var Temporal = Temporal || {};
 
 	  // Balance days by moving forward if day exceeds the month's length
 	  var daysInMonth;
-	  while (day > (daysInMonth = Temporal.__computeDaysInMonth__(year, month))) {
+	  while (day > (daysInMonth = computeDaysInMonth(year, month))) {
 		day -= daysInMonth;
 		month++;
 		if (month > 12) {
@@ -449,7 +449,7 @@ var Temporal = Temporal || {};
 		  month = 12;
 		  year--;
 		}
-		day += Temporal.__computeDaysInMonth__(year, month);
+		day += computeDaysInMonth(year, month);
 	  }
 
 	  return { year: year, month: month, day: day };
