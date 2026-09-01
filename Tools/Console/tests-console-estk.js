@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Cross-environment console smoke tests.
  *
  * Node.js treats the include directive as a comment and uses its native

@@ -24,8 +24,12 @@ function equal(actual, expected) {
     }
 }
 
-function createEnvironment(times) {
+function createEnvironment(times, appName) {
     var output = [];
+    var fileOutput = [];
+    var fileOpenModes = [];
+    var filePath = "";
+    var folderCreated = false;
     var timeIndex = 0;
 
     function FakeDate() {}
@@ -39,7 +43,35 @@ function createEnvironment(times) {
     var sandbox = {
         console: undefined,
         Date: FakeDate,
+        BridgeTalk: { appName: appName || "estoolkit" },
+        Folder: function (path) {
+            return {
+                fullName: path,
+                exists: false,
+                create: function () {
+                    folderCreated = true;
+                    return true;
+                }
+            };
+        },
+        File: function (path) {
+            filePath = path;
+            return {
+                open: function (mode) {
+                    fileOpenModes.push(mode);
+                    if (mode === "w") {
+                        fileOutput.length = 0;
+                    }
+                    return true;
+                },
+                writeln: function (message) { fileOutput.push(String(message)); },
+                close: function () {}
+            };
+        },
         $: {
+            getenv: function (name) {
+                return name === "USERPROFILE" ? "C:\\Users\\tester" : "";
+            },
             writeln: function (message) {
                 output.push(String(message));
             }
@@ -47,7 +79,14 @@ function createEnvironment(times) {
     };
 
     vm.runInNewContext(source, sandbox, { filename: "console.js" });
-    return { console: sandbox.console, output: output };
+    return {
+        console: sandbox.console,
+        output: output,
+        fileOutput: fileOutput,
+        fileOpenModes: fileOpenModes,
+        filePath: filePath,
+        folderCreated: folderCreated
+    };
 }
 
 test("installs the complete fallback when console is absent", function () {
@@ -87,6 +126,22 @@ test("formats log, error, warn, and assert output", function () {
         "Warning:",
         "Assertion failed",
         "Assertion failed: expected 3"
+    ].join("\n"));
+});
+
+test("writes automatically to a file when hosted by an Adobe application", function () {
+    var environment = createEnvironment([], "Illustrator");
+    environment.console.log("working", 1);
+    environment.console.warn("checkpoint");
+    equal(environment.output.join("\n"), "");
+    equal(environment.fileOpenModes.join(","), "w,a,a");
+    equal(environment.filePath, "C:/Users/tester/.ESTK_scripts/console.log");
+    equal(environment.folderCreated, true);
+    equal(environment.fileOutput.join("\n"), [
+        "illustrator",
+        "----------------",
+        "working 1",
+        "Warning: checkpoint"
     ].join("\n"));
 });
 

@@ -4,7 +4,7 @@
 
 This project provides a lightweight (or "poor man's") console interface for Adobe ExtendScript. It allows the same script to use familiar console calls in both Node.js and ExtendScript environments.
 
-If a `console` object already exists, as it does in Node.js, the polyfill leaves it untouched. If no `console` object exists, as in the ExtendScript Toolkit, it installs the fallback implementation.
+If a `console` object already exists, as it does in Node.js, the polyfill leaves it untouched. If no `console` object exists, it installs the fallback implementation. In the ExtendScript Toolkit (`estoolkit`) it writes through `$.writeln`; in any other BridgeTalk host, such as Illustrator, InCopy, InDesign, or Photoshop, it clears and writes to `.ESTK_scripts/console.log` in the user's home folder. The first line contains the host application's BridgeTalk name, followed by a `----------------` separator line.
 
 ## Features
 
@@ -29,6 +29,8 @@ Arguments are converted to strings and separated by spaces. Web-console format s
 ```
 
 ExtendScript processes this as an include directive, while Node.js treats it as a comment and keeps using its native `console` object.
+
+The InDesign log can be opened or followed with any text editor that supports automatic file refresh, such as Visual Studio Code.
 
 ## Usage Example
 

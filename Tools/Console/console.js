@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ExtendScript Console Object Polyfill
  * =====================================
  *
@@ -24,6 +24,38 @@ if (typeof console === "undefined") {
     console = (function () {
         var timers = [];
         var consoleObject = {};
+        var logFile = null;
+        var hostName = "";
+
+        if (typeof BridgeTalk !== "undefined") {
+            hostName = String(BridgeTalk.appName).toLowerCase();
+        }
+        if (hostName !== "" && hostName !== "estoolkit") {
+            var home = $.getenv("USERPROFILE") || $.getenv("HOME") || "~";
+            var logFolder = Folder(String(home).replace(/\\/g, "/") + "/.ESTK_scripts");
+
+            if (!logFolder.exists) {
+                logFolder.create();
+            }
+            logFile = File(logFolder.fullName + "/console.log");
+            logFile.encoding = "UTF-8";
+            logFile.open("w");
+            logFile.writeln(hostName);
+            logFile.writeln("----------------");
+            logFile.close();
+        }
+
+        function writeOutput(message) {
+            if (logFile !== null) {
+                logFile.encoding = "UTF-8";
+                if (logFile.open("a")) {
+                    logFile.writeln(message);
+                    logFile.close();
+                    return;
+                }
+            }
+            $.writeln(message);
+        }
 
         function joinArguments(argumentList, startIndex) {
             var message = "";
@@ -215,7 +247,7 @@ if (typeof console === "undefined") {
         }
 
         consoleObject.log = function () {
-            $.writeln(joinArguments(arguments, 0));
+            writeOutput(joinArguments(arguments, 0));
         };
 
         consoleObject.assert = function (assertion) {
@@ -224,18 +256,18 @@ if (typeof console === "undefined") {
                 if (arguments.length > 1) {
                     message += ": " + joinArguments(arguments, 1);
                 }
-                $.writeln(message);
+                writeOutput(message);
             }
         };
 
         consoleObject.error = function () {
             var message = joinArguments(arguments, 0);
-            $.writeln("Error:" + (message ? " " + message : ""));
+            writeOutput("Error:" + (message ? " " + message : ""));
         };
 
         consoleObject.warn = function () {
             var message = joinArguments(arguments, 0);
-            $.writeln("Warning:" + (message ? " " + message : ""));
+            writeOutput("Warning:" + (message ? " " + message : ""));
         };
 
         consoleObject.table = function (data, columns) {
