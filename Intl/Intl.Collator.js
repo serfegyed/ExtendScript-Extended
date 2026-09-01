@@ -140,9 +140,7 @@ var Intl = Intl || {};
         };
     }
 
-    function pushCharacterToken(tokens, character, collationData, caseFirst) {
-        var record = characterRecord(character, collationData);
-
+    function pushCharacterToken(tokens, character, record, caseFirst) {
         tokens.push({
             type: "text",
             primary: record.base,
@@ -183,7 +181,7 @@ var Intl = Intl || {};
             primary += record.base;
             accent += String(record.accent);
             cssCase += isUpperCaseLetter(character) ? (caseFirst === "upper" ? "0" : "1") : (caseFirst === "upper" ? "1" : "0");
-            pushCharacterToken(tokens, character, collationData, caseFirst);
+            pushCharacterToken(tokens, character, record, caseFirst);
         }
 
         return {
@@ -222,7 +220,7 @@ var Intl = Intl || {};
         return compareText(leftText, rightText);
     }
 
-    function compareTokens(leftTokens, rightTokens, field, sensitivity) {
+    function compareTokens(leftTokens, rightTokens, field) {
         var length = Math.min(leftTokens.length, rightTokens.length);
         var index;
         var left;
@@ -256,7 +254,7 @@ var Intl = Intl || {};
         var result;
 
         result = options.numeric ?
-            compareTokens(leftKey.tokens, rightKey.tokens, "primary", options.sensitivity) :
+            compareTokens(leftKey.tokens, rightKey.tokens, "primary") :
             compareText(leftKey.primary, rightKey.primary);
         if (result !== 0 || options.sensitivity === "base") {
             return result;
@@ -264,7 +262,7 @@ var Intl = Intl || {};
 
         if (options.sensitivity === "accent" || options.sensitivity === "variant") {
             result = options.numeric ?
-                compareTokens(leftKey.tokens, rightKey.tokens, "accent", options.sensitivity) :
+                compareTokens(leftKey.tokens, rightKey.tokens, "accent") :
                 compareText(leftKey.accent, rightKey.accent);
             if (result !== 0) {
                 return result;
@@ -273,7 +271,7 @@ var Intl = Intl || {};
 
         if (options.sensitivity === "case" || options.sensitivity === "variant") {
             result = options.numeric ?
-                compareTokens(leftKey.tokens, rightKey.tokens, "cssCase", options.sensitivity) :
+                compareTokens(leftKey.tokens, rightKey.tokens, "cssCase") :
                 compareText(leftKey.cssCase, rightKey.cssCase);
             if (result !== 0) {
                 return result;
@@ -344,3 +342,6 @@ var Intl = Intl || {};
 
     Intl.Collator = Collator;
 }());
+
+
+

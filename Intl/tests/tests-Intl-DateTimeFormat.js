@@ -1,7 +1,7 @@
 /*
  * Intl.DateTimeFormat subset tests for ESTK and Node.js.
  */
-//@include "../../ExtendScript-Extended/Tools/Console/console.js"
+//@include "../../Tools/Console/console.js"
 //@include "../Intl-core.js"
 //@include "../Intl.DateTimeFormat.js"
 
@@ -328,6 +328,7 @@ if (isNodeRuntime) {
         assertThrowsWith(function () { new Intl.DateTimeFormat("en-US", { second: "numeric", fractionalSecondDigits: "banana" }); }, "RangeError", "fractionalSecondDigits invalid string unsupported");
         assertThrowsWith(function () { new Intl.DateTimeFormat("en-US", { hour: "numeric", fractionalSecondDigits: 3 }); }, "RangeError", "fractionalSecondDigits requires second in this subset");
         assertThrowsWith(function () { new Intl.DateTimeFormat("en-US", { dateStyle: "short" }); }, "RangeError", "dateStyle unsupported");
+        assertThrowsWith(function () { new Intl.DateTimeFormat("en-US", { calendar: "gregory" }); }, "RangeError", "calendar unsupported");
         assertThrowsWith(function () { new Intl.DateTimeFormat("en-US", { numberingSystem: "arab" }); }, "RangeError", "numberingSystem unsupported");
         assertThrowsWith(function () { new Intl.DateTimeFormat("en-US", { month: "narrow" }); }, "RangeError", "month narrow unsupported");
         assertThrowsWith(function () { new Intl.DateTimeFormat("en-US", { weekday: "narrow" }); }, "RangeError", "weekday narrow unsupported");
@@ -349,3 +350,4 @@ if (isNodeRuntime) {
         throw new Error("Intl.DateTimeFormat subset tests failed");
     }
 }());
+

@@ -1,7 +1,7 @@
 /*
  * Intl.DisplayNames public examples for ESTK and Node.js.
  */
-//@include "../../ExtendScript-Extended/Tools/Console/console.js"
+//@include "../../Tools/Console/console.js"
 //@include "../Intl-core.js"
 //@include "../Intl.DisplayNames.js"
 
@@ -70,7 +70,7 @@ if (isNodeRuntime) {
     show("resolved type", new Intl.DisplayNames("hu-HU", { type: "currency" }).resolvedOptions().type, "currency");
     show("resolved languageDisplay", new Intl.DisplayNames("hu-HU", { type: "language" }).resolvedOptions().languageDisplay, "dialect");
     show("resolved fallback", new Intl.DisplayNames("hu-HU", { type: "region", fallback: "none" }).resolvedOptions().fallback, "none");
-    show("localeMatcher ignored", new Intl.DisplayNames("hu-HU", { type: "region", localeMatcher: "banana" }).of("DE"), "N\u00E9metorsz\u00E1g");
+    show("localeMatcher lookup", new Intl.DisplayNames("hu-HU", { type: "region", localeMatcher: "lookup" }).of("DE"), "N\u00E9metorsz\u00E1g");
     show("fallback locale", new Intl.DisplayNames("banana", { type: "region" }).resolvedOptions().locale, "en-US");
     show("legacy locale alias", new Intl.DisplayNames("en-UK", { type: "region" }).resolvedOptions().locale, "en-GB");
 
@@ -82,3 +82,4 @@ if (isNodeRuntime) {
         throw new Error("Intl.DisplayNames examples failed: " + failed);
     }
 }());
+

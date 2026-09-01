@@ -181,7 +181,6 @@ var Intl = Intl || {};
         return result;
     };
 
-    if (!Intl.PluralRules) {
-        Intl.PluralRules = PluralRules;
-    }
+    Intl.PluralRules = PluralRules;
 }());
+

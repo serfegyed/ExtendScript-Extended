@@ -151,7 +151,5 @@ var Intl = Intl || {};
         return result;
     };
 
-    if (!Intl.RelativeTimeFormat) {
-        Intl.RelativeTimeFormat = RelativeTimeFormat;
-    }
+    Intl.RelativeTimeFormat = RelativeTimeFormat;
 }());

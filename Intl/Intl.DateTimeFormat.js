@@ -71,9 +71,6 @@ var Intl = Intl || {};
         }
 
         if (options.calendar !== undefined) {
-            if (String(options.calendar) !== "gregory" && String(options.calendar) !== "iso8601") {
-                throw new RangeError("Intl.DateTimeFormat error: calendar is not supported by this subset.");
-            }
             throw new RangeError("Intl.DateTimeFormat error: calendar option is intentionally not supported.");
         }
 
@@ -798,3 +795,5 @@ var Intl = Intl || {};
 
     Intl.DateTimeFormat = DateTimeFormat;
 }());
+
+

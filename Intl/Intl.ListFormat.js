@@ -123,7 +123,6 @@ var Intl = Intl || {};
         return result;
     };
 
-    if (!Intl.ListFormat) {
-        Intl.ListFormat = ListFormat;
-    }
+    Intl.ListFormat = ListFormat;
 }());
+

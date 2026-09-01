@@ -206,7 +206,7 @@ var Intl = Intl || {};
     }
 
     function formatFiniteNumber(number, record) {
-        var negative = number < 0 || (number === 0 && (1 / number < 0 || String(record.originalValue) === "-0"));
+        var negative = number < 0 || (number === 0 && 1 / number < 0);
         var absolute = Math.abs(number);
         if (record.style === "percent") {
             absolute = absolute * 100;
@@ -297,7 +297,6 @@ var Intl = Intl || {};
 
     NumberFormat.prototype.format = function (value) {
         var number = Number(value);
-        var valueBeforeNumberCoercion = value;
         var record = {
             locale: this.__locale__,
             style: this.__style__,
@@ -310,7 +309,6 @@ var Intl = Intl || {};
             useGrouping: this.__useGrouping__,
             signDisplay: this.__signDisplay__,
             trailingZeroDisplay: this.__trailingZeroDisplay__,
-            originalValue: valueBeforeNumberCoercion,
             numberData: this.__numberData__
         };
 
@@ -381,3 +379,4 @@ var Intl = Intl || {};
 
     Intl.NumberFormat = NumberFormat;
 }());
+

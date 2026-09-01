@@ -1,7 +1,7 @@
-/*
+﻿/*
  * Intl.DurationFormat subset tests for ESTK and Node.js.
  */
-//@include "../../ExtendScript-Extended/Tools/Console/console.js"
+//@include "../../Tools/Console/console.js"
 //@include "../Intl-core.js"
 //@include "../Intl.DurationFormat.js"
 

@@ -25,12 +25,14 @@ var Intl = Intl || {};
         var styleAllowed = ["long"];
         var fallbackAllowed = ["code", "none"];
         var languageDisplayAllowed = ["dialect", "standard"];
+        var localeMatcherAllowed = ["best fit", "lookup"];
         var type;
 
         if (options === undefined || options === null) {
             throw new TypeError("Intl.DisplayNames error: options object is required.");
         }
 
+        Intl.__readStringOption__(options, "localeMatcher", localeMatcherAllowed, "best fit", "Intl.DisplayNames");
         type = Intl.__readStringOption__(options, "type", typeAllowed, undefined, "Intl.DisplayNames");
         if (type === undefined) {
             throw new TypeError("Intl.DisplayNames error: type option is required.");
@@ -149,7 +151,7 @@ var Intl = Intl || {};
         return result;
     };
 
-    if (!Intl.DisplayNames) {
-        Intl.DisplayNames = DisplayNames;
-    }
+    Intl.DisplayNames = DisplayNames;
 }());
+
+

@@ -1,4 +1,4 @@
-//@include "../ExtendScript-Extended/Tools/Console/console.js"
+﻿//@include "../Tools/Console/console.js"
 
 var IntlAllTests = (function () {
     var originalLog = console.log;

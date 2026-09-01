@@ -123,7 +123,6 @@ var Intl = Intl || {};
         var order = { Y: 1, M: 2, W: 3, D: 4 };
         var fields = { Y: "years", M: "months", W: "weeks", D: "days" };
         var re = /(\d+)([YMWD])/g;
-        var sign;
         var match;
         var consumed = "";
         var lastOrder = 0;
@@ -320,23 +319,13 @@ var Intl = Intl || {};
         return texts.join(separator);
     }
 
-    function hasDateFields(record) {
-        return record.years !== 0 || record.months !== 0 || record.weeks !== 0 || record.days !== 0;
-    }
 
-    function hasTimeFields(record) {
-        return record.hours !== 0 || record.minutes !== 0 || record.seconds !== 0 || record.milliseconds !== 0;
-    }
-
-    function fractionalSeparator(durationData) {
-        return durationData.fractionalSeparator;
-    }
 
     function formatDigitalTime(durationData, record) {
         var text = String(record.hours) + ":" + Intl.__pad__(record.minutes, 2) + ":" + Intl.__pad__(record.seconds, 2);
 
         if (record.milliseconds !== 0) {
-            text += fractionalSeparator(durationData) + Intl.__pad__(record.milliseconds, 3);
+            text += durationData.fractionalSeparator + Intl.__pad__(record.milliseconds, 3);
         }
         return text;
     }
@@ -358,12 +347,10 @@ var Intl = Intl || {};
                     });
                 }
             }
-            if (hasDateFields(record) || hasTimeFields(record) || record.__hasField__) {
-                parts.push({
-                    field: "digitalTime",
-                    text: formatDigitalTime(durationData, record)
-                });
-            }
+            parts.push({
+                field: "digitalTime",
+                text: formatDigitalTime(durationData, record)
+            });
             return joinParts(durationData, "digital", parts);
         }
 
@@ -446,3 +433,6 @@ var Intl = Intl || {};
 
     Intl.DurationFormat = DurationFormat;
 }());
+
+
+

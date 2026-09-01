@@ -1,7 +1,7 @@
 /*
  * Intl.DisplayNames subset tests for ESTK and Node.js.
  */
-//@include "../../ExtendScript-Extended/Tools/Console/console.js"
+//@include "../../Tools/Console/console.js"
 //@include "../Intl-core.js"
 //@include "../Intl.DisplayNames.js"
 
@@ -209,10 +209,10 @@ if (isNodeRuntime) {
         assertEquals(new Intl.DisplayNames("hu-HU", { type: "language", languageDisplay: new String("standard") }).of(new String("en-GB")), "angol (Egyes\u00FClt Kir\u00E1lys\u00E1g)", "String language input");
     });
 
-    test("localeMatcher is accepted as an ignored compatibility option", function () {
+    test("localeMatcher accepts only supported compatibility values", function () {
         assertEquals(new Intl.DisplayNames("hu-HU", { type: "region", localeMatcher: "lookup" }).of("US"), "Egyes\u00FClt \u00C1llamok", "lookup localeMatcher");
         assertEquals(new Intl.DisplayNames("hu-HU", { type: "region", localeMatcher: "best fit" }).of("US"), "Egyes\u00FClt \u00C1llamok", "best fit localeMatcher");
-        assertEquals(new Intl.DisplayNames("hu-HU", { type: "region", localeMatcher: "banana" }).of("US"), "Egyes\u00FClt \u00C1llamok", "invalid localeMatcher remains ignored in this subset");
+        assertThrowsWith(function () { new Intl.DisplayNames("hu-HU", { type: "region", localeMatcher: "banana" }); }, "RangeError", "invalid localeMatcher rejected");
     });
 
     test("unsupported locale falls back through Intl-core", function () {
@@ -282,3 +282,4 @@ if (isNodeRuntime) {
         throw new Error("Intl.DisplayNames tests failed: " + failed);
     }
 }());
+
