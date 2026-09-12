@@ -88,6 +88,24 @@ if (typeof require === "function" && typeof process !== "undefined") {
     writeLine("Temporal PlainYearMonth ExtendScript polyfill tests");
     writeLine("---------------------------------------------------");
 
+    test("F18 difference options reject inherited object names", function () {
+        // Native Temporal, Node v26.5.0: all cases throw RangeError.
+        var names = ["toString","constructor","hasOwnProperty","valueOf"];
+        var properties = ["largestUnit", "smallestUnit"];
+        var methods = ["until", "since"];
+        var value = Temporal.PlainYearMonth.from("2024-01");
+        for (var i = 0; i < names.length; i++) {
+            for (var j = 0; j < properties.length; j++) {
+                var options = {};
+                options[properties[j]] = names[i];
+                for (var k = 0; k < methods.length; k++) {
+                    assertThrowsWith(function () { value[methods[k]]("2024-02", options); },
+                        "RangeError", names[i] + " " + properties[j] + " " + methods[k]);
+                }
+            }
+        }
+    });
+
     test("constructor coerces fields and exposes the selected ISO properties", function () {
         var yearMonth = new Temporal.PlainYearMonth(2024, 2);
 

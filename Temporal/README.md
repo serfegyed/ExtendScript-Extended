@@ -43,7 +43,7 @@ Shared helpers live in `Lib/Temporal-core.js`.
 Current coverage includes:
 
 - `Temporal` namespace setup
-- shared ExtendScript-safe error helpers
+- shared input validation using native TypeError and RangeError
 - ISO date, time, and date-time parsing helpers
 - ISO formatting helpers
 - Gregorian leap-year and days-in-month helpers
@@ -78,10 +78,10 @@ Current coverage includes:
 - `duration.total(...)`
 - `duration.toString(...)`
 - `duration.toJSON()`
-- `duration.toLocaleString()`, currently as a simple `toString()` alias
+- `duration.toLocaleString()`, using the local `Intl.DurationFormat` subset when loaded and falling back to `toString()`
 - `duration.valueOf()` rejection, matching Temporal's non-primitive comparison rule
 
-The implementation supports years, months, weeks, days, hours, minutes, seconds, and milliseconds. It intentionally stops at millisecond precision.
+The implementation supports years, months, weeks, days, hours, minutes, seconds, and milliseconds. Calendar rounding uses `relativeTo`; string and object round options share the same validation. ISO serialization preserves nonzero milliseconds alongside larger units and supports explicit second/millisecond precision.
 
 The public runtime module is kept in `Lib/`.
 
@@ -230,7 +230,7 @@ Current coverage includes:
 - `plainMonthDay.toPlainDate(...)`
 - `plainMonthDay.valueOf()` rejection
 
-The implementation is ISO-only. It exposes a practical numeric `month` property as well as the semantically useful `monthCode`, while omitting multi-calendar and Intl-dependent surface.
+The implementation is ISO-only. It exposes a practical numeric `month` property as well as the semantically useful `monthCode`, while omitting multi-calendar APIs. Optional Intl formatting uses localized month/day parts.
 
 The public runtime module is kept in `Lib/`.
 
@@ -288,6 +288,8 @@ Current coverage includes:
 - `plainDateTime.toPlainDate()`
 - `plainDateTime.toPlainTime()`
 - `plainDateTime.valueOf()` rejection, matching Temporal's non-primitive comparison rule
+
+`until()` and `since()` support year, month, and week smallest units as well as day/time units. Calendar rounding uses the starting date-time as its anchor; an omitted or `auto` largestUnit selects the larger of day and smallestUnit. Numeric time fields are coerced and truncated, and local ISO strings are validated in full.
 
 `Temporal.PlainDate` and `Temporal.PlainTime` are separate modules used by the conversion methods.
 
@@ -361,7 +363,7 @@ Test/
   tests-UTCProjection.js
 ```
 
-`Lib/` contains the current public runtime files. Numbered development snapshots are intentionally not published in this repository.
+`Lib/` contains the current runtime files. The development checkout also retains numbered snapshots in per-module directories; include the active `Lib/` files.
 The Date polyfills used by `Temporal.js` live in the sibling `Date/Lib/` directory as independently includeable files.
 
 ## How to Use
@@ -372,7 +374,7 @@ For the complete public subset, include the package entry file:
 //@include "Temporal.js"
 ```
 
-`Temporal.js` contains only ordered `#include` directives. If a script needs only part of the library, individual files can instead be included from `Lib/`, with Core first:
+`Temporal.js` contains only ordered `//@include` directives. If a script needs only part of the library, individual files can instead be included from `Lib/`, with Core first:
 
 ```javascript
 //@include "Lib/Temporal-core.js"
@@ -400,26 +402,36 @@ The test files are plain `.js` files with ExtendScript `//@include` lines and a 
 
 ## Tests
 
-Current local test status:
+Validated on 2026-09-12 with Node v26.5.0 and live ESTK runs.
+
+| Test file | Passed | Failed |
+| --- | ---: | ---: |
+| `Test/tests-Temporal-core.js` | 11 | 0 |
+| `Test/tests-Duration.js` | 58 | 0 |
+| `Test/tests-Instant.js` | 16 | 0 |
+| `Test/tests-Now.js` | 5 | 0 |
+| `Test/tests-PlainYearMonth.js` | 11 | 0 |
+| `Test/tests-PlainMonthDay.js` | 10 | 0 |
+| `Test/tests-PlainDate.js` | 13 | 0 |
+| `Test/tests-PlainDateTime.js` | 42 | 0 |
+| `Test/tests-PlainTime.js` | 10 | 0 |
+| `Test/tests-UTCProjection.js` | 13 | 0 |
+| `Test/tests-LocaleString.js` | 5 | 0 |
+| `Test/tests-LocaleString-Intl.js` | 9 | 0 |
+| **Total** | **203** | **0** |
+
+The full ESTK run reported 0 skipped tests. Run `all_tests.js` in ESTK for the aggregate result. Under Node, run the individual test files; their include comments are handled by each file's Node loader, while `all_tests.js` is the ESTK entry point.
+
+For example, from the repository root:
 
 ```text
-Test/tests-Temporal-core.js      Passed: 6,  Failed: 0
-Test/tests-Duration.js           Passed: 33, Failed: 0
-Test/tests-Instant.js            Passed: 14, Failed: 0
-Test/tests-Now.js                Passed: 5,  Failed: 0
-Test/tests-PlainYearMonth.js     Passed: 10, Failed: 0
-Test/tests-PlainMonthDay.js      Passed: 10, Failed: 0
-Test/tests-PlainDate.js          Passed: 10, Failed: 0
-Test/tests-PlainDateTime.js      Passed: 16, Failed: 0
-Test/tests-PlainTime.js          Passed: 10, Failed: 0
-Test/tests-UTCProjection.js      Passed: 13, Failed: 0
-Test/tests-LocaleString.js       Passed: 5,  Failed: 0
-Test/tests-LocaleString-Intl.js  Passed: 8,  Failed: 0
+node Temporal/Test/tests-PlainDateTime.js
+node Temporal/Test/tests-LocaleString-Intl.js
 ```
 
-Each implemented behavior should have a matching project test. Where practical, expected behavior is derived from Node Temporal first, then copied into this repository's tests.
+The Intl integration loader supplies the Intl module directory explicitly; locale-data loading no longer depends on Node's working directory.
 
-`Test/tests-Now.js`, `Test/tests-UTCProjection.js`, `Test/tests-LocaleString.js`, and `Test/tests-LocaleString-Intl.js` are part of the local test suite.
+The separate review audit reported 41 MATCH and 0 DIFF. Its cases are additional checks and are not included in the 203-test total. Node is a behavior reference, not a full compatibility guarantee: mixed-calendar rounding expectations are documented separately where the installed native implementation differs from the specification.
 
 ## Development Philosophy
 

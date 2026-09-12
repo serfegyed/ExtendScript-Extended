@@ -1,3 +1,4 @@
+// v8 Reject inherited names in option validation tables (F18)
 var Temporal = Temporal || {};
 
 (function () {
@@ -199,7 +200,7 @@ var Temporal = Temporal || {};
         }
 
         unit = Temporal.__singularUnit__(unit);
-        if (!YEAR_MONTH_UNITS[unit]) {
+        if (YEAR_MONTH_UNITS[unit] !== true) {
             throw new RangeError("Temporal error: Weeks and days are not allowed in this operation.");
         }
         return unit;

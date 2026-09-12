@@ -12,7 +12,7 @@ This is not a full Temporal.Duration polyfill. The goal is practical, inspectabl
 ## Files
 
 - Active implementation: `Lib/Temporal.Duration.js`
-- Tests: `Test/tests-Duration.js`
+- Tests: `Test/tests-Duration.js` (Node and ESTK: 58 passed, 0 failed; validated 2026-09-12)
 - Required includes: `Lib/Temporal-core.js`; `Lib/Temporal.PlainDateTime.js` is also needed for calendar-relative operations.
 
 ```javascript
@@ -131,6 +131,7 @@ Errors:
 - singular field names, such as `{ day: 1 }`: `TypeError`
 - mixed signs, such as `{ days: 1, hours: -1 }`: `RangeError`
 - fractional fields, `NaN`, or `Infinity`: `RangeError`
+- empty time designators such as `PT` or `P1DT`: `RangeError`; explicit `PT0S` remains valid
 
 ### `Temporal.Duration.compare(one, two, options)`
 
@@ -235,6 +236,8 @@ Temporal.Duration.from("-P2W").abs().toString();
 
 ### `duration.round(roundTo)`
 
+A string is shorthand for an object with `smallestUnit`. Both forms preserve the largest existing unit unless smallestUnit requires a larger one; `Temporal.Duration.from("PT25H").round("hour")` retains 25 hours.
+
 Supported forms:
 
 ```javascript
@@ -284,7 +287,19 @@ Temporal.Duration.from("P1Y2DT12H").round({
 // "P1Y3D"
 ```
 
-Validation covers missing `roundTo`, `null`, empty option objects, invalid units or rounding modes, invalid `roundingIncrement`, and calendar `largestUnit` without `relativeTo`.
+Year/month rounding uses actual calendar boundaries. Week rounding removes the day/time remainder; when year/month fields are retained, only the remaining interval is rounded to weeks. A calendar smallestUnit with roundingIncrement above 1 requires the same largestUnit.
+
+```javascript
+Temporal.Duration.from({ days: 20 }).round({
+    smallestUnit: "month", relativeTo: "2024-01-01"
+}).toString(); // "P1M"
+
+Temporal.Duration.from({ days: 20 }).round({
+    smallestUnit: "week", relativeTo: "2024-01-01"
+}).toString(); // "P3W"
+```
+
+Validation covers missing `roundTo`, `null`, empty option objects, invalid units or modes, and invalid increments. Without `relativeTo`, year/month/week fields are rejected even when an explicit time or day largestUnit is requested.
 
 ### `duration.total(totalOf)`
 
@@ -349,7 +364,19 @@ Temporal.Duration.from("PT1.234S").toString({
 // "PT1.23S"
 ```
 
-Intentional simplification: `smallestUnit: "hour"` and `"minute"` are not supported as string-formatting options.
+Supported precision options are `fractionalSecondDigits: 0..3` or `"auto"`, and `smallestUnit: "second"` or `"millisecond"`. smallestUnit determines precision when both are provided. Rounding defaults to `trunc` and supports the modes listed above.
+
+```javascript
+Temporal.Duration.from("PT1.999S").toString({
+    fractionalSecondDigits: 2, roundingMode: "halfExpand"
+}); // "PT2.00S"
+Temporal.Duration.from("PT1S").toString({ smallestUnit: "millisecond" }); // "PT1.000S"
+Temporal.Duration.from("P1Y").toString({ smallestUnit: "second" }); // "P1YT0S"
+Temporal.Duration.from({ hours: -1 }).toString({ fractionalSecondDigits: 3 }); // "-PT1H0.000S"
+Temporal.Duration.from({ days: 1, milliseconds: 1 }).toJSON(); // "P1DT0.001S"
+```
+
+A negative duration that rounds entirely to zero is displayed without a minus sign. Hour and minute smallest units are not accepted by Duration string formatting.
 
 ### `duration.toJSON()`
 
@@ -393,8 +420,7 @@ Use `Temporal.Duration.compare()` for comparisons.
 Intentionally absent:
 
 - microsecond and nanosecond properties
-- locale-based duration formatting
-- `Intl.DurationFormat`
+- full Intl.DurationFormat compatibility; only the optional local formatter subset is supported
 - full calendar/time-zone API
 - object-shape parity only for Node compatibility
 - `Temporal.Duration.prototype.withCalendar`
@@ -419,10 +445,10 @@ The implemented surface has been checked against Node Temporal for:
 
 Node Temporal is a reference and test oracle, not a full API contract. Features that are not useful for the ExtendScript/InDesign target should remain documented as unsupported instead of being stubbed.
 
-## Known Oddities And Edge Cases
+## Edge Cases
 
 - Duration fields are not automatically balanced everywhere. For example, `PT25H` may remain `PT25H`.
-- With a date part, fractional-only seconds can disappear to match Node behavior: `P1Y2DT0.001S` -> `P1Y2D`.
+- `toString()` and `toJSON()` preserve nonzero milliseconds alongside higher date and time units, for example `P1Y2DT0.001S` and `PT1H0.001S`.
 - Calendar unit comparison, totalization, and rounding are date-dependent, so `relativeTo` is required.
 - `weeks` is treated as a calendar unit in operations where week length is tied to calendar context.
 - Errors use the native `TypeError` and `RangeError` constructors provided by ExtendScript.
@@ -440,5 +466,5 @@ duration.total({
     unit: "day",
     relativeTo: deadline
 });
-// 31
+// 31.125
 ```

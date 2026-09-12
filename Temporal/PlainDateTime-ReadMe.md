@@ -12,7 +12,7 @@ This is not a full Temporal.PlainDateTime polyfill. The goal is stable date-time
 ## Files
 
 - Active implementation: `Lib/Temporal.PlainDateTime.js`
-- Tests: `Test/tests-PlainDateTime.js`
+- Tests: `Test/tests-PlainDateTime.js` (Node and ESTK: 42 passed, 0 failed; validated 2026-09-12)
 - Required includes: `Lib/Temporal-core.js`, `Lib/Temporal.Duration.js`, `Lib/Temporal.PlainTime.js`, `Lib/Temporal.PlainDate.js`, `Lib/Temporal.PlainDateTime.js`
 
 ```javascript
@@ -42,7 +42,7 @@ Out of scope:
 - named-zone rule lookup, DST calculation, and time-zone conversion
 - `Temporal.ZonedDateTime`
 - non-ISO calendars
-- Intl localization and locale/options processing
+- full Intl localization; optional formatting uses the local Intl subset
 - microsecond/nanosecond storage
 
 ## Implemented Properties
@@ -54,6 +54,8 @@ var dt = Temporal.PlainDateTime.from("2024-02-29T10:20:30.123");
 
 dt.year;        // 2024
 dt.month;       // 2
+dt.monthCode;   // "M02"
+dt.calendarId;  // "iso8601"
 dt.day;         // 29
 dt.hour;        // 10
 dt.minute;      // 20
@@ -73,7 +75,6 @@ dt.daysInYear;
 
 Intentionally absent:
 
-- `calendarId`
 - `calendar`
 - `era`
 - `eraYear`
@@ -103,7 +104,7 @@ Notes:
 
 - The constructor validates with reject-style overflow.
 - Invalid dates, such as 2023-02-29, throw.
-- Missing minute, second, or millisecond fields default to zero.
+- Omitted time fields default to zero. Numeric strings are accepted, finite fractions are truncated, and NaN/infinite values throw.
 - Calling without `new` currently delegates to `Temporal.PlainDateTime.from(...)`.
 
 ## Static Methods
@@ -115,7 +116,7 @@ Accepts:
 - ISO date-time strings
 - date-only ISO strings, with time defaulting to `00:00:00`
 - another `Temporal.PlainDateTime` instance
-- property bag objects with at least `year`, `month`, and `day`
+- property bags with `year`, `day`, and `month` or ISO `monthCode`
 
 Examples:
 
@@ -150,6 +151,8 @@ The input is parsed through the shared Instant parser and normalized to UTC befo
 
 An offset may be followed by a bracketed zone annotation. The explicit offset remains authoritative; no IANA zone lookup or offset-versus-zone validation is performed. A bracketed zone without `Z` or an offset is rejected.
 
+Local ISO strings must match in full. Trailing text, invalid time fields, and the year `-000000` are rejected. Dot and comma fractions are accepted and reduced to milliseconds; leap second 60 is read as 59.
+
 Overflow:
 
 ```javascript
@@ -166,7 +169,7 @@ Temporal.PlainDateTime.from(
 Errors:
 
 - `undefined`, `null`, number, boolean: `TypeError`
-- missing `year` / `month` / `day`: `TypeError`
+- missing `year`, `day`, or both `month` and `monthCode`: `TypeError`
 - invalid ISO string: `RangeError`
 - bracketed zone annotation without `Z` or a numeric offset: `RangeError`
 - invalid overflow option: `RangeError`
@@ -333,7 +336,7 @@ Temporal.PlainDateTime
 
 Computes the difference from this value to `other`.
 
-Defaults: `largestUnit: "day"`, `smallestUnit: "millisecond"`, `roundingMode: "trunc"`, `roundingIncrement: 1`.
+Defaults: `smallestUnit: "millisecond"`, `roundingMode: "trunc"`, `roundingIncrement: 1`. An omitted or `"auto"` largestUnit selects the larger of day and smallestUnit.
 
 ```javascript
 Temporal.PlainDateTime
@@ -374,13 +377,22 @@ Temporal.PlainDateTime
 
 Supported `largestUnit`: `year`, `month`, `week`, `day`, `hour`, `minute`, `second`, `millisecond`, with plural aliases.
 
-Supported `smallestUnit`: `day`, `hour`, `minute`, `second`, `millisecond`, with plural aliases.
+Supported `smallestUnit`: `year`, `month`, `week`, `day`, `hour`, `minute`, `second`, `millisecond`, with plural aliases.
 
-Note: `smallestUnit: "year"`, `"month"`, or `"week"` currently returns an empty duration. This is a documented oddity and not a recommended usage path.
+Calendar smallest units use the starting date-time as the rounding anchor. An explicit largestUnit cannot be smaller than smallestUnit. Calendar increments above 1 require matching largestUnit and smallestUnit.
+
+```javascript
+var start = Temporal.PlainDateTime.from("2024-01-01");
+start.until("2025-03-20", { smallestUnit: "year" }).toString();  // "P1Y"
+start.until("2025-03-20", { smallestUnit: "month" }).toString(); // "P14M"
+start.until("2025-03-20", { smallestUnit: "week" }).toString();  // "P63W"
+```
+
+Month-end differences use the original start date, and day differences retain millisecond remainders.
 
 ### `plainDateTime.since(other, options)`
 
-The inverse direction of `until()`.
+Computes the difference in the opposite direction while retaining this value as the calendar anchor. Directional rounding modes are adjusted accordingly.
 
 ```javascript
 Temporal.PlainDateTime
@@ -437,7 +449,9 @@ Temporal.PlainDateTime
 // "2024-03-01T00:00:00"
 ```
 
-Unsupported round `smallestUnit`: `year`, `month`, `week`.
+Numeric-string increments such as `roundingIncrement: "15"` are accepted after coercion and validation. halfEven rounding uses the remainder within the parent time unit, so larger fields do not alter tie parity.
+
+Unlike difference methods, `round()` accepts only day/time smallest units; year, month, and week are rejected.
 
 ### `plainDateTime.equals(other)`
 
@@ -517,7 +531,7 @@ Intentionally absent:
 - `withCalendar()`
 - non-ISO calendars
 - no full Intl localization; only the local `Intl.DateTimeFormat` subset is used when loaded
-- `calendarId`, `era`, `eraYear`
+- `era`, `eraYear`
 - internal microsecond/nanosecond precision
 - full Node Temporal object-shape parity
 
@@ -547,7 +561,7 @@ Node Temporal is a reference and test oracle, not a full API contract. The docum
 - Date-only input is accepted and defaults the time part to midnight.
 - Property bag input defaults to `overflow: "constrain"`; invalid ISO string dates throw, matching Node Temporal.
 - `toString()` can emit microsecond/nanosecond-length output padded with zeros, but there is no internal precision beyond milliseconds.
-- `until()` / `since()` with calendar units as `smallestUnit` is not fully supported and should be avoided.
+- Calendar `until()` / `since()` rounding reuses Duration rounding within the ISO/millisecond subset.
 - TypeError/RangeError values use the native constructors provided by ExtendScript.
 
 `toLocaleString(locales, options)` is implemented on `Temporal.PlainDateTime`. It delegates to the local `Intl.DateTimeFormat` subset when that formatter is loaded; otherwise it falls back to `toString()`. Intl-free fallback does not project through native `Date` and does not invent an offset.

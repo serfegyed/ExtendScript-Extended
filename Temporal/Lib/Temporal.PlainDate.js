@@ -1,3 +1,6 @@
+// v31 Reject inherited names in option validation tables (F18)
+// v30 Skip unused calendar boundary for unchanged day rounding (F15)
+// v29 Preserve calendar fields when rounding day remainder to weeks (F14)
 // v25 Remove unreachable constructor checkedDate fallback
 // v24 Remove unreachable createDate checked fallback
 // v23 Project Z and numeric-offset ISO strings to UTC date fields
@@ -47,7 +50,7 @@ var Temporal = Temporal || {};
         }
 
         unit = Temporal.__singularUnit__(unit);
-        if (!DATE_UNITS[unit]) {
+        if (DATE_UNITS[unit] !== true) {
             throw new RangeError("Value " + unit + " out of range for Temporal.PlainDate.prototype." + methodName + " options property " + propertyName);
         }
         return unit;
@@ -285,6 +288,7 @@ var Temporal = Temporal || {};
         if (smallestUnit === "day") {
             var direction = Temporal.PlainDate.compare(start, end) < 0 ? 1 : -1;
             var roundedDays = Temporal.__roundField__(fields.days, roundingIncrement, roundingMode);
+            if (roundedDays === fields.days) return fields;
             var anchor = start.add({ years: fields.years, months: fields.months });
             var boundary = start.add({ years: fields.years, months: fields.months + direction });
             var daysToBoundary = Temporal.__daysBetweenDates__(anchor, boundary);
@@ -313,12 +317,12 @@ var Temporal = Temporal || {};
             return roundCalendarDuration(start, end, fields, smallestUnit, roundingIncrement, roundingMode, largestUnit);
         }
 
-        if (smallestUnit === "week" && fields.years === 0 && fields.months === 0) {
+        if (smallestUnit === "week") {
             var days = (fields.weeks * 7) + fields.days;
             var roundedDays = Temporal.__roundField__(days, roundingIncrement * 7, roundingMode);
             return {
-                years: 0,
-                months: 0,
+                years: fields.years,
+                months: fields.months,
                 weeks: roundedDays / 7,
                 days: 0,
                 hours: 0,

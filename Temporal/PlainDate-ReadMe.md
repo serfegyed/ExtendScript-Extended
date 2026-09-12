@@ -12,7 +12,7 @@ This is not a complete Temporal polyfill. The implementation focuses on practica
 ## Files
 
 - Active implementation: `Lib/Temporal.PlainDate.js`
-- Tests: `Test/tests-PlainDate.js`
+- Tests: `Test/tests-PlainDate.js` (Node and ESTK: 13 passed, 0 failed; validated 2026-09-12)
 - Required includes: `Lib/Temporal-core.js`, `Lib/Temporal.Duration.js`, `Lib/Temporal.PlainDate.js`
 
 Include PlainYearMonth for `toPlainYearMonth()`, PlainMonthDay for `toPlainMonthDay()`, and PlainTime and PlainDateTime when `toPlainDateTime()` is needed.
@@ -144,7 +144,7 @@ Temporal.PlainDate
 // "P1M1D"
 ```
 
-The implemented difference options support `largestUnit`, `smallestUnit`, `roundingIncrement`, and the Temporal rounding modes used elsewhere in this subset.
+The implemented difference options support `largestUnit`, `smallestUnit`, `roundingIncrement`, and the Temporal rounding modes used elsewhere in this subset. Week remainders preserve the year/month fields: `Temporal.PlainDate.from("2024-01-01").until("2024-02-15", { largestUnit: "month", smallestUnit: "week" })` produces `P1M2W`. When day rounding leaves the remainder unchanged, no next-month boundary is constructed, allowing valid differences near the ISO range limits.
 
 ## String And Primitive Behavior
 
@@ -208,4 +208,3 @@ Temporal.PlainDate
 These limits keep the implementation aligned with the repository's ExtendScript/InDesign target instead of expanding toward a complete polyfill.
 
 `toLocaleString(locales, options)` is implemented on `Temporal.PlainDate`. It delegates to the local `Intl.DateTimeFormat` subset when that formatter is loaded; otherwise it falls back to `toString()` and returns `YYYY-MM-DD`.
-

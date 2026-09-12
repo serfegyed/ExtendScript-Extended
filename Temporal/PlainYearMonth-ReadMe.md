@@ -12,7 +12,7 @@ This module is part of the focused ExtendScript/InDesign Temporal subset. Node T
 ## Files
 
 - Active implementation: `Lib/Temporal.PlainYearMonth.js`
-- Tests: `Test/tests-PlainYearMonth.js`
+- Tests: `Test/tests-PlainYearMonth.js` (Node and ESTK: 11 passed, 0 failed; validated 2026-09-12)
 - Required includes: `Lib/Temporal-core.js`, `Lib/Temporal.Duration.js`, `Lib/Temporal.PlainYearMonth.js`
 
 Include `Lib/Temporal.PlainDate.js` when `toPlainDate()` is needed.
@@ -141,11 +141,10 @@ At the global ISO limits, the resulting PlainDate must also be valid. For exampl
 - no `monthCode`, `calendarId`, `era`, or `eraYear` fields
 - no optional calendar/reference-day constructor overload; the supported constructor is `(year, month)`
 - no `withCalendar()`
-- no localized YearMonth formatting; `toLocaleString()` currently keeps ISO output
+- locale formatting is limited to the optional local Intl.DateTimeFormat.formatToParts subset; without it, toLocaleString() returns ISO output
 - no named-zone rule lookup, DST calculation, or time-zone APIs
 - no full Node object-shape parity
 
 The native `referenceISODay` overload is not stored or exposed by this two-argument subset. The YearMonth endpoints are validated directly.
 
 `toLocaleString(locales, options)` is implemented on `Temporal.PlainYearMonth`. It delegates to the local `Intl.DateTimeFormat.formatToParts()` subset when that formatter is loaded, using only `year` and `month` parts so no synthetic day is visible. Without Intl, it falls back to `toString()`.
-

@@ -112,6 +112,135 @@ if (typeof require === "function" && typeof process !== "undefined") {
     writeLine("Temporal PlainDateTime ExtendScript polyfill tests");
     writeLine("--------------------------------------------------");
 
+    test("Calendar differences support year month week and auto largestUnit", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["2024-01-01","2025-03-20","until",{"smallestUnit":"year"},"P1Y"],
+            ["2024-01-01","2025-03-20","since",{"smallestUnit":"year"},"-P1Y"],
+            ["2024-01-01","2025-03-20","until",{"smallestUnit":"year","largestUnit":"auto"},"P1Y"],
+            ["2024-01-01","2025-03-20","since",{"smallestUnit":"year","largestUnit":"auto"},"-P1Y"],
+            ["2024-01-01","2025-03-20","until",{"smallestUnit":"year","largestUnit":"year"},"P1Y"],
+            ["2024-01-01","2025-03-20","since",{"smallestUnit":"year","largestUnit":"year"},"-P1Y"],
+            ["2024-01-01","2025-03-20","until",{"smallestUnit":"month"},"P14M"],
+            ["2024-01-01","2025-03-20","since",{"smallestUnit":"month"},"-P14M"],
+            ["2024-01-01","2025-03-20","until",{"smallestUnit":"month","largestUnit":"auto"},"P14M"],
+            ["2024-01-01","2025-03-20","since",{"smallestUnit":"month","largestUnit":"auto"},"-P14M"],
+            ["2024-01-01","2025-03-20","until",{"smallestUnit":"month","largestUnit":"month"},"P14M"],
+            ["2024-01-01","2025-03-20","since",{"smallestUnit":"month","largestUnit":"month"},"-P14M"],
+            ["2024-01-01","2025-03-20","until",{"smallestUnit":"week"},"P63W"],
+            ["2024-01-01","2025-03-20","since",{"smallestUnit":"week"},"-P63W"],
+            ["2024-01-01","2025-03-20","until",{"smallestUnit":"week","largestUnit":"auto"},"P63W"],
+            ["2024-01-01","2025-03-20","since",{"smallestUnit":"week","largestUnit":"auto"},"-P63W"],
+            ["2024-01-01","2025-03-20","until",{"smallestUnit":"week","largestUnit":"week"},"P63W"],
+            ["2024-01-01","2025-03-20","since",{"smallestUnit":"week","largestUnit":"week"},"-P63W"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var row = cases[i];
+            assertNodeEquals(Temporal.PlainDateTime.from(row[0])[row[2]](row[1], row[3]).toString(),
+                row[4], "calendar difference case " + i);
+        }
+    });
+
+    test("Calendar differences round signed time remainders", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["2024-01-01","2024-01-16T12:00","until",{"smallestUnit":"month","roundingMode":"ceil"},"P1M"],
+            ["2024-01-01","2024-01-16T12:00","since",{"smallestUnit":"month","roundingMode":"ceil"},"PT0S"],
+            ["2024-01-01","2024-01-16T12:00","until",{"smallestUnit":"month","roundingMode":"floor"},"PT0S"],
+            ["2024-01-01","2024-01-16T12:00","since",{"smallestUnit":"month","roundingMode":"floor"},"-P1M"],
+            ["2024-01-01","2024-01-16T12:00","until",{"smallestUnit":"month","roundingMode":"expand"},"P1M"],
+            ["2024-01-01","2024-01-16T12:00","since",{"smallestUnit":"month","roundingMode":"expand"},"-P1M"],
+            ["2024-01-01","2024-01-16T12:00","until",{"smallestUnit":"month","roundingMode":"trunc"},"PT0S"],
+            ["2024-01-01","2024-01-16T12:00","since",{"smallestUnit":"month","roundingMode":"trunc"},"PT0S"],
+            ["2024-01-01","2024-01-16T12:00","until",{"smallestUnit":"month","roundingMode":"halfCeil"},"P1M"],
+            ["2024-01-01","2024-01-16T12:00","since",{"smallestUnit":"month","roundingMode":"halfCeil"},"PT0S"],
+            ["2024-01-01","2024-01-16T12:00","until",{"smallestUnit":"month","roundingMode":"halfFloor"},"PT0S"],
+            ["2024-01-01","2024-01-16T12:00","since",{"smallestUnit":"month","roundingMode":"halfFloor"},"-P1M"],
+            ["2024-01-01","2024-01-16T12:00","until",{"smallestUnit":"month","roundingMode":"halfExpand"},"P1M"],
+            ["2024-01-01","2024-01-16T12:00","since",{"smallestUnit":"month","roundingMode":"halfExpand"},"-P1M"],
+            ["2024-01-01","2024-01-16T12:00","until",{"smallestUnit":"month","roundingMode":"halfTrunc"},"PT0S"],
+            ["2024-01-01","2024-01-16T12:00","since",{"smallestUnit":"month","roundingMode":"halfTrunc"},"PT0S"],
+            ["2024-01-01","2024-01-16T12:00","until",{"smallestUnit":"month","roundingMode":"halfEven"},"PT0S"],
+            ["2024-01-01","2024-01-16T12:00","since",{"smallestUnit":"month","roundingMode":"halfEven"},"PT0S"],
+            ["2025-03-20T18:00","2024-01-31T12:00","until",{"smallestUnit":"year","roundingIncrement":2},"PT0S"],
+            ["2025-03-20T18:00","2024-01-31T12:00","since",{"smallestUnit":"year","roundingIncrement":2},"PT0S"],
+            ["2025-03-20T18:00","2024-01-31T12:00","until",{"smallestUnit":"month","roundingIncrement":2},"-P12M"],
+            ["2025-03-20T18:00","2024-01-31T12:00","since",{"smallestUnit":"month","roundingIncrement":2},"P12M"],
+            ["2025-03-20T18:00","2024-01-31T12:00","until",{"smallestUnit":"week","roundingIncrement":2},"-P58W"],
+            ["2025-03-20T18:00","2024-01-31T12:00","since",{"smallestUnit":"week","roundingIncrement":2},"P58W"],
+            ["2024-01-01","2024-02-15","until",{"largestUnit":"month","smallestUnit":"week"},"P1M2W"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var row = cases[i];
+            assertNodeEquals(Temporal.PlainDateTime.from(row[0])[row[2]](row[1], row[3]).toString(),
+                row[4], "calendar difference case " + i);
+        }
+    });
+
+    test("Calendar differences validate options and equal endpoints", function () {
+        var value = Temporal.PlainDateTime.from("2024-01-01");
+        assertNodeEquals(value.until(value, { smallestUnit: "year" }).toString(), "PT0S", "equal endpoints");
+        assertThrowsWith(function () { value.until("2025-01-01", { largestUnit: "day", smallestUnit: "month" }); }, "RangeError", "unit order");
+        assertThrowsWith(function () { value.until(value, { smallestUnit: "year", roundingMode: "oops" }); }, "RangeError", "equal endpoints invalid mode");
+        assertThrowsWith(function () { value.until(value, { largestUnit: "year", smallestUnit: "month", roundingIncrement: 2 }); }, "RangeError", "mixed units increment");
+        assertThrowsWith(function () { value.until("invalid", { smallestUnit: "week" }); }, "RangeError", "invalid endpoint");
+    });
+
+    test("F18 difference options reject inherited object names", function () {
+        // Native Temporal, Node v26.5.0: all cases throw RangeError.
+        var names = ["toString","constructor","hasOwnProperty","valueOf"];
+        var properties = ["largestUnit", "smallestUnit"];
+        var methods = ["until", "since"];
+        var value = Temporal.PlainDateTime.from("2024-01-01");
+        for (var i = 0; i < names.length; i++) {
+            for (var j = 0; j < properties.length; j++) {
+                var options = {};
+                options[properties[j]] = names[i];
+                for (var k = 0; k < methods.length; k++) {
+                    assertThrowsWith(function () { value[methods[k]]("2024-01-02", options); },
+                        "RangeError", names[i] + " " + properties[j] + " " + methods[k]);
+                }
+            }
+        }
+    });
+
+    test("F18 rounding formatting and overflow reject inherited names", function () {
+        var names = ["toString","constructor","hasOwnProperty","valueOf"];
+        var value = Temporal.PlainDateTime.from("2024-01-01");
+        for (var i = 0; i < names.length; i++) {
+            assertThrowsWith(function () { value.round({ smallestUnit: names[i] }); }, "RangeError", "round " + names[i]);
+            assertThrowsWith(function () { value.toString({ smallestUnit: names[i] }); }, "RangeError", "format " + names[i]);
+            assertThrowsWith(function () { value.add({ days: 1 }, { overflow: names[i] }); }, "RangeError", "overflow " + names[i]);
+        }
+    });
+
+    test("F15 PlainDateTime differences stay valid near both ISO range limits", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["+275760-09-01","+275760-09-02","until",{"largestUnit":"month"},"P1D"],
+            ["+275760-09-01","+275760-09-02","since",{"largestUnit":"month"},"-P1D"],
+            ["+275760-09-01","+275760-09-02","until",{"largestUnit":"year"},"P1D"],
+            ["+275760-09-01","+275760-09-02","since",{"largestUnit":"year"},"-P1D"],
+            ["+275760-09-02","+275760-09-01","until",{"largestUnit":"month"},"-P1D"],
+            ["+275760-09-02","+275760-09-01","since",{"largestUnit":"month"},"P1D"],
+            ["+275760-09-02","+275760-09-01","until",{"largestUnit":"year"},"-P1D"],
+            ["+275760-09-02","+275760-09-01","since",{"largestUnit":"year"},"P1D"],
+            ["-271821-04-21","-271821-04-20","until",{"largestUnit":"month"},"-P1D"],
+            ["-271821-04-21","-271821-04-20","since",{"largestUnit":"month"},"P1D"],
+            ["-271821-04-21","-271821-04-20","until",{"largestUnit":"year"},"-P1D"],
+            ["-271821-04-21","-271821-04-20","since",{"largestUnit":"year"},"P1D"],
+            ["-271821-04-20","-271821-04-21","until",{"largestUnit":"month"},"P1D"],
+            ["-271821-04-20","-271821-04-21","since",{"largestUnit":"month"},"-P1D"],
+            ["-271821-04-20","-271821-04-21","until",{"largestUnit":"year"},"P1D"],
+            ["-271821-04-20","-271821-04-21","since",{"largestUnit":"year"},"-P1D"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var row = cases[i];
+            assertNodeEquals(Temporal.PlainDateTime.from(row[0])[row[2]](row[1], row[3]).toString(),
+                row[4], "ISO range case " + i);
+        }
+    });
+
     test("Temporal namespace is loaded", function () {
         assert(typeof Temporal === "object", "Temporal namespace should exist");
         assert(typeof Temporal.Duration === "function", "Temporal.Duration should exist");
@@ -433,6 +562,138 @@ if (typeof require === "function" && typeof process !== "undefined") {
         }, "TypeError", "boolean input should throw like Node");
     });
 
+
+    test("F03 constructor stores normalized integer time fields", function () {
+        // Native Temporal, Node v26.5.0.
+        var value = new Temporal.PlainDateTime(2024, 1, 1, "2");
+        assertNodeEquals(typeof value.hour, "number", "constructor string hour becomes a number");
+        assertNodeEquals(value.add({ hours: 1 }).toString(), "2024-01-01T03:00:00", "numeric hour addition");
+        value = new Temporal.PlainDateTime(2024, 1, 1, 1.9, 2.9, 3.9, 4.9);
+        assertNodeEquals(value.hour, 1, "truncated hour");
+        assertNodeEquals(value.minute, 2, "truncated minute");
+        assertNodeEquals(value.second, 3, "truncated second");
+        assertNodeEquals(value.millisecond, 4, "truncated millisecond");
+    });
+
+    test("F03 invalid time fields throw in constructor, from and with", function () {
+        // Native Temporal, Node v26.5.0: all 48 calls throw RangeError.
+        var names = ["hour", "minute", "second", "millisecond"];
+        var invalid = [NaN, Infinity, -Infinity, "oops"];
+        var base = Temporal.PlainDateTime.from("2024-01-01");
+        for (var i = 0; i < names.length; i++) {
+            for (var j = 0; j < invalid.length; j++) {
+                var times = [0, 0, 0, 0];
+                times[i] = invalid[j];
+                assertThrowsWith(function () {
+                    new Temporal.PlainDateTime(2024, 1, 1, times[0], times[1], times[2], times[3]);
+                }, "RangeError", "constructor invalid " + names[i]);
+                var bag = { year: 2024, month: 1, day: 1 };
+                bag[names[i]] = invalid[j];
+                assertThrowsWith(function () {
+                    Temporal.PlainDateTime.from(bag);
+                }, "RangeError", "from invalid " + names[i]);
+                var change = {};
+                change[names[i]] = invalid[j];
+                assertThrowsWith(function () {
+                    base.with(change);
+                }, "RangeError", "with invalid " + names[i]);
+            }
+        }
+    });
+
+    test("F03 from coerces fields before truncation and overflow", function () {
+        // Native Temporal, Node v26.5.0.
+        assertNodeEquals(Temporal.PlainDateTime.from({
+            year: "2.024e3", month: 1, day: true, hour: true,
+            minute: null, second: "", millisecond: 1.9
+        }).toString(), "2024-01-01T01:00:00.001", "Number coercion rather than parseInt");
+        assertNodeEquals(Temporal.PlainDateTime.from({
+            year: 2024, month: 1, day: 1, hour: 25, minute: -1
+        }).toString(), "2024-01-01T23:00:00", "finite time overflow constrains");
+        assertThrowsWith(function () {
+            Temporal.PlainDateTime.from({ year: 2024, month: 1, day: 1, hour: 25 }, { overflow: "reject" });
+        }, "RangeError", "finite time overflow rejects");
+    });
+
+    test("F03 with truncates time fields and preserves calendar constrain", function () {
+        // Native Temporal, Node v26.5.0.
+        var base = Temporal.PlainDateTime.from("2024-01-01");
+        var value = base.with({ hour: 1.9, minute: 2.9, second: 3.9, millisecond: 4.9 });
+        assertNodeEquals(value.toString(), "2024-01-01T01:02:03.004", "with truncated time fields");
+        assertNodeEquals(value.millisecond, 4, "with stores integer milliseconds");
+        assertNodeEquals(base.toString(), "2024-01-01T00:00:00", "with preserves receiver");
+        assertNodeEquals(Temporal.PlainDateTime.from("2024-01-31").with({
+            month: 2, day: 100
+        }).toString(), "2024-02-29T00:00:00", "day constrained against final month");
+    });
+
+    test("F03 with rejects nonpositive dates and invalid years before constrain", function () {
+        // Native Temporal, Node v26.5.0: each supplied field throws RangeError.
+        var base = Temporal.PlainDateTime.from("2024-01-01");
+        var changes = [{ month: 0 }, { day: 0 }, { day: -1 }, { year: Infinity }, { year: 275761 }];
+        for (var i = 0; i < changes.length; i++) {
+            assertThrowsWith(function () {
+                base.with(changes[i]);
+            }, "RangeError", "invalid date fields must not become valid through constrain");
+        }
+    });
+
+
+    test("F04 ISO parsing rejects incomplete input and trailing text", function () {
+        // Native Temporal, Node v26.5.0: all these strings throw RangeError.
+        var invalid = [
+            "2024-01-01garbage", "-000000-01-01T00:00", "2024-01-01T",
+            "2024-01-01T12:", "2024-01-01T12:34:", "2024-01-01T12:34:56.",
+            "2024-01-01T12:34:56.1234567890", "2024-01-01\n", "2024-01-01T12:3456"
+        ];
+        for (var i = 0; i < invalid.length; i++) {
+            assertThrowsWith(function () {
+                Temporal.PlainDateTime.from(invalid[i]);
+            }, "RangeError", "reject malformed ISO input: " + invalid[i]);
+        }
+    });
+
+    test("F04 ISO time values reject regardless of overflow option", function () {
+        // Native Temporal, Node v26.5.0: ISO strings never constrain invalid times.
+        var invalid = ["2024-01-01T25:99:99", "2024-01-01T12:60", "2024-01-01T12:34:61"];
+        var options = [undefined, { overflow: "constrain" }, { overflow: "reject" }];
+        for (var i = 0; i < invalid.length; i++) {
+            for (var j = 0; j < options.length; j++) {
+                assertThrowsWith(function () {
+                    Temporal.PlainDateTime.from(invalid[i], options[j]);
+                }, "RangeError", "invalid ISO time with any overflow setting");
+            }
+        }
+    });
+
+    test("F04 ISO fractions accept dot and comma and preserve milliseconds", function () {
+        // Native Temporal, Node v26.5.0; finer fractions use its millisecond field.
+        var inputs = ["2024-01-01T12:34:56.789", "2024-01-01T12:34:56,789"];
+        for (var i = 0; i < inputs.length; i++) {
+            assertNodeEquals(Temporal.PlainDateTime.from(inputs[i]).toString(),
+                "2024-01-01T12:34:56.789", "equivalent fraction separators");
+        }
+        assertNodeEquals(Temporal.PlainDateTime.from("2024-01-01T12:34:56.1").millisecond,
+            100, "one fractional digit means 100 milliseconds");
+        assertNodeEquals(Temporal.PlainDateTime.from("2024-01-01T12:34:56.123456789").millisecond,
+            123, "Node millisecond field; finer precision intentionally omitted");
+    });
+
+    test("F04 valid date-only, short time, extended year and leap second remain supported", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["2024-01-01", "2024-01-01T00:00:00"],
+            ["2024-01-01T12", "2024-01-01T12:00:00"],
+            ["0000-01-01T00:00", "0000-01-01T00:00:00"],
+            ["+012345-01-01T00:00", "+012345-01-01T00:00:00"],
+            ["2024-01-01T23:59:60", "2024-01-01T23:59:59"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            assertNodeEquals(Temporal.PlainDateTime.from(cases[i][0], { overflow: "reject" }).toString(),
+                cases[i][1], "supported ISO form: " + cases[i][0]);
+        }
+    });
+
     test("PlainDateTime.with matches Node Temporal edge cases", function () {
         var dateTime = Temporal.PlainDateTime.from("2024-02-29T10:20:30.123");
 
@@ -644,17 +905,17 @@ if (typeof require === "function" && typeof process !== "undefined") {
         );
         assertNodeEquals(
             untilString("2024-02-29T10:20:30.123", "2024-03-01T10:20:30.124"),
-            "P1D",
+            "P1DT0.001S",
             "Temporal.PlainDateTime.from(a).until(Temporal.PlainDateTime.from(b)).toString()"
         );
         assertNodeEquals(
             untilString("2024-03-01T10:20:30.124", "2024-02-29T10:20:30.123"),
-            "-P1D",
+            "-P1DT0.001S",
             "Temporal.PlainDateTime.from(b).until(Temporal.PlainDateTime.from(a)).toString()"
         );
         assertNodeEquals(
             sinceString("2024-03-01T10:20:30.124", "2024-02-29T10:20:30.123"),
-            "P1D",
+            "P1DT0.001S",
             "Temporal.PlainDateTime.from(b).since(Temporal.PlainDateTime.from(a)).toString()"
         );
         assertNodeEquals(
@@ -887,6 +1148,241 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assertThrowsWith(function () {
             Temporal.PlainDateTime.from("2024-02-29T00:00:00").until(Temporal.PlainDateTime.from("2024-03-01T00:00:00"), { smallestUnit: "millisecond", roundingIncrement: 1000 });
         }, "RangeError", "until millisecond roundingIncrement maximum should throw like Node");
+    });
+
+
+    test("F05 month-end differences keep their original anchor", function () {
+        // Native Temporal, Node v26.5.0: start, end, largestUnit, until, since.
+        var cases = [
+            ["2024-01-31","2024-03-31","month","P2M","-P2M"],
+            ["2024-01-31","2024-02-29","month","P29D","-P29D"],
+            ["2024-03-31","2024-02-29","month","-P1M","P1M"],
+            ["2023-01-31","2023-03-31","month","P2M","-P2M"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var row = cases[i];
+            var start = Temporal.PlainDateTime.from(row[0]);
+            var options = { largestUnit: row[2] };
+            assertNodeEquals(start.until(row[1], options).toString(), row[3],
+                "until: " + row[0] + " -> " + row[1]);
+            assertNodeEquals(start.since(row[1], options).toString(), row[4],
+                "since: " + row[0] + " -> " + row[1]);
+        }
+    });
+
+
+    test("F05 leap-year differences do not accumulate constrained dates", function () {
+        // Native Temporal, Node v26.5.0: start, end, largestUnit, until, since.
+        var cases = [
+            ["2020-02-29","2024-02-29","year","P4Y","-P4Y"],
+            ["2024-02-29","2020-02-29","year","-P4Y","P4Y"],
+            ["2024-02-29","2025-02-28","year","P11M30D","-P11M30D"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var row = cases[i];
+            var start = Temporal.PlainDateTime.from(row[0]);
+            var options = { largestUnit: row[2] };
+            assertNodeEquals(start.until(row[1], options).toString(), row[3],
+                "until: " + row[0] + " -> " + row[1]);
+            assertNodeEquals(start.since(row[1], options).toString(), row[4],
+                "since: " + row[0] + " -> " + row[1]);
+        }
+    });
+
+
+    test("F05 time-of-day borrowing preserves calendar direction", function () {
+        // Native Temporal, Node v26.5.0: start, end, largestUnit, until, since.
+        var cases = [
+            ["2024-01-31T12:00","2024-03-31T11:00","month","P1M30DT23H","-P1M30DT23H"],
+            ["2024-03-31T11:00","2024-01-31T12:00","month","-P1M28DT23H","P1M28DT23H"],
+            ["2024-02-29T12:00","2024-03-31T11:00","month","P1M1DT23H","-P1M1DT23H"],
+            ["2024-03-31T11:00","2024-02-29T12:00","year","-P30DT23H","P30DT23H"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var row = cases[i];
+            var start = Temporal.PlainDateTime.from(row[0]);
+            var options = { largestUnit: row[2] };
+            assertNodeEquals(start.until(row[1], options).toString(), row[3],
+                "until: " + row[0] + " -> " + row[1]);
+            assertNodeEquals(start.since(row[1], options).toString(), row[4],
+                "since: " + row[0] + " -> " + row[1]);
+        }
+    });
+
+    test("F06 calendar until rounds signed remainders in both directions", function () {
+        // Native Temporal, Node v26.5.0: mode, later-to-earlier, earlier-to-later.
+        var cases = [
+            ["ceil","-P2M1D","P2M2D"],
+            ["floor","-P2M2D","P2M1D"],
+            ["expand","-P2M2D","P2M2D"],
+            ["trunc","-P2M1D","P2M1D"],
+            ["halfCeil","-P2M1D","P2M2D"],
+            ["halfFloor","-P2M2D","P2M1D"],
+            ["halfExpand","-P2M2D","P2M2D"],
+            ["halfTrunc","-P2M1D","P2M1D"],
+            ["halfEven","-P2M2D","P2M2D"]
+        ];
+        var later = Temporal.PlainDateTime.from("2024-03-02T12:00");
+        var earlier = Temporal.PlainDateTime.from("2024-01-01");
+        for (var i = 0; i < cases.length; i++) {
+            var row = cases[i];
+            var options = { largestUnit: "month", smallestUnit: "day", roundingMode: row[0] };
+            assertNodeEquals(later.until(earlier, options).toString(), row[1],
+                "until later-to-earlier " + row[0]);
+            assertNodeEquals(earlier.until(later, options).toString(), row[2],
+                "until earlier-to-later " + row[0]);
+        }
+    });
+
+
+    test("F06 calendar since rounds signed remainders in both directions", function () {
+        // Native Temporal, Node v26.5.0: mode, later-to-earlier, earlier-to-later.
+        var cases = [
+            ["ceil","P2M2D","-P2M1D"],
+            ["floor","P2M1D","-P2M2D"],
+            ["expand","P2M2D","-P2M2D"],
+            ["trunc","P2M1D","-P2M1D"],
+            ["halfCeil","P2M2D","-P2M1D"],
+            ["halfFloor","P2M1D","-P2M2D"],
+            ["halfExpand","P2M2D","-P2M2D"],
+            ["halfTrunc","P2M1D","-P2M1D"],
+            ["halfEven","P2M2D","-P2M2D"]
+        ];
+        var later = Temporal.PlainDateTime.from("2024-03-02T12:00");
+        var earlier = Temporal.PlainDateTime.from("2024-01-01");
+        for (var i = 0; i < cases.length; i++) {
+            var row = cases[i];
+            var options = { largestUnit: "month", smallestUnit: "day", roundingMode: row[0] };
+            assertNodeEquals(later.since(earlier, options).toString(), row[1],
+                "since later-to-earlier " + row[0]);
+            assertNodeEquals(earlier.since(later, options).toString(), row[2],
+                "since earlier-to-later " + row[0]);
+        }
+    });
+
+    test("F07 day differences preserve subsecond fields in both directions", function () {
+        // Native Temporal, Node v26.5.0: compare fields, independently of toString (F08).
+        var cases = [
+            ["2024-01-01","2024-01-02T00:00:00.001","day",[0,0,0,1,0,0,0,1]],
+            ["2024-01-01","2024-01-02T00:00:00.999","day",[0,0,0,1,0,0,0,999]],
+            ["2024-01-02T00:00:00.001","2024-01-01","day",[0,0,0,-1,0,0,0,-1]],
+            ["2024-01-02T00:00:00.999","2024-01-01","day",[0,0,0,-1,0,0,0,-999]]
+        ];
+        var fields = ["years", "months", "weeks", "days", "hours", "minutes", "seconds", "milliseconds"];
+        for (var i = 0; i < cases.length; i++) {
+            var row = cases[i];
+            var start = Temporal.PlainDateTime.from(row[0]);
+            var until = start.until(row[1], { largestUnit: row[2] });
+            var since = start.since(row[1], { largestUnit: row[2] });
+            for (var j = 0; j < fields.length; j++) {
+                assertNodeEquals(until[fields[j]], row[3][j], "until " + fields[j] + " case " + i);
+                assertNodeEquals(since[fields[j]], -row[3][j], "since " + fields[j] + " case " + i);
+            }
+        }
+    });
+
+
+    test("F07 week and month remainders preserve milliseconds", function () {
+        // Native Temporal, Node v26.5.0: compare fields, independently of toString (F08).
+        var cases = [
+            ["2024-01-01","2024-01-09T00:00:00.001","week",[0,0,1,1,0,0,0,1]],
+            ["2024-01-01","2024-02-02T00:00:00.001","month",[0,1,0,1,0,0,0,1]]
+        ];
+        var fields = ["years", "months", "weeks", "days", "hours", "minutes", "seconds", "milliseconds"];
+        for (var i = 0; i < cases.length; i++) {
+            var row = cases[i];
+            var start = Temporal.PlainDateTime.from(row[0]);
+            var until = start.until(row[1], { largestUnit: row[2] });
+            var since = start.since(row[1], { largestUnit: row[2] });
+            for (var j = 0; j < fields.length; j++) {
+                assertNodeEquals(until[fields[j]], row[3][j], "until " + fields[j] + " case " + i);
+                assertNodeEquals(since[fields[j]], -row[3][j], "since " + fields[j] + " case " + i);
+            }
+        }
+    });
+    test("F13 halfEven uses parity within the parent unit", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["2024-01-01T00:00:01.500",{"smallestUnit":"millisecond","roundingIncrement":200,"roundingMode":"halfEven"},"2024-01-01T00:00:01.4"],
+            ["2024-01-01T00:00:00.500",{"smallestUnit":"millisecond","roundingIncrement":200,"roundingMode":"halfEven"},"2024-01-01T00:00:00.4"],
+            ["2024-01-01T00:00:01.700",{"smallestUnit":"millisecond","roundingIncrement":200,"roundingMode":"halfEven"},"2024-01-01T00:00:01.8"],
+            ["2024-01-01T00:01:10",{"smallestUnit":"second","roundingIncrement":20,"roundingMode":"halfEven"},"2024-01-01T00:01:00"],
+            ["2024-01-01T00:00:10",{"smallestUnit":"second","roundingIncrement":20,"roundingMode":"halfEven"},"2024-01-01T00:00:00"],
+            ["2024-01-01T01:10",{"smallestUnit":"minute","roundingIncrement":20,"roundingMode":"halfEven"},"2024-01-01T01:00:00"],
+            ["2024-01-01T00:10",{"smallestUnit":"minute","roundingIncrement":20,"roundingMode":"halfEven"},"2024-01-01T00:00:00"],
+            ["2024-01-01T12:00",{"smallestUnit":"day","roundingIncrement":1,"roundingMode":"halfEven"},"2024-01-01T00:00:00"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            assertNodeEquals(Temporal.PlainDateTime.from(cases[i][0]).round(cases[i][1]).toString(),
+                cases[i][2], cases[i][0] + " case " + i);
+        }
+    });
+
+    test("F13 rounding modes preserve time and date carries", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["2024-02-29T23:59:59.900",{"smallestUnit":"millisecond","roundingIncrement":200,"roundingMode":"ceil"},"2024-03-01T00:00:00"],
+            ["2024-02-29T23:59:50",{"smallestUnit":"second","roundingIncrement":20,"roundingMode":"ceil"},"2024-03-01T00:00:00"],
+            ["2024-12-31T23:50",{"smallestUnit":"minute","roundingIncrement":20,"roundingMode":"ceil"},"2025-01-01T00:00:00"],
+            ["2024-02-29T23:59:59.900",{"smallestUnit":"millisecond","roundingIncrement":200,"roundingMode":"floor"},"2024-02-29T23:59:59.8"],
+            ["2024-02-29T23:59:50",{"smallestUnit":"second","roundingIncrement":20,"roundingMode":"floor"},"2024-02-29T23:59:40"],
+            ["2024-12-31T23:50",{"smallestUnit":"minute","roundingIncrement":20,"roundingMode":"floor"},"2024-12-31T23:40:00"],
+            ["2024-02-29T23:59:59.900",{"smallestUnit":"millisecond","roundingIncrement":200,"roundingMode":"expand"},"2024-03-01T00:00:00"],
+            ["2024-02-29T23:59:50",{"smallestUnit":"second","roundingIncrement":20,"roundingMode":"expand"},"2024-03-01T00:00:00"],
+            ["2024-12-31T23:50",{"smallestUnit":"minute","roundingIncrement":20,"roundingMode":"expand"},"2025-01-01T00:00:00"],
+            ["2024-02-29T23:59:59.900",{"smallestUnit":"millisecond","roundingIncrement":200,"roundingMode":"trunc"},"2024-02-29T23:59:59.8"],
+            ["2024-02-29T23:59:50",{"smallestUnit":"second","roundingIncrement":20,"roundingMode":"trunc"},"2024-02-29T23:59:40"],
+            ["2024-12-31T23:50",{"smallestUnit":"minute","roundingIncrement":20,"roundingMode":"trunc"},"2024-12-31T23:40:00"],
+            ["2024-02-29T23:59:59.900",{"smallestUnit":"millisecond","roundingIncrement":200,"roundingMode":"halfCeil"},"2024-03-01T00:00:00"],
+            ["2024-02-29T23:59:50",{"smallestUnit":"second","roundingIncrement":20,"roundingMode":"halfCeil"},"2024-03-01T00:00:00"],
+            ["2024-12-31T23:50",{"smallestUnit":"minute","roundingIncrement":20,"roundingMode":"halfCeil"},"2025-01-01T00:00:00"],
+            ["2024-02-29T23:59:59.900",{"smallestUnit":"millisecond","roundingIncrement":200,"roundingMode":"halfFloor"},"2024-02-29T23:59:59.8"],
+            ["2024-02-29T23:59:50",{"smallestUnit":"second","roundingIncrement":20,"roundingMode":"halfFloor"},"2024-02-29T23:59:40"],
+            ["2024-12-31T23:50",{"smallestUnit":"minute","roundingIncrement":20,"roundingMode":"halfFloor"},"2024-12-31T23:40:00"],
+            ["2024-02-29T23:59:59.900",{"smallestUnit":"millisecond","roundingIncrement":200,"roundingMode":"halfExpand"},"2024-03-01T00:00:00"],
+            ["2024-02-29T23:59:50",{"smallestUnit":"second","roundingIncrement":20,"roundingMode":"halfExpand"},"2024-03-01T00:00:00"],
+            ["2024-12-31T23:50",{"smallestUnit":"minute","roundingIncrement":20,"roundingMode":"halfExpand"},"2025-01-01T00:00:00"],
+            ["2024-02-29T23:59:59.900",{"smallestUnit":"millisecond","roundingIncrement":200,"roundingMode":"halfTrunc"},"2024-02-29T23:59:59.8"],
+            ["2024-02-29T23:59:50",{"smallestUnit":"second","roundingIncrement":20,"roundingMode":"halfTrunc"},"2024-02-29T23:59:40"],
+            ["2024-12-31T23:50",{"smallestUnit":"minute","roundingIncrement":20,"roundingMode":"halfTrunc"},"2024-12-31T23:40:00"],
+            ["2024-02-29T23:59:59.900",{"smallestUnit":"millisecond","roundingIncrement":200,"roundingMode":"halfEven"},"2024-02-29T23:59:59.8"],
+            ["2024-02-29T23:59:50",{"smallestUnit":"second","roundingIncrement":20,"roundingMode":"halfEven"},"2024-02-29T23:59:40"],
+            ["2024-12-31T23:50",{"smallestUnit":"minute","roundingIncrement":20,"roundingMode":"halfEven"},"2024-12-31T23:40:00"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            assertNodeEquals(Temporal.PlainDateTime.from(cases[i][0]).round(cases[i][1]).toString(),
+                cases[i][2], cases[i][0] + " case " + i);
+        }
+    });
+
+    test("F12 rounding increments coerce numeric strings and values", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["2024-01-01T12:07","minute","15","2024-01-01T12:00:00"],
+            ["2024-02-29T22:31","hour","3","2024-03-01T00:00:00"],
+            ["2024-01-01T12:00:07","second","15","2024-01-01T12:00:00"],
+            ["2024-01-01T00:00:00.126","millisecond","50","2024-01-01T00:00:00.15"],
+            ["2024-02-29T13:00","day","1","2024-03-01T00:00:00"],
+            ["2024-01-01T12:07:31","minute",true,"2024-01-01T12:08:00"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            assertNodeEquals(Temporal.PlainDateTime.from(cases[i][0]).round({
+                smallestUnit: cases[i][1], roundingIncrement: cases[i][2]
+            }).toString(), cases[i][3], "coerced increment case " + i);
+        }
+        assertNodeEquals(Temporal.PlainDateTime.from("2024-01-01T12:07").round({
+            smallestUnit: "minute", roundingIncrement: { valueOf: function () { return 15; } }
+        }).toString(), "2024-01-01T12:00:00", "numeric object increment");
+    });
+
+    test("F12 invalid nonnumeric increments are not silently replaced by one", function () {
+        var values = ["oops", "0", "", null, false, "Infinity", "7", "60"];
+        var dateTime = Temporal.PlainDateTime.from("2024-01-01T12:07");
+        for (var i = 0; i < values.length; i++) {
+            assertThrowsWith(function () {
+                dateTime.round({ smallestUnit: "minute", roundingIncrement: values[i] });
+            }, "RangeError", "invalid coerced increment case " + i);
+        }
     });
 
     test("PlainDateTime.round matches Node Temporal basics", function () {

@@ -231,6 +231,19 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assertEquals(parsed.millisecond, 789, "combined parser millisecond");
     });
 
+
+    test("F04 shared ISO parser validates the complete time string", function () {
+        // Native Temporal, Node v26.5.0: comma fraction = 789 ms; invalid time throws.
+        assertEquals(Temporal.__parseISOString__("2024-01-01T12:34:56,789").millisecond, 789,
+            "comma fraction");
+        assertThrowsWith(function () {
+            Temporal.__parseISOString__("2024-01-01T25:99:99");
+        }, "RangeError", "invalid time is rejected before caller overflow handling");
+        assertThrowsWith(function () {
+            Temporal.__parseISOString__("2024-01-01garbage");
+        }, "RangeError", "trailing text is rejected");
+    });
+
     test("Calendar math helpers cover leap-day basics", function () {
         assertEquals(typeof Temporal.isLeapYear, "undefined", "public-looking isLeapYear is absent");
         assertEquals(typeof Temporal.validateDate, "undefined", "public-looking validateDate is absent");

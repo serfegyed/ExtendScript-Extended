@@ -1,3 +1,6 @@
+// v35 Reject inherited names in option validation tables (F18)
+// v34 Reject negative zero years in Instant strings (F17)
+// v33 Validate complete local ISO strings and preserve comma fractions (F04)
 var Temporal = Temporal || {};
 
 (function () {
@@ -254,7 +257,7 @@ var Temporal = Temporal || {};
 		}
 
 		match = /^([+-]\d{6}|\d{4})-(\d{2})-(\d{2})[Tt ](\d{2}):(\d{2})(?::(\d{2})(?:[.,](\d{1,9}))?)?([zZ]|([+-])(\d{2})(?::?(\d{2}))?)$/.exec(source);
-		if (!match) {
+		if (!match || match[1] === "-000000") {
 			throw new RangeError("Temporal error: Required fields missing from Instant string.");
 		}
 
@@ -326,61 +329,31 @@ var Temporal = Temporal || {};
 	}
 
 	/**
-	 * Parses an ISO 8601 date string (e.g., "2025-01-16").
-	 * Accepts a full date-time string but extracts and parses only the date part.
-	 *
-	 * @param {string} isoString - The ISO date or date-time string.
-	 * @returns {Object} An object containing year, month, and day.
-	 */
-	function parseISODateString(dateStr) {
-		var dateMatch = dateStr.match(/^([-+]?\d{4,6})-(\d{2})-(\d{2}).*$/);
-		if (!dateMatch) return undefined;
-			return  {
-				year: parseInt(dateMatch[1], 10),
-				month: parseInt(dateMatch[2], 10),
-				day: parseInt(dateMatch[3], 10)
-			};
-	}
-
-	/**
-	 * Parses an ISO 8601 time string (e.g., "14:35:29.123Z").
-	 * Accepts a full date-time string but extracts and parses only the time part.
-	 *
-	 * @param {string} isoString - The ISO time or date-time string.
-	 * @returns {Object} An object containing hours, minutes, seconds, milliseconds, and time zone offset.
-	 */
-	function parseISOTimeString(timeStr) {
-		var timeMatch = timeStr.match(/(\d{2}):(\d{2}):?(\d{2})?(?:\.(\d{1,3}))?.*$/)
-		if (!timeMatch) return undefined;
-
-		return {
-			hour: parseInt(timeMatch[1], 10),
-			minute: parseInt(timeMatch[2] || 0, 10),
-			second: parseInt(timeMatch[3] || 0, 10),
-			millisecond: parseInt((timeMatch[4] || "0") + "000".slice(0, 3 - (timeMatch[4] || "0").length), 10)
-		};
-	}
-
-	/**
-	 * Parses an ISO 8601 date-time string (e.g., "2025-01-16T14:35:29.123Z").
-	 *
-	 * @param {string} isoString - The ISO date-time string.
-	 * @returns {Object} An object containing all date and time components.
+	 * Parse the supported offset-free ISO date/date-time grammar.
+	 * Date-only input uses midnight; fractions are truncated to milliseconds.
+	 * Calendar date validity is checked by the caller.
 	 */
 	function parseISOString(dateTimeStr) {
-		var datePart = parseISODateString(dateTimeStr)// || { year: 0, month: 0, day: 0 };
-		var timePart = parseISOTimeString(dateTimeStr) || { hour: 0, minute: 0, second: 0, millisecond: 0 };
-		
-		if (!datePart) throw new TypeError('Invalid ISO DateTime string')
-		
+		var match = /^(\d{4}|[+-]\d{6})-(\d{2})-(\d{2})(?:[Tt ](\d{2})(?::(\d{2})(?::(\d{2})(?:[.,](\d{1,9}))?)?)?)?$/.exec(dateTimeStr);
+		if (!match || match[0] !== dateTimeStr || match[1] === "-000000") {
+			throw new RangeError("Invalid ISO DateTime string");
+		}
+
+		var hour = Number(match[4] || 0);
+		var minute = Number(match[5] || 0);
+		var second = Number(match[6] || 0);
+		if (hour > 23 || minute > 59 || second > 60) {
+			throw new RangeError("Invalid time in ISO DateTime string");
+		}
+
 		return {
-			year: datePart.year,
-			month: datePart.month,
-			day: datePart.day,
-			hour: timePart.hour,
-			minute: timePart.minute,
-			second: timePart.second,
-			millisecond: timePart.millisecond
+			year: Number(match[1]),
+			month: Number(match[2]),
+			day: Number(match[3]),
+			hour: hour,
+			minute: minute,
+			second: second === 60 ? 59 : second,
+			millisecond: Number(((match[7] || "") + "000").substring(0, 3))
 		};
 	}
 
@@ -650,7 +623,7 @@ var Temporal = Temporal || {};
 
 			unit = singularUnit(unit);
 
-			if (validUnits[unit]) {
+			if (validUnits[unit] === true) {
 				return unit;
 			}
 

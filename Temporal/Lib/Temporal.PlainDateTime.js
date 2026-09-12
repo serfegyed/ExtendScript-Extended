@@ -1,3 +1,11 @@
+// v51 Support calendar smallestUnit in until and since
+// v50 Reject inherited names in option validation tables (F18)
+// v49 - Round within parent time unit for halfEven parity (F13)
+// v48 - Coerce PlainDateTime.round roundingIncrement before validation (F12)
+// v47 Preserve subsecond remainders alongside days (F07)
+// v46 Round signed calendar remainders before taking magnitude (F06)
+// v45 Anchor calendar differences to the original date and direction (F05)
+// v44 Normalize numeric fields before overflow (F03)
 // v43 Reuse core roundingIncrement validation in round
 // v36 Project Z and numeric-offset ISO strings to UTC fields
 // v42 Extract PlainDateTime overflow option normalization
@@ -45,7 +53,7 @@
             }
 
             var overflow = params.overflow === undefined ? 'constrain' : params.overflow;
-            if (!validOverflow[overflow]) {
+            if (validOverflow[overflow] !== true) {
                 throw new RangeError("Invalid overflow: " + overflow);
             };
             return overflow;
@@ -70,10 +78,10 @@
         this.monthCode = Temporal.__formatISOMonthCode__(this.month);
         this.calendarId = "iso8601";
         this.day = checkedDate.day;
-        this.hour = Temporal.__isBetween__(hour, 0, 23, overflow);
-        this.minute = minute ? Temporal.__isBetween__(minute, 0, 59, overflow) : 0;
-        this.second = second ? Temporal.__isBetween__(second, 0, 59, overflow) : 0;
-        this.millisecond = millisecond ? Temporal.__isBetween__(millisecond, 0, 999, overflow) : 0;
+        this.hour = Temporal.__isBetween__(Temporal.__toInteger__(hour === undefined ? 0 : hour), 0, 23, overflow);
+        this.minute = Temporal.__isBetween__(Temporal.__toInteger__(minute === undefined ? 0 : minute), 0, 59, overflow);
+        this.second = Temporal.__isBetween__(Temporal.__toInteger__(second === undefined ? 0 : second), 0, 59, overflow);
+        this.millisecond = Temporal.__isBetween__(Temporal.__toInteger__(millisecond === undefined ? 0 : millisecond), 0, 999, overflow);
 
         // Additional properties
         this.dayOfWeek = Temporal.__computeDayOfWeek__(this.year, this.month, this.day);
@@ -138,19 +146,19 @@
                 throw new TypeError("Invalid PlainDateTime object: missing required fields");
             }
             var checkedDate = Temporal.__validateDate__(
-                parseInt(value.year, 10),
+                value.year,
                 Temporal.__resolveISOMonth__(value),
-                parseInt(value.day, 10),
+                value.day,
                 overflow
             );
             return new Temporal.PlainDateTime(
                 checkedDate.year,
                 checkedDate.month,
                 checkedDate.day,
-                Temporal.__isBetween__(parseInt(value.hour, 10), 0, 23, overflow),
-                value.minute ? Temporal.__isBetween__(parseInt(value.minute, 10), 0, 59, overflow) : 0,
-                value.second ? Temporal.__isBetween__(parseInt(value.second, 10), 0, 59, overflow) : 0,
-                value.millisecond ? Temporal.__isBetween__(value.millisecond, 0, 999, overflow) : 0
+                Temporal.__isBetween__(Temporal.__toInteger__(value.hour === undefined ? 0 : value.hour), 0, 23, overflow),
+                Temporal.__isBetween__(Temporal.__toInteger__(value.minute === undefined ? 0 : value.minute), 0, 59, overflow),
+                Temporal.__isBetween__(Temporal.__toInteger__(value.second === undefined ? 0 : value.second), 0, 59, overflow),
+                Temporal.__isBetween__(Temporal.__toInteger__(value.millisecond === undefined ? 0 : value.millisecond), 0, 999, overflow)
             );
         } else {
             throw new TypeError('Invalid type for Temporal.PlainDateTime.from');
@@ -212,14 +220,18 @@
         var hasField = false;
 
         if (dateTimeLike.month !== undefined || dateTimeLike.monthCode !== undefined) {
-            validated.month = Temporal.__isBetween__(Temporal.__resolveISOMonth__(dateTimeLike), 1, 12, overflow);
+            validated.month = Temporal.__resolveISOMonth__(dateTimeLike);
             hasField = true;
         }
 
         for (var key in validDateTimeField) {
             if (validDateTimeField.hasOwnProperty(key) && dateTimeLike.hasOwnProperty(key) && dateTimeLike[key] !== undefined) {
                 var field = validDateTimeField[key];
-                validated[key] = Temporal.__isBetween__(Number(dateTimeLike[key]), field.low, field.high, overflow);
+                if (key === "year" || key === "day") {
+                    validated[key] = dateTimeLike[key];
+                } else {
+                    validated[key] = Temporal.__isBetween__(Temporal.__toInteger__(dateTimeLike[key]), field.low, field.high, overflow);
+                }
                 hasField = true;
             }
         }
@@ -321,27 +333,32 @@
         var roundingMode = (options.roundingMode !== undefined) ? options.roundingMode : "trunc";
         var roundingIncrement = (options.roundingIncrement !== undefined) ? Number(options.roundingIncrement) : 1;
 
+        if (methodName === "since") {
+            if (roundingMode === "ceil") roundingMode = "floor";
+            else if (roundingMode === "floor") roundingMode = "ceil";
+            else if (roundingMode === "halfCeil") roundingMode = "halfFloor";
+            else if (roundingMode === "halfFloor") roundingMode = "halfCeil";
+        }
+
         largestUnit = Temporal.__singularUnit__(largestUnit);
         smallestUnit = Temporal.__singularUnit__(smallestUnit);
 
         var unitRank = { year: 8, month: 7, week: 6, day: 5, hour: 4, minute: 3, second: 2, millisecond: 1 };
         var validLargestUnit = { year: true, month: true, week: true, day: true, hour: true, minute: true, second: true, millisecond: true };
-        var validSmallestUnit = { day: true, hour: true, minute: true, second: true, millisecond: true };
+        var validSmallestUnit = { year: true, month: true, week: true, day: true, hour: true, minute: true, second: true, millisecond: true };
 
-        if (!validLargestUnit[largestUnit]) {
+        if (options.largestUnit === undefined || largestUnit === "auto") {
+            largestUnit = unitRank[smallestUnit] > unitRank.day ? smallestUnit : "day";
+        }
+
+        if (validLargestUnit[largestUnit] !== true) {
             throw new RangeError("Value " + largestUnit + " out of range for Temporal.PlainDateTime.prototype." + methodName + " options property largestUnit");
         }
-        if (!validSmallestUnit[smallestUnit]) {
-            if (smallestUnit === "year" || smallestUnit === "month" || smallestUnit === "week") {
-                return new Temporal.Duration();
-            }
+        if (validSmallestUnit[smallestUnit] !== true) {
             throw new RangeError("Value " + smallestUnit + " out of range for Temporal.PlainDateTime.prototype." + methodName + " options property smallestUnit");
         }
         if (unitRank[smallestUnit] > unitRank[largestUnit]) {
             throw new RangeError("Temporal error: smallestUnit was larger than largestunit in DifferenceeSettings");
-        }
-        if (smallestUnit === "week") {
-            return new Temporal.Duration();
         }
         if (!Temporal.__isValidRoundingMode__(roundingMode)) {
             throw new RangeError("Value " + roundingMode + " out of range for Temporal.PlainDateTime.prototype." + methodName + " options property roundingMode");
@@ -354,6 +371,13 @@
 
         var startDateTime = Temporal.__copyFields__(this);
         var endDateTime = Temporal.PlainDateTime.from(other);
+
+        if (smallestUnit === "year" || smallestUnit === "month" || smallestUnit === "week") {
+            return this.until(endDateTime, { largestUnit: largestUnit }).round({
+                largestUnit: largestUnit, smallestUnit: smallestUnit,
+                roundingIncrement: roundingIncrement, roundingMode: roundingMode, relativeTo: this
+            });
+        }
 
         if (Temporal.PlainDateTime.compare(startDateTime, endDateTime) === 0) {
             return new Temporal.Duration();
@@ -408,9 +432,6 @@
             if (unit === "day" || unit === "week") {
                 raw.days = Math.floor(remaining / Temporal.__MILLISECONDS_PER_DAY__);
                 remaining -= raw.days * Temporal.__MILLISECONDS_PER_DAY__;
-                if (raw.days !== 0 && remaining < Temporal.__MILLISECONDS_PER_SECOND__) {
-                    remaining = 0;
-                }
             }
             if (unit === "hour" || unit === "day" || unit === "week") {
                 raw.hours = Math.floor(remaining / Temporal.__MILLISECONDS_PER_HOUR__);
@@ -430,34 +451,27 @@
         }
 
         function calendarDiff(start, end) {
-            var cursor = Temporal.PlainDateTime.from(start);
-            var years = 0;
-            var months = 0;
-
-            if (largestUnit === "year") {
-                while (true) {
-                    var nextYear = cursor.add({ years: 1 });
-                    if (Temporal.PlainDateTime.compare(nextYear, end) > 0) break;
-                    cursor = nextYear;
-                    years += 1;
-                }
+            var direction = Temporal.PlainDateTime.compare(start, end) < 0 ? 1 : -1;
+            var endDate = end;
+            if (Temporal.__compareTimeRecord__(start, end) === direction) {
+                endDate = Temporal.__balanceDateUnits__(end.year, end.month, end.day - direction);
             }
-
-            while (true) {
-                var nextMonth = cursor.add({ months: 1 });
-                if (Temporal.PlainDateTime.compare(nextMonth, end) > 0) break;
-                cursor = nextMonth;
-                months += 1;
+            var months = (endDate.year - start.year) * 12 + endDate.month - start.month;
+            if ((months > 0 && endDate.day < start.day) || (months < 0 && endDate.day > start.day)) {
+                months -= direction;
             }
+            var years = largestUnit === "year" ? (months < 0 ? Math.ceil(months / 12) : Math.floor(months / 12)) : 0;
+            months -= years * 12;
+            var cursor = Temporal.PlainDateTime.from(start).add({ years: years, months: months });
 
             var remainder = durationFromMilliseconds(
-                roundTotalMilliseconds(totalMillisecondsBetween(cursor, end), smallestUnit, roundingIncrement, roundingMode),
+                Math.abs(roundTotalMilliseconds(totalMillisecondsBetween(cursor, end), smallestUnit, roundingIncrement, roundingMode)),
                 "day"
             );
 
             return {
-                years: years,
-                months: months,
+                years: Math.abs(years),
+                months: Math.abs(months),
                 weeks: 0,
                 days: remainder.days,
                 hours: remainder.hours,
@@ -468,7 +482,7 @@
         }
         var rawDiff;
         if (largestUnit === "year" || largestUnit === "month") {
-            rawDiff = calendarDiff(startDateTime, endDateTime);
+            rawDiff = reverse ? calendarDiff(endDateTime, startDateTime) : calendarDiff(startDateTime, endDateTime);
         } else {
             var signedMilliseconds = totalMillisecondsBetween(startDateTime, endDateTime);
             if (reverse) {
@@ -502,8 +516,7 @@
         return Temporal.Duration.from(rawDiff);
     };
     Temporal.PlainDateTime.prototype.since = function (other, options) {
-        // 'since' is simply the inverse of 'until'
-        return Temporal.PlainDateTime.from(other).until(this, options, "since");
+        return this.until(other, options, "since").negated();
     };
 
     Temporal.PlainDateTime.prototype.round = function (roundTo) {
@@ -523,7 +536,7 @@
             }
             smallestUnit = roundTo.smallestUnit;
             roundingMode = roundTo.roundingMode || "halfExpand";
-            roundingIncrement = (typeof roundTo.roundingIncrement === "number") ? roundTo.roundingIncrement : 1;
+            roundingIncrement = roundTo.roundingIncrement === undefined ? 1 : Number(roundTo.roundingIncrement);
         } else {
             throw new TypeError("Temporal error: roundTo must be an object.");
         }
@@ -537,7 +550,7 @@
             hour: true,
             day: true
         };
-        if (!validUnits[smallestUnit]) {
+        if (validUnits[smallestUnit] !== true) {
             if (smallestUnit === "year" || smallestUnit === "month" || smallestUnit === "week") {
                 throw new RangeError("Temporal error: Found date unit, expect time unit");
             }
@@ -558,7 +571,12 @@
 
         var smallestUnitMilliseconds = Temporal.__timeUnitToMilliseconds__(smallestUnit);
         var totalMilliseconds = Temporal.__timeToMilliseconds__(this);
-        var roundedMilliseconds = Temporal.__roundField__(totalMilliseconds, smallestUnitMilliseconds * roundingIncrement, roundingMode);
+        var parentMilliseconds = Temporal.__MILLISECONDS_PER_DAY__;
+        if (smallestUnit === "minute") parentMilliseconds = Temporal.__MILLISECONDS_PER_HOUR__;
+        else if (smallestUnit === "second") parentMilliseconds = Temporal.__MILLISECONDS_PER_MINUTE__;
+        else if (smallestUnit === "millisecond") parentMilliseconds = Temporal.__MILLISECONDS_PER_SECOND__;
+        var remainder = totalMilliseconds % parentMilliseconds;
+        var roundedMilliseconds = totalMilliseconds - remainder + Temporal.__roundField__(remainder, smallestUnitMilliseconds * roundingIncrement, roundingMode);
         var balancedTime = Temporal.__balanceTimeUnits__(0, 0, 0, roundedMilliseconds);
         var balancedDate = Temporal.__balanceDateUnits__(this.year, this.month, this.day + balancedTime.extraDays);
 

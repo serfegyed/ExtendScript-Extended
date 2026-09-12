@@ -97,6 +97,93 @@ if (typeof require === "function" && typeof process !== "undefined") {
     writeLine("Temporal PlainDate ExtendScript polyfill tests");
     writeLine("----------------------------------------------");
 
+    test("F18 difference options reject inherited object names", function () {
+        // Native Temporal, Node v26.5.0: all cases throw RangeError.
+        var names = ["toString","constructor","hasOwnProperty","valueOf"];
+        var properties = ["largestUnit", "smallestUnit"];
+        var methods = ["until", "since"];
+        var value = Temporal.PlainDate.from("2024-01-01");
+        for (var i = 0; i < names.length; i++) {
+            for (var j = 0; j < properties.length; j++) {
+                var options = {};
+                options[properties[j]] = names[i];
+                for (var k = 0; k < methods.length; k++) {
+                    assertThrowsWith(function () { value[methods[k]]("2024-01-02", options); },
+                        "RangeError", names[i] + " " + properties[j] + " " + methods[k]);
+                }
+            }
+        }
+    });
+
+    test("F15 PlainDate differences stay valid near both ISO range limits", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["+275760-09-01","+275760-09-02","until",{"largestUnit":"month"},"P1D"],
+            ["+275760-09-01","+275760-09-02","since",{"largestUnit":"month"},"-P1D"],
+            ["+275760-09-01","+275760-09-02","until",{"largestUnit":"year"},"P1D"],
+            ["+275760-09-01","+275760-09-02","since",{"largestUnit":"year"},"-P1D"],
+            ["+275760-09-02","+275760-09-01","until",{"largestUnit":"month"},"-P1D"],
+            ["+275760-09-02","+275760-09-01","since",{"largestUnit":"month"},"P1D"],
+            ["+275760-09-02","+275760-09-01","until",{"largestUnit":"year"},"-P1D"],
+            ["+275760-09-02","+275760-09-01","since",{"largestUnit":"year"},"P1D"],
+            ["-271821-04-21","-271821-04-20","until",{"largestUnit":"month"},"-P1D"],
+            ["-271821-04-21","-271821-04-20","since",{"largestUnit":"month"},"P1D"],
+            ["-271821-04-21","-271821-04-20","until",{"largestUnit":"year"},"-P1D"],
+            ["-271821-04-21","-271821-04-20","since",{"largestUnit":"year"},"P1D"],
+            ["-271821-04-20","-271821-04-21","until",{"largestUnit":"month"},"P1D"],
+            ["-271821-04-20","-271821-04-21","since",{"largestUnit":"month"},"-P1D"],
+            ["-271821-04-20","-271821-04-21","until",{"largestUnit":"year"},"P1D"],
+            ["-271821-04-20","-271821-04-21","since",{"largestUnit":"year"},"-P1D"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var row = cases[i];
+            assertNodeEquals(Temporal.PlainDate.from(row[0])[row[2]](row[1], row[3]).toString(),
+                row[4], "ISO range case " + i);
+        }
+    });
+
+    test("F14 calendar week remainders match native until and since", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["2024-01-01","2024-02-15","until",{"largestUnit":"month","smallestUnit":"week","roundingMode":"trunc"},"P1M2W"],
+            ["2024-01-01","2024-02-15","since",{"largestUnit":"month","smallestUnit":"week","roundingMode":"trunc"},"-P1M2W"],
+            ["2024-01-01","2024-02-15","until",{"largestUnit":"month","smallestUnit":"week","roundingMode":"ceil"},"P1M2W"],
+            ["2024-01-01","2024-02-15","since",{"largestUnit":"month","smallestUnit":"week","roundingMode":"ceil"},"-P1M2W"],
+            ["2024-01-01","2024-02-15","until",{"largestUnit":"month","smallestUnit":"week","roundingMode":"floor"},"P1M2W"],
+            ["2024-01-01","2024-02-15","since",{"largestUnit":"month","smallestUnit":"week","roundingMode":"floor"},"-P1M2W"],
+            ["2024-01-01","2024-02-15","until",{"largestUnit":"month","smallestUnit":"week","roundingMode":"halfExpand"},"P1M2W"],
+            ["2024-01-01","2024-02-15","since",{"largestUnit":"month","smallestUnit":"week","roundingMode":"halfExpand"},"-P1M2W"],
+            ["2024-01-01","2024-02-15","until",{"largestUnit":"month","smallestUnit":"week","roundingMode":"halfEven"},"P1M2W"],
+            ["2024-01-01","2024-02-15","since",{"largestUnit":"month","smallestUnit":"week","roundingMode":"halfEven"},"-P1M2W"],
+            ["2024-02-15","2024-01-01","until",{"largestUnit":"month","smallestUnit":"week","roundingMode":"trunc"},"-P1M2W"],
+            ["2024-02-15","2024-01-01","since",{"largestUnit":"month","smallestUnit":"week","roundingMode":"trunc"},"P1M2W"],
+            ["2024-02-15","2024-01-01","until",{"largestUnit":"month","smallestUnit":"week","roundingMode":"ceil"},"-P1M2W"],
+            ["2024-02-15","2024-01-01","since",{"largestUnit":"month","smallestUnit":"week","roundingMode":"ceil"},"P1M2W"],
+            ["2024-02-15","2024-01-01","until",{"largestUnit":"month","smallestUnit":"week","roundingMode":"floor"},"-P1M2W"],
+            ["2024-02-15","2024-01-01","since",{"largestUnit":"month","smallestUnit":"week","roundingMode":"floor"},"P1M2W"],
+            ["2024-02-15","2024-01-01","until",{"largestUnit":"month","smallestUnit":"week","roundingMode":"halfExpand"},"-P1M2W"],
+            ["2024-02-15","2024-01-01","since",{"largestUnit":"month","smallestUnit":"week","roundingMode":"halfExpand"},"P1M2W"],
+            ["2024-02-15","2024-01-01","until",{"largestUnit":"month","smallestUnit":"week","roundingMode":"halfEven"},"-P1M2W"],
+            ["2024-02-15","2024-01-01","since",{"largestUnit":"month","smallestUnit":"week","roundingMode":"halfEven"},"P1M2W"],
+            ["2023-01-01","2024-02-15","until",{"largestUnit":"year","smallestUnit":"week","roundingMode":"trunc"},"P1Y1M2W"],
+            ["2023-01-01","2024-02-15","since",{"largestUnit":"year","smallestUnit":"week","roundingMode":"trunc"},"-P1Y1M2W"],
+            ["2023-01-01","2024-02-15","until",{"largestUnit":"year","smallestUnit":"week","roundingMode":"ceil"},"P1Y1M2W"],
+            ["2023-01-01","2024-02-15","since",{"largestUnit":"year","smallestUnit":"week","roundingMode":"ceil"},"-P1Y1M2W"],
+            ["2023-01-01","2024-02-15","until",{"largestUnit":"year","smallestUnit":"week","roundingMode":"floor"},"P1Y1M2W"],
+            ["2023-01-01","2024-02-15","since",{"largestUnit":"year","smallestUnit":"week","roundingMode":"floor"},"-P1Y1M2W"],
+            ["2023-01-01","2024-02-15","until",{"largestUnit":"year","smallestUnit":"week","roundingMode":"halfExpand"},"P1Y1M2W"],
+            ["2023-01-01","2024-02-15","since",{"largestUnit":"year","smallestUnit":"week","roundingMode":"halfExpand"},"-P1Y1M2W"],
+            ["2023-01-01","2024-02-15","until",{"largestUnit":"year","smallestUnit":"week","roundingMode":"halfEven"},"P1Y1M2W"],
+            ["2023-01-01","2024-02-15","since",{"largestUnit":"year","smallestUnit":"week","roundingMode":"halfEven"},"-P1Y1M2W"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var row = cases[i];
+            var result = Temporal.PlainDate.from(row[0])[row[2]](row[1], row[3]);
+            assertNodeEquals(result.toString(), row[4], "calendar weeks case " + i);
+            assertNodeEquals(result.days, 0, "no day remainder");
+        }
+    });
+
     test("PlainDate constructor and from parse ISO values like Node", function () {
         var date = new Temporal.PlainDate(2024, 2, 29);
 

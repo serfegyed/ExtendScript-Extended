@@ -1,3 +1,11 @@
+// v70 Reject empty Duration time designators (F16)
+// v69 - Unify Duration.round shorthand and calendar validation (F11)
+// v68 - Round week remainders after calendar years and months (F10)
+// v67 - Round Duration to whole week increments (F10)
+// v66 - Round Duration years and months at calendar boundaries (F10)
+// v65 - Fix Duration string rounding and explicit precision (F09)
+// v63 - Preserve negative higher-unit signs in fixed-fraction strings (F02)
+// v62 - Return zero Duration fields before calendar balancing loops (F01)
 // v13 - The `total` function implemented
 // v14 - The duration <-> millisecond converson functions rewritten
 //		to handle negative duration and/or relativeTo
@@ -71,7 +79,7 @@
 	 * @returns {boolean} True if the duration string is valid, false otherwise.
 	 */
 	function isValidDurationString(durationString) {
-		const regex = /^[-+]?P(?!$)(?:\d+Y)?(?:\d+M)?(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?$/;
+		const regex = /^[-+]?P(?!$)(?:\d+Y)?(?:\d+M)?(?:\d+W)?(?:\d+D)?(?:T(?=\d)(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?$/;
 		return regex.test(durationString);
 	}
 
@@ -317,6 +325,8 @@
 		};
 		const sign = (ms < 0) ? -1 : ((ms > 0) ? 1 : 0);
 
+		if (ms === 0) return result;
+
 		var relativeTo;
 		var largestUnit = "day";
 		var smallestUnit;
@@ -454,14 +464,11 @@
 		if (this.weeks) result += Math.abs(this.weeks) + 'W';
 		if (this.days) result += Math.abs(this.days) + 'D';
 
-		var hasHigherUnit = !!(this.years || this.months || this.weeks || this.days || this.hours || this.minutes);
-		var shouldShowFractionOnlySeconds = !hasHigherUnit || this.seconds !== 0;
-
-		if (this.hours || this.minutes || this.seconds || (this.milliseconds && shouldShowFractionOnlySeconds)) {
+		if (this.hours || this.minutes || this.seconds || this.milliseconds) {
 			result += 'T';
 			if (this.hours) result += Math.abs(this.hours) + 'H';
 			if (this.minutes) result += Math.abs(this.minutes) + 'M';
-			if (this.seconds !== 0 || (Math.abs(this.milliseconds) !== 0 && shouldShowFractionOnlySeconds)) {
+			if (this.seconds !== 0 || this.milliseconds !== 0) {
 				var secs = Math.abs(this.seconds * Temporal.__MILLISECONDS_PER_SECOND__ + this.milliseconds) / Temporal.__MILLISECONDS_PER_SECOND__;
 				result += secs.toFixed(3).replace(/\.?0+$/, '') + "S"; // Trim trailing zeros
 			}
@@ -705,16 +712,13 @@
 		// Allowed units
 		const allowedUnits = { year: 8, month: 7, week: 6, day: 5, hour: 4, minute: 3, second: 2, millisecond: 1, auto: 0 };
 
+		if (typeof roundTo === "string") roundTo = { smallestUnit: roundTo };
+
 		// Process options.
 		if (roundTo === undefined) {
 			throw new TypeError("Temporal error: Must specify a roundTo parameter.");
 		} else if (roundTo === null) {
 			throw new TypeError("Temporal error: roundTo must be an object.");
-		} else if (typeof roundTo === "string") {
-			smallestUnit = normalizeDurationUnit(roundTo, "round", "smallestUnit");
-			largestUnit = "day";
-			roundingIncrement = 1;
-			roundingMode = "halfExpand";
 		} else if (typeof roundTo === "object" && roundTo !== null) {
 			if (!("smallestUnit" in roundTo) && !("largestUnit" in roundTo)) {
 				throw new RangeError("Temporal error: smallestUnit and largestUnit cannot both be None.");
@@ -727,7 +731,7 @@
 			if (largestUnit === "auto") {
 				largestUnit = largestUnitOfDuration(this, smallestUnit, allowedUnits);
 			};
-			if ((largestUnit === 'week' || largestUnit === 'month' || largestUnit === 'year') && roundTo.relativeTo === undefined) {
+			if ((this.years || this.months || this.weeks || largestUnit === 'week' || largestUnit === 'month' || largestUnit === 'year') && relativeTo === undefined) {
 				throw new RangeError("Temporal error: largestUnit when rounding Duration was not the largest provided unit");
 			};
 			if (allowedUnits[smallestUnit] > allowedUnits[largestUnit]) {
@@ -758,6 +762,50 @@
 				((this.seconds || 0) * Temporal.__MILLISECONDS_PER_SECOND__) +
 				(this.milliseconds || 0);
 		}
+
+
+		if (smallestUnit === "week" && largestUnit === "week") {
+			var weeks = Temporal.__roundField__(totalMs / Temporal.__MILLISECONDS_PER_WEEK__, roundingIncrement, roundingMode);
+			return new Temporal.Duration(0, 0, weeks);
+		};
+
+		if (smallestUnit === "week" && (largestUnit === "year" || largestUnit === "month")) {
+			if (roundingIncrement > 1) {
+				throw new RangeError("Temporal error: calendar roundingIncrement > 1 requires matching largestUnit and smallestUnit.");
+			};
+			var dateDifference = start.until(start.add(this), { largestUnit: largestUnit });
+			var calendarMs = calendarDaysFromRelative(start, dateDifference.years, dateDifference.months) * Temporal.__MILLISECONDS_PER_DAY__;
+			var remainderWeeks = Temporal.__roundField__((totalMs - calendarMs) / Temporal.__MILLISECONDS_PER_WEEK__, 1, roundingMode);
+			return new Temporal.Duration(dateDifference.years, dateDifference.months, remainderWeeks);
+		};
+
+		if (smallestUnit === "year" || smallestUnit === "month") {
+			if (roundingIncrement > 1 && largestUnit !== smallestUnit) {
+				throw new RangeError("Temporal error: calendar roundingIncrement > 1 requires matching largestUnit and smallestUnit.");
+			};
+			var calendarFields = millisecondsToDuration(totalMs, {
+				relativeTo: start, largestUnit: smallestUnit
+			});
+			var wholeUnits = smallestUnit === "year" ? calendarFields.years : calendarFields.months;
+			var truncatedUnits = Temporal.__roundField__(wholeUnits, roundingIncrement, "trunc");
+			var truncatedMs = calendarDaysFromRelative(start,
+				smallestUnit === "year" ? truncatedUnits : 0,
+				smallestUnit === "month" ? truncatedUnits : 0) * Temporal.__MILLISECONDS_PER_DAY__;
+			var roundedUnits = truncatedUnits;
+			if (totalMs !== truncatedMs) {
+				var direction = totalMs < 0 ? -1 : 1;
+				var expandedUnits = truncatedUnits + direction * roundingIncrement;
+				var expandedMs = calendarDaysFromRelative(start,
+					smallestUnit === "year" ? expandedUnits : 0,
+					smallestUnit === "month" ? expandedUnits : 0) * Temporal.__MILLISECONDS_PER_DAY__;
+				var fraction = (totalMs - truncatedMs) / (expandedMs - truncatedMs);
+				roundedUnits = Temporal.__roundField__(
+					truncatedUnits + direction * fraction * roundingIncrement, roundingIncrement, roundingMode);
+			};
+			if (smallestUnit === "year") return new Temporal.Duration(roundedUnits);
+			var years = largestUnit === "year" ? Temporal.__roundField__(roundedUnits / 12, 1, "trunc") : 0;
+			return new Temporal.Duration(years, roundedUnits - years * 12);
+		};
 
 		// Determine the conversion factor (in milliseconds) for the chosen smallest unit.
 		var unitMs;
@@ -967,61 +1015,53 @@
 	 * @returns {string} ISO 8601 duration string.
 	 */
 	function durationToStringWithOptions(duration, options) {
-		var smallestUnit = options.smallestUnit;
+		var smallestUnit = Temporal.__singularUnit__(options.smallestUnit);
 		var fractionalSecondDigits = options.fractionalSecondDigits;
-		var roundingMode = options.roundingMode || "trunc";
-		var rounded = duration;
+		var roundingMode = options.roundingMode === undefined ? "trunc" : options.roundingMode;
 
 		if (smallestUnit === "hour" || smallestUnit === "minute") {
 			throw new RangeError("Temporal error: string rounding options cannot have hour or minute smallest unit.");
 		};
-
+		if (smallestUnit !== undefined && smallestUnit !== "auto" && smallestUnit !== "second" && smallestUnit !== "millisecond") {
+			throw new RangeError("Invalid Duration string smallestUnit: " + smallestUnit);
+		};
+		if (!Temporal.__isValidRoundingMode__(roundingMode)) {
+			throw new RangeError("Invalid rounding mode: " + roundingMode);
+		};
 		if (fractionalSecondDigits !== undefined && fractionalSecondDigits !== "auto") {
 			fractionalSecondDigits = Number(fractionalSecondDigits);
 			if (isNaN(fractionalSecondDigits) || !isFinite(fractionalSecondDigits) || Math.floor(fractionalSecondDigits) !== fractionalSecondDigits || fractionalSecondDigits < 0 || fractionalSecondDigits > 3) {
 				throw new RangeError("fractionalSecondDigits value is out of range.");
 			};
 		};
-
-		if (smallestUnit === "second") {
-			rounded = duration.round({ smallestUnit: "second", roundingMode: roundingMode });
-		};
-
-		var result = rounded.toString();
-
+		if (smallestUnit === "second") fractionalSecondDigits = 0;
+		if (smallestUnit === "millisecond") fractionalSecondDigits = 3;
 		if (fractionalSecondDigits === undefined || fractionalSecondDigits === "auto") {
-			return result;
+			return duration.toString();
 		};
 
-		if (fractionalSecondDigits === 0) {
-			if (smallestUnit !== "second") {
-				rounded = duration.round({ smallestUnit: "second", roundingMode: roundingMode });
-				result = rounded.toString();
-			};
-			return result.replace(/\.\d+S$/, "S");
-		};
-
-		var millis = Math.abs(rounded.milliseconds || 0);
-		var seconds = Math.abs(rounded.seconds || 0);
-		var text = result;
-		var fraction = ("00" + millis).slice(-3).slice(0, fractionalSecondDigits);
-		var sign = rounded.sign === -1 && (seconds !== 0 || !/^0+$/.test(fraction)) ? "-" : "";
-
-		if (millis === 0 && seconds === 0 && result.indexOf("T") === -1) {
-			return result;
-		};
+		var totalMilliseconds = duration.days * Temporal.__MILLISECONDS_PER_DAY__ +
+			duration.hours * Temporal.__MILLISECONDS_PER_HOUR__ +
+			duration.minutes * Temporal.__MILLISECONDS_PER_MINUTE__ +
+			duration.seconds * Temporal.__MILLISECONDS_PER_SECOND__ + duration.milliseconds;
+		var largestUnit = largestAddSubtractTimeUnit(duration, duration);
+		if (duration.years || duration.months || duration.weeks) largestUnit = "day";
+		if (largestUnit === "millisecond") largestUnit = "second";
+		var fields = millisecondsToTimeDuration(Temporal.__roundField__(
+			totalMilliseconds, Math.pow(10, 3 - fractionalSecondDigits), roundingMode), largestUnit);
+		fields.years = duration.years;
+		fields.months = duration.months;
+		fields.weeks = duration.weeks;
+		var rounded = Temporal.Duration.from(fields);
+		var text = rounded.toString();
+		var fraction = fractionalSecondDigits === 0 ? "" :
+			"." + ("00" + Math.abs(rounded.milliseconds)).slice(-3).slice(0, fractionalSecondDigits);
 
 		if (/\d+(?:\.\d+)?S$/.test(text)) {
-			text = sign + text.replace(/^-/, "").replace(/(\d+)(?:\.\d+)?S$/, "$1." + fraction + "S");
-		} else {
-			text = sign + result.replace(/^-/, "");
-			if (text.indexOf("T") === -1) {
-				text += "T";
-			};
-			text += "0." + fraction + "S";
+			return text.replace(/(\d+)(?:\.\d+)?S$/, "$1" + fraction + "S");
 		};
-
-		return text;
+		if (text.indexOf("T") === -1) text += "T";
+		return text + "0" + fraction + "S";
 	};
 
 	/**

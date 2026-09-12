@@ -12,7 +12,7 @@ The implementation stores one integer epoch-millisecond value. It does not emula
 ## Files
 
 - Active implementation: `Lib/Temporal.Instant.js`
-- Tests: `Test/tests-Instant.js`; locale integration tests: `Test/tests-LocaleString.js`, `Test/tests-LocaleString-Intl.js`
+- Tests: `Test/tests-Instant.js` (Node and ESTK: 16 passed, 0 failed; validated 2026-09-12); locale integration tests: `Test/tests-LocaleString.js`, `Test/tests-LocaleString-Intl.js`
 - Required includes: `Lib/Temporal-core.js`, `Lib/Temporal.Duration.js`, `Lib/Temporal.Instant.js`
 
 ```javascript
@@ -86,7 +86,7 @@ Supported parsing behavior includes:
 - bracketed time-zone annotations when `Z` or a numeric offset is present
 - leap-second input, constrained to second 59 like the Node reference
 
-Date-only strings and date-time strings without an offset are rejected.
+Date-only strings, date-time strings without an offset, and the forbidden year `-000000` are rejected. Year `0000`, `+000000`, and valid negative years remain supported.
 
 The internal value is always millisecond precision. Sub-millisecond string input is reduced to the same `epochMilliseconds` value reported by Node Temporal. Digits below milliseconds are not retained.
 
@@ -192,6 +192,5 @@ Temporal.Instant.from("2026-01-15T12:34:56.123Z").toLocaleString("hu-HU");
 - no `toZonedDateTimeISO()`
 - no IANA time-zone calculations or time-zone database
 - no `Temporal.ZonedDateTime`
-- no Intl-based locale formatting or locale/options processing
+- no full Intl compatibility; optional locale formatting uses the local Intl.DateTimeFormat subset
 - no `Temporal.Now` in this module
-

@@ -164,7 +164,7 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assertNodeEquals(fractionalOnlySeconds.minutes, 4, "PlainTime fractional-only difference minutes");
         assertNodeEquals(fractionalOnlySeconds.seconds, 0, "PlainTime fractional-only difference seconds");
         assertNodeEquals(fractionalOnlySeconds.milliseconds, 252, "PlainTime fractional-only difference milliseconds");
-        assertNodeEquals(fractionalOnlySeconds.toString(), "PT4H4M", "PlainTime fractional-only difference toString()");
+        assertNodeEquals(fractionalOnlySeconds.toString(), "PT4H4M0.252S", "PlainTime fractional-only difference toString()");
         assertNodeEquals(end.since(start).toString(), "PT2H2M3.333S", "Temporal.PlainTime.from(end).since(start).toString()");
         assertNodeEquals(end.since(start, { largestUnit: "auto" }).toString(), "PT2H2M3.333S", "Temporal.PlainTime.from(end).since(start, { largestUnit: 'auto' }).toString()");
     });

@@ -78,6 +78,27 @@ if (typeof require === "function" && typeof process !== "undefined") {
     writeLine("Temporal Instant ExtendScript polyfill tests");
     writeLine("-------------------------------------------");
 
+    test("F17 Instant rejects negative zero years before numeric conversion", function () {
+        // Native Temporal, Node v26.5.0: all cases throw RangeError.
+        var cases = ["-000000-01-01T00:00Z","-000000-01-01T00:00+01:00","-000000-01-01T00:00-01:00","-000000-01-01T00:00Z[UTC]"];
+        for (var i = 0; i < cases.length; i++) {
+            assertThrowsWith(function () { Temporal.Instant.from(cases[i]); }, "RangeError", cases[i]);
+        }
+    });
+
+    test("F17 Instant keeps valid zero and negative years", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["0000-01-01T00:00Z","0000-01-01T00:00:00Z"],
+            ["+000000-01-01T00:00Z","0000-01-01T00:00:00Z"],
+            ["-000001-01-01T00:00Z","-000001-01-01T00:00:00Z"],
+            ["0000-01-01T00:00+01:00","-000001-12-31T23:00:00Z"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            assertNodeEquals(Temporal.Instant.from(cases[i][0]).toString(), cases[i][1], cases[i][0]);
+        }
+    });
+
     test("Instant exposes the selected millisecond surface", function () {
         assert(typeof Temporal.Instant === "function", "Temporal.Instant should exist");
         assert(typeof Temporal.Instant.from === "function", "Instant.from should exist");

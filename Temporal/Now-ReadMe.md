@@ -12,7 +12,7 @@ The supported surface is intentionally limited to obtaining the current exact ti
 ## Files
 
 - Active implementation: `Lib/Temporal.Now.js`
-- Tests: `Test/tests-Now.js`
+- Tests: `Test/tests-Now.js` (Node and ESTK: 5 passed, 0 failed; validated 2026-09-12)
 - Required includes: `Lib/Temporal-core.js`, `Lib/Temporal.Instant.js`, `Lib/Temporal.Now.js`
 
 ```javascript
@@ -47,7 +47,7 @@ Each call returns a fresh `Temporal.Instant`. Extra arguments are ignored, match
 new Date().getTime()
 ```
 
-This is the only module where native `Date` is intentionally used. It supplies an epoch-millisecond clock value only. No local calendar fields, time-zone offsets, DST rules, parsing, or formatting are delegated to `Date`.
+In this module, native `Date` supplies only the epoch-millisecond clock value. Elsewhere, the optional Instant Intl-formatting path uses native Date for host-local projection; Now does not perform that conversion.
 
 The clock value is passed through the project's public millisecond `Temporal.Instant` constructor, so the shared integer and Instant-range validation remains in one place.
 
@@ -64,4 +64,3 @@ The following Node Temporal.Now methods are not implemented:
 They require a local time-zone identity, time-zone conversion, or ZonedDateTime behavior that is outside this repository's ISO/millisecond target.
 
 There is no IANA time-zone database, `Temporal.ZonedDateTime`, locale formatting, or implicit local-time conversion in this module.
-

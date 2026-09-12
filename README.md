@@ -12,7 +12,6 @@ This project was originally made as a learning tool and to solve problems encoun
 - **Date Extensions**: ISO serialization and Temporal conversion methods for the native Date object.
 - **Function Extensions**: Function.prototype.bind() for fixed receivers and leading arguments.
 - **INI Settings**: Simple settings persistence for scripts using object-of-objects data and INI files.
-- **Intl Subset**: A focused, table-driven Intl subset with locale helpers, NumberFormat, Collator, DateTimeFormat, DurationFormat, and DisplayNames.
 - **JSON Extensions**: JSON.stringify() and JSON.parse() methods, inspired by ES6 features.
 - **Math Extensions**: Additional math functions and constants.
 - **Number Extensions**: Methods like Number.isNaN(), Number.isFinite(), Number.isInteger(), and Number.isSafeInteger() as well as some constants.
@@ -35,9 +34,9 @@ Categories that provide bundles keep them as ordered `//@include`-only files;
 implementation bodies are not copied into bundles. Dependencies should also be
 loaded with `//@include` directives.
 
-The Temporal subset is documented in [`Temporal/README.md`](Temporal/README.md). Include `Temporal/Temporal.js` for the complete ordered module set, or select individual runtime files from `Temporal/Lib/`.
+The Temporal subset is documented in [`Temporal/README.md`](Temporal/README.md). Include `Temporal/Temporal.js` for the complete ordered module set, or select individual runtime files from `Temporal/Lib/`. It supports calendar-aware differences and rounding, millisecond-preserving Duration serialization, and optional formatting through the local Intl subset.
 
-The Intl subset is documented in [`Intl/README.md`](Intl/README.md). Load `Intl/Intl-core.js` before the individual formatter modules.
+Temporal validation on 2026-09-12: **203 passed, 0 failed** under Node v26.5.0 and **203 passed, 0 failed, 0 skipped** under ESTK. These totals cover the Temporal suite, not every category in this repository.
 
 ## Contributions
 This project is somewhat open to contributions. Suggestions, improvements or any form of participation are always welcome. But you must understand that this is a side project for which I have very few resources.

@@ -113,6 +113,33 @@ if (typeof require === "function" && typeof process !== "undefined") {
     writeLine("Temporal ExtendScript polyfill tests");
     writeLine("------------------------------------");
 
+    test("F16 empty duration time designators throw RangeError", function () {
+        // Native Temporal, Node v26.5.0: all cases throw RangeError.
+        var cases = ["PT","+PT","-PT","P1DT","P1YT","P1MT","P1WT","-P1DT"];
+        for (var i = 0; i < cases.length; i++) {
+            assertThrowsWith(function () { Temporal.Duration.from(cases[i]); }, "RangeError",
+                "Temporal error: Invalid time duration designator.", cases[i]);
+        }
+    });
+
+    test("F16 explicit zero time and valid date-time durations still parse", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["PT0S","PT0S"],
+            ["PT0H","PT0S"],
+            ["PT0M","PT0S"],
+            ["P1D","P1D"],
+            ["P1DT0S","P1D"],
+            ["P1DT1H","P1DT1H"],
+            ["P1DT1M","P1DT1M"],
+            ["P1DT0.001S","P1DT0.001S"],
+            ["-P1DT0.001S","-P1DT0.001S"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            assertEquals(Temporal.Duration.from(cases[i][0]).toString(), cases[i][1], cases[i][0]);
+        }
+    });
+
     test("Temporal namespace is loaded", function () {
         assert(typeof Temporal === "object", "Temporal namespace should exist");
         assert(typeof Temporal.Duration === "function", "Temporal.Duration should exist");
@@ -398,17 +425,393 @@ if (typeof require === "function" && typeof process !== "undefined") {
     test("Duration.toString matches Node Temporal millisecond formatting", function () {
         assertEquals(Temporal.Duration.from({ seconds: 1, milliseconds: 230 }).toString(), "PT1.23S", "trim trailing fractional zeros");
         assertEquals(Temporal.Duration.from({ milliseconds: 10 }).toString(), "PT0.01S", "keep enough fractional digits");
-        assertEquals(Temporal.Duration.from("P1Y2DT0.001S").toString(), "P1Y2D", "date part hides fractional-only seconds like Node");
-        assertEquals(Temporal.Duration.from("-P1Y2DT0.001S").toString(), "-P1Y2D", "negative date part hides fractional-only seconds like Node");
+        assertEquals(Temporal.Duration.from("P1Y2DT0.001S").toString(), "P1Y2DT0.001S", "date part preserves fractional-only seconds");
+        assertEquals(Temporal.Duration.from("-P1Y2DT0.001S").toString(), "-P1Y2DT0.001S", "negative date part preserves fractional-only seconds");
         assertEquals(Temporal.Duration.from("P2DT1.001S").toString(), "P2DT1.001S", "date part keeps non-zero whole seconds");
-        assertEquals(Temporal.Duration.from("P2DT1H0.001S").toString(), "P2DT1H", "date part keeps hour and hides fractional-only seconds");
-        assertEquals(Temporal.Duration.from({ hours: 1, milliseconds: 1 }).toString(), "PT1H", "hour hides fractional-only seconds like Node");
-        assertEquals(Temporal.Duration.from({ minutes: 1, milliseconds: 1 }).toString(), "PT1M", "minute hides fractional-only seconds like Node");
-        assertEquals(Temporal.Duration.from({ hours: 4, minutes: 4, milliseconds: 252 }).toString(), "PT4H4M", "higher time units hide fractional-only seconds like Node");
+        assertEquals(Temporal.Duration.from("P2DT1H0.001S").toString(), "P2DT1H0.001S", "date part keeps hour and fractional-only seconds");
+        assertEquals(Temporal.Duration.from({ hours: 1, milliseconds: 1 }).toString(), "PT1H0.001S", "hour preserves fractional-only seconds");
+        assertEquals(Temporal.Duration.from({ minutes: 1, milliseconds: 1 }).toString(), "PT1M0.001S", "minute preserves fractional-only seconds");
+        assertEquals(Temporal.Duration.from({ hours: 4, minutes: 4, milliseconds: 252 }).toString(), "PT4H4M0.252S", "higher time units preserve fractional-only seconds");
         assertEquals(Temporal.Duration.from({ seconds: 1, milliseconds: 1 }).toString(), "PT1.001S", "whole seconds keep their fraction");
         assertEquals(Temporal.Duration.from("PT25H").toString(), "PT25H", "string hours should not balance");
         assertEquals(Temporal.Duration.from("PT60M").toString(), "PT60M", "string minutes should not balance");
         assertEquals(Temporal.Duration.from("PT60S").toString(), "PT60S", "string seconds should not balance");
+    });
+
+
+    test("F08 toJSON preserves fractions alongside calendar and time units", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = ["P1Y2DT0.001S", "-P1Y2DT0.001S", "P1MT0.999S",
+            "-P1WT0.001S", "P1DT0.001S", "P2DT1H0.001S", "PT1H0.001S",
+            "PT1M0.001S", "PT4H4M0.252S"];
+        for (var i = 0; i < cases.length; i++) {
+            assertEquals(Temporal.Duration.from(cases[i]).toJSON(), cases[i], cases[i]);
+        }
+    });
+
+    test("F08 serialization roundtrip preserves every duration field", function () {
+        var cases = ["P1Y2DT0.001S", "-P1Y2DT0.001S", "P1MT0.999S",
+            "-P1WT0.001S", "P1DT0.001S", "P2DT1H0.001S", "PT1H0.001S",
+            "PT1M0.001S", "PT4H4M0.252S", "P1D", "PT1H", "PT0S"];
+        var fields = ["years", "months", "weeks", "days", "hours", "minutes",
+            "seconds", "milliseconds"];
+        for (var i = 0; i < cases.length; i++) {
+            var original = Temporal.Duration.from(cases[i]);
+            var restored = Temporal.Duration.from(original.toString());
+            for (var j = 0; j < fields.length; j++) {
+                assertEquals(restored[fields[j]], original[fields[j]],
+                    cases[i] + " " + fields[j]);
+            }
+        }
+    });
+
+    test("F11 string round preserves largest unit and matches object options", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["PT25H","hour","PT25H"],
+            ["PT61M","minute","PT61M"],
+            ["PT90S","minute","PT2M"],
+            ["-PT90S","minute","-PT2M"],
+            ["PT1.234S","seconds","PT1S"],
+            ["PT0S","hour","PT0S"],
+            ["P1DT12H","day","P2D"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var duration = Temporal.Duration.from(cases[i][0]);
+            assertEquals(duration.round(cases[i][1]).toString(), cases[i][2], "string case " + i);
+            assertEquals(duration.round({ smallestUnit: cases[i][1] }).toString(), cases[i][2], "object case " + i);
+        }
+    });
+
+    test("F11 calendar fields require relativeTo for string and explicit day options", function () {
+        var cases = ["P1Y", "P1M", "P1W"];
+        for (var i = 0; i < cases.length; i++) {
+            var duration = Temporal.Duration.from(cases[i]);
+            assertThrowsWith(function () { duration.round("day"); }, "RangeError",
+                "Temporal error: largestUnit when rounding Duration was not the largest provided unit", cases[i] + " string");
+            assertThrowsWith(function () { duration.round({ smallestUnit: "day", largestUnit: "day" }); }, "RangeError",
+                "Temporal error: largestUnit when rounding Duration was not the largest provided unit", cases[i] + " explicit day");
+        }
+    });
+
+    test("F11 string round rejects invalid and unanchored calendar units", function () {
+        var duration = Temporal.Duration.from("PT1S");
+        assertThrowsWith(function () { duration.round("banana"); }, "RangeError",
+            "Value banana out of range for Temporal.Duration.prototype.round options property smallestUnit", "invalid string unit");
+        assertThrowsWith(function () { duration.round("month"); }, "RangeError",
+            "Temporal error: largestUnit when rounding Duration was not the largest provided unit", "month without relativeTo");
+    });
+
+    test("F10 mixed calendar week controls match native Temporal", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["P1M20D",{"smallestUnit":"week","relativeTo":"2024-01-01"},"P1M3W"],
+            ["P1M28D",{"smallestUnit":"week","relativeTo":"2024-01-01"},"P1M4W"],
+            ["-P1M20D",{"smallestUnit":"week","relativeTo":"2024-01-01"},"-P1M3W"],
+            ["P30D",{"largestUnit":"month","smallestUnit":"week","relativeTo":"2024-01-01"},"P4W"],
+            ["P1M",{"largestUnit":"month","smallestUnit":"week","relativeTo":"2024-01-31"},"P4W"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var result = Temporal.Duration.from(cases[i][0]).round(cases[i][1]);
+            assertEquals(result.toString(), cases[i][2], cases[i][0] + " case " + i);
+            assertEquals(result.days, 0, "no day remainder");
+            assertEquals(result.hours, 0, "no hour remainder");
+            assertEquals(result.milliseconds, 0, "no millisecond remainder");
+        }
+    });
+
+    test("F10 exact calendar boundaries stay exact per Temporal specification", function () {
+        // Spec: ComputeNudgeWindow / RoundRelativeDuration; Node v26.5.0 differs on some mixed calendar boundaries.
+        var cases = [
+            ["P1M",{"smallestUnit":"week","relativeTo":"2024-01-01"},"P1M"],
+            ["-P1M",{"smallestUnit":"week","relativeTo":"2024-01-01"},"-P1M"],
+            ["P1Y",{"smallestUnit":"week","relativeTo":"2024-01-01"},"P1Y"],
+            ["P1Y",{"smallestUnit":"month","relativeTo":"2024-01-01"},"P1Y"],
+            ["P1M28D",{"smallestUnit":"week","roundingMode":"ceil","relativeTo":"2024-02-01"},"P1M4W"],
+            ["P1M28DT1H",{"smallestUnit":"week","roundingMode":"ceil","relativeTo":"2024-02-01"},"P1M5W"],
+            ["P1Y11M28DT1H",{"smallestUnit":"week","roundingMode":"ceil","relativeTo":"2023-01-01"},"P1Y11M5W"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var result = Temporal.Duration.from(cases[i][0]).round(cases[i][1]);
+            assertEquals(result.toString(), cases[i][2], cases[i][0] + " case " + i);
+            assertEquals(result.days, 0, "no day remainder");
+            assertEquals(result.hours, 0, "no hour remainder");
+            assertEquals(result.milliseconds, 0, "no millisecond remainder");
+        }
+    });
+
+    test("F10 mixed calendar week ties use the remainder parity", function () {
+        // Spec: ComputeNudgeWindow / RoundRelativeDuration; Node v26.5.0 differs on some mixed calendar boundaries.
+        var cases = [
+            ["P1M3DT12H",{"smallestUnit":"week","roundingMode":"ceil","relativeTo":"2024-01-01"},"P1M1W"],
+            ["-P1M3DT12H",{"smallestUnit":"week","roundingMode":"ceil","relativeTo":"2024-01-01"},"-P1M"],
+            ["P1M3DT12H",{"smallestUnit":"week","roundingMode":"floor","relativeTo":"2024-01-01"},"P1M"],
+            ["-P1M3DT12H",{"smallestUnit":"week","roundingMode":"floor","relativeTo":"2024-01-01"},"-P1M1W"],
+            ["P1M3DT12H",{"smallestUnit":"week","roundingMode":"expand","relativeTo":"2024-01-01"},"P1M1W"],
+            ["-P1M3DT12H",{"smallestUnit":"week","roundingMode":"expand","relativeTo":"2024-01-01"},"-P1M1W"],
+            ["P1M3DT12H",{"smallestUnit":"week","roundingMode":"trunc","relativeTo":"2024-01-01"},"P1M"],
+            ["-P1M3DT12H",{"smallestUnit":"week","roundingMode":"trunc","relativeTo":"2024-01-01"},"-P1M"],
+            ["P1M3DT12H",{"smallestUnit":"week","roundingMode":"halfCeil","relativeTo":"2024-01-01"},"P1M1W"],
+            ["-P1M3DT12H",{"smallestUnit":"week","roundingMode":"halfCeil","relativeTo":"2024-01-01"},"-P1M"],
+            ["P1M3DT12H",{"smallestUnit":"week","roundingMode":"halfFloor","relativeTo":"2024-01-01"},"P1M"],
+            ["-P1M3DT12H",{"smallestUnit":"week","roundingMode":"halfFloor","relativeTo":"2024-01-01"},"-P1M1W"],
+            ["P1M3DT12H",{"smallestUnit":"week","roundingMode":"halfExpand","relativeTo":"2024-01-01"},"P1M1W"],
+            ["-P1M3DT12H",{"smallestUnit":"week","roundingMode":"halfExpand","relativeTo":"2024-01-01"},"-P1M1W"],
+            ["P1M3DT12H",{"smallestUnit":"week","roundingMode":"halfTrunc","relativeTo":"2024-01-01"},"P1M"],
+            ["-P1M3DT12H",{"smallestUnit":"week","roundingMode":"halfTrunc","relativeTo":"2024-01-01"},"-P1M"],
+            ["P1M3DT12H",{"smallestUnit":"week","roundingMode":"halfEven","relativeTo":"2024-01-01"},"P1M"],
+            ["-P1M3DT12H",{"smallestUnit":"week","roundingMode":"halfEven","relativeTo":"2024-01-01"},"-P1M"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var result = Temporal.Duration.from(cases[i][0]).round(cases[i][1]);
+            assertEquals(result.toString(), cases[i][2], cases[i][0] + " case " + i);
+            assertEquals(result.days, 0, "no day remainder");
+            assertEquals(result.hours, 0, "no hour remainder");
+            assertEquals(result.milliseconds, 0, "no millisecond remainder");
+        }
+    });
+
+    test("F10 mixed calendar week increments above one are rejected", function () {
+        assertThrows(function () {
+            Temporal.Duration.from("P1M").round({ smallestUnit: "week", roundingIncrement: 2, relativeTo: "2024-01-01" });
+        }, "mixed calendar week increment");
+    });
+
+    test("F10 week rounding respects calendar anchors and increments", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["P20D",{"smallestUnit":"week","relativeTo":"2024-01-01"},"P3W"],
+            ["-P20D",{"smallestUnit":"week","relativeTo":"2024-01-01"},"-P3W"],
+            ["P20D",{"smallestUnit":"week","roundingIncrement":2,"relativeTo":"2024-01-01"},"P2W"],
+            ["P1M",{"largestUnit":"week","smallestUnit":"week","relativeTo":"2024-02-01"},"P4W"],
+            ["P1Y",{"largestUnit":"week","smallestUnit":"week","relativeTo":"2024-02-29"},"P52W"],
+            ["-P1M",{"largestUnit":"week","smallestUnit":"week","relativeTo":"2024-03-31"},"-P4W"],
+            ["P2W",{"smallestUnit":"weeks","relativeTo":"2024-01-01"},"P2W"],
+            ["PT0S",{"smallestUnit":"week","relativeTo":"2024-01-01"},"PT0S"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var result = Temporal.Duration.from(cases[i][0]).round(cases[i][1]);
+            assertEquals(result.toString(), cases[i][2], cases[i][0] + " case " + i);
+            assertEquals(result.days, 0, "no day remainder");
+            assertEquals(result.hours, 0, "no hour remainder");
+            assertEquals(result.minutes, 0, "no minute remainder");
+            assertEquals(result.seconds, 0, "no second remainder");
+            assertEquals(result.milliseconds, 0, "no millisecond remainder");
+        }
+    });
+
+    test("F10 week rounding modes handle signed ties and adjacent milliseconds", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["P3DT12H",{"smallestUnit":"week","roundingMode":"ceil","relativeTo":"2024-01-01"},"P1W"],
+            ["-P3DT12H",{"smallestUnit":"week","roundingMode":"ceil","relativeTo":"2024-01-01"},"PT0S"],
+            ["P10DT12H",{"smallestUnit":"week","roundingMode":"ceil","relativeTo":"2024-01-01"},"P2W"],
+            ["-P10DT12H",{"smallestUnit":"week","roundingMode":"ceil","relativeTo":"2024-01-01"},"-P1W"],
+            ["P3DT11H59M59.999S",{"smallestUnit":"week","roundingMode":"ceil","relativeTo":"2024-01-01"},"P1W"],
+            ["P3DT12H0.001S",{"smallestUnit":"week","roundingMode":"ceil","relativeTo":"2024-01-01"},"P1W"],
+            ["P3DT12H",{"smallestUnit":"week","roundingMode":"floor","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P3DT12H",{"smallestUnit":"week","roundingMode":"floor","relativeTo":"2024-01-01"},"-P1W"],
+            ["P10DT12H",{"smallestUnit":"week","roundingMode":"floor","relativeTo":"2024-01-01"},"P1W"],
+            ["-P10DT12H",{"smallestUnit":"week","roundingMode":"floor","relativeTo":"2024-01-01"},"-P2W"],
+            ["P3DT11H59M59.999S",{"smallestUnit":"week","roundingMode":"floor","relativeTo":"2024-01-01"},"PT0S"],
+            ["P3DT12H0.001S",{"smallestUnit":"week","roundingMode":"floor","relativeTo":"2024-01-01"},"PT0S"],
+            ["P3DT12H",{"smallestUnit":"week","roundingMode":"expand","relativeTo":"2024-01-01"},"P1W"],
+            ["-P3DT12H",{"smallestUnit":"week","roundingMode":"expand","relativeTo":"2024-01-01"},"-P1W"],
+            ["P10DT12H",{"smallestUnit":"week","roundingMode":"expand","relativeTo":"2024-01-01"},"P2W"],
+            ["-P10DT12H",{"smallestUnit":"week","roundingMode":"expand","relativeTo":"2024-01-01"},"-P2W"],
+            ["P3DT11H59M59.999S",{"smallestUnit":"week","roundingMode":"expand","relativeTo":"2024-01-01"},"P1W"],
+            ["P3DT12H0.001S",{"smallestUnit":"week","roundingMode":"expand","relativeTo":"2024-01-01"},"P1W"],
+            ["P3DT12H",{"smallestUnit":"week","roundingMode":"trunc","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P3DT12H",{"smallestUnit":"week","roundingMode":"trunc","relativeTo":"2024-01-01"},"PT0S"],
+            ["P10DT12H",{"smallestUnit":"week","roundingMode":"trunc","relativeTo":"2024-01-01"},"P1W"],
+            ["-P10DT12H",{"smallestUnit":"week","roundingMode":"trunc","relativeTo":"2024-01-01"},"-P1W"],
+            ["P3DT11H59M59.999S",{"smallestUnit":"week","roundingMode":"trunc","relativeTo":"2024-01-01"},"PT0S"],
+            ["P3DT12H0.001S",{"smallestUnit":"week","roundingMode":"trunc","relativeTo":"2024-01-01"},"PT0S"],
+            ["P3DT12H",{"smallestUnit":"week","roundingMode":"halfCeil","relativeTo":"2024-01-01"},"P1W"],
+            ["-P3DT12H",{"smallestUnit":"week","roundingMode":"halfCeil","relativeTo":"2024-01-01"},"PT0S"],
+            ["P10DT12H",{"smallestUnit":"week","roundingMode":"halfCeil","relativeTo":"2024-01-01"},"P2W"],
+            ["-P10DT12H",{"smallestUnit":"week","roundingMode":"halfCeil","relativeTo":"2024-01-01"},"-P1W"],
+            ["P3DT11H59M59.999S",{"smallestUnit":"week","roundingMode":"halfCeil","relativeTo":"2024-01-01"},"PT0S"],
+            ["P3DT12H0.001S",{"smallestUnit":"week","roundingMode":"halfCeil","relativeTo":"2024-01-01"},"P1W"],
+            ["P3DT12H",{"smallestUnit":"week","roundingMode":"halfFloor","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P3DT12H",{"smallestUnit":"week","roundingMode":"halfFloor","relativeTo":"2024-01-01"},"-P1W"],
+            ["P10DT12H",{"smallestUnit":"week","roundingMode":"halfFloor","relativeTo":"2024-01-01"},"P1W"],
+            ["-P10DT12H",{"smallestUnit":"week","roundingMode":"halfFloor","relativeTo":"2024-01-01"},"-P2W"],
+            ["P3DT11H59M59.999S",{"smallestUnit":"week","roundingMode":"halfFloor","relativeTo":"2024-01-01"},"PT0S"],
+            ["P3DT12H0.001S",{"smallestUnit":"week","roundingMode":"halfFloor","relativeTo":"2024-01-01"},"P1W"],
+            ["P3DT12H",{"smallestUnit":"week","roundingMode":"halfExpand","relativeTo":"2024-01-01"},"P1W"],
+            ["-P3DT12H",{"smallestUnit":"week","roundingMode":"halfExpand","relativeTo":"2024-01-01"},"-P1W"],
+            ["P10DT12H",{"smallestUnit":"week","roundingMode":"halfExpand","relativeTo":"2024-01-01"},"P2W"],
+            ["-P10DT12H",{"smallestUnit":"week","roundingMode":"halfExpand","relativeTo":"2024-01-01"},"-P2W"],
+            ["P3DT11H59M59.999S",{"smallestUnit":"week","roundingMode":"halfExpand","relativeTo":"2024-01-01"},"PT0S"],
+            ["P3DT12H0.001S",{"smallestUnit":"week","roundingMode":"halfExpand","relativeTo":"2024-01-01"},"P1W"],
+            ["P3DT12H",{"smallestUnit":"week","roundingMode":"halfTrunc","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P3DT12H",{"smallestUnit":"week","roundingMode":"halfTrunc","relativeTo":"2024-01-01"},"PT0S"],
+            ["P10DT12H",{"smallestUnit":"week","roundingMode":"halfTrunc","relativeTo":"2024-01-01"},"P1W"],
+            ["-P10DT12H",{"smallestUnit":"week","roundingMode":"halfTrunc","relativeTo":"2024-01-01"},"-P1W"],
+            ["P3DT11H59M59.999S",{"smallestUnit":"week","roundingMode":"halfTrunc","relativeTo":"2024-01-01"},"PT0S"],
+            ["P3DT12H0.001S",{"smallestUnit":"week","roundingMode":"halfTrunc","relativeTo":"2024-01-01"},"P1W"],
+            ["P3DT12H",{"smallestUnit":"week","roundingMode":"halfEven","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P3DT12H",{"smallestUnit":"week","roundingMode":"halfEven","relativeTo":"2024-01-01"},"PT0S"],
+            ["P10DT12H",{"smallestUnit":"week","roundingMode":"halfEven","relativeTo":"2024-01-01"},"P2W"],
+            ["-P10DT12H",{"smallestUnit":"week","roundingMode":"halfEven","relativeTo":"2024-01-01"},"-P2W"],
+            ["P3DT11H59M59.999S",{"smallestUnit":"week","roundingMode":"halfEven","relativeTo":"2024-01-01"},"PT0S"],
+            ["P3DT12H0.001S",{"smallestUnit":"week","roundingMode":"halfEven","relativeTo":"2024-01-01"},"P1W"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var result = Temporal.Duration.from(cases[i][0]).round(cases[i][1]);
+            assertEquals(result.toString(), cases[i][2], cases[i][0] + " case " + i);
+            assertEquals(result.days, 0, "no day remainder");
+            assertEquals(result.hours, 0, "no hour remainder");
+            assertEquals(result.minutes, 0, "no minute remainder");
+            assertEquals(result.seconds, 0, "no second remainder");
+            assertEquals(result.milliseconds, 0, "no millisecond remainder");
+        }
+    });
+
+    test("F10 year and month rounding uses calendar boundaries", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["P20D",{"smallestUnit":"month","relativeTo":"2024-01-01"},"P1M"],
+            ["-P20D",{"smallestUnit":"month","relativeTo":"2024-01-01"},"-P1M"],
+            ["P45D",{"smallestUnit":"month","roundingIncrement":2,"relativeTo":"2024-01-01"},"P2M"],
+            ["P1Y",{"smallestUnit":"year","roundingIncrement":2,"relativeTo":"2024-01-01"},"P2Y"],
+            ["P1M",{"smallestUnit":"month","relativeTo":"2024-01-31"},"P1M"],
+            ["-P1M",{"smallestUnit":"month","relativeTo":"2024-03-31"},"-P1M"],
+            ["PT0S",{"smallestUnit":"year","relativeTo":"2024-01-01"},"PT0S"],
+            ["P1Y",{"largestUnit":"month","smallestUnit":"month","relativeTo":"2024-02-29"},"P12M"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            assertEquals(Temporal.Duration.from(cases[i][0]).round(cases[i][1]).toString(),
+                cases[i][2], cases[i][0] + " case " + i);
+        }
+    });
+
+    test("F10 calendar rounding modes handle both directions at ties", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["P15DT12H",{"smallestUnit":"month","roundingMode":"ceil","relativeTo":"2024-01-01"},"P1M"],
+            ["-P15DT12H",{"smallestUnit":"month","roundingMode":"ceil","relativeTo":"2024-02-01"},"PT0S"],
+            ["P183D",{"smallestUnit":"year","roundingMode":"ceil","relativeTo":"2024-01-01"},"P1Y"],
+            ["-P183D",{"smallestUnit":"year","roundingMode":"ceil","relativeTo":"2025-01-01"},"PT0S"],
+            ["P15DT12H",{"smallestUnit":"month","roundingMode":"floor","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P15DT12H",{"smallestUnit":"month","roundingMode":"floor","relativeTo":"2024-02-01"},"-P1M"],
+            ["P183D",{"smallestUnit":"year","roundingMode":"floor","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P183D",{"smallestUnit":"year","roundingMode":"floor","relativeTo":"2025-01-01"},"-P1Y"],
+            ["P15DT12H",{"smallestUnit":"month","roundingMode":"expand","relativeTo":"2024-01-01"},"P1M"],
+            ["-P15DT12H",{"smallestUnit":"month","roundingMode":"expand","relativeTo":"2024-02-01"},"-P1M"],
+            ["P183D",{"smallestUnit":"year","roundingMode":"expand","relativeTo":"2024-01-01"},"P1Y"],
+            ["-P183D",{"smallestUnit":"year","roundingMode":"expand","relativeTo":"2025-01-01"},"-P1Y"],
+            ["P15DT12H",{"smallestUnit":"month","roundingMode":"trunc","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P15DT12H",{"smallestUnit":"month","roundingMode":"trunc","relativeTo":"2024-02-01"},"PT0S"],
+            ["P183D",{"smallestUnit":"year","roundingMode":"trunc","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P183D",{"smallestUnit":"year","roundingMode":"trunc","relativeTo":"2025-01-01"},"PT0S"],
+            ["P15DT12H",{"smallestUnit":"month","roundingMode":"halfCeil","relativeTo":"2024-01-01"},"P1M"],
+            ["-P15DT12H",{"smallestUnit":"month","roundingMode":"halfCeil","relativeTo":"2024-02-01"},"PT0S"],
+            ["P183D",{"smallestUnit":"year","roundingMode":"halfCeil","relativeTo":"2024-01-01"},"P1Y"],
+            ["-P183D",{"smallestUnit":"year","roundingMode":"halfCeil","relativeTo":"2025-01-01"},"PT0S"],
+            ["P15DT12H",{"smallestUnit":"month","roundingMode":"halfFloor","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P15DT12H",{"smallestUnit":"month","roundingMode":"halfFloor","relativeTo":"2024-02-01"},"-P1M"],
+            ["P183D",{"smallestUnit":"year","roundingMode":"halfFloor","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P183D",{"smallestUnit":"year","roundingMode":"halfFloor","relativeTo":"2025-01-01"},"-P1Y"],
+            ["P15DT12H",{"smallestUnit":"month","roundingMode":"halfExpand","relativeTo":"2024-01-01"},"P1M"],
+            ["-P15DT12H",{"smallestUnit":"month","roundingMode":"halfExpand","relativeTo":"2024-02-01"},"-P1M"],
+            ["P183D",{"smallestUnit":"year","roundingMode":"halfExpand","relativeTo":"2024-01-01"},"P1Y"],
+            ["-P183D",{"smallestUnit":"year","roundingMode":"halfExpand","relativeTo":"2025-01-01"},"-P1Y"],
+            ["P15DT12H",{"smallestUnit":"month","roundingMode":"halfTrunc","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P15DT12H",{"smallestUnit":"month","roundingMode":"halfTrunc","relativeTo":"2024-02-01"},"PT0S"],
+            ["P183D",{"smallestUnit":"year","roundingMode":"halfTrunc","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P183D",{"smallestUnit":"year","roundingMode":"halfTrunc","relativeTo":"2025-01-01"},"PT0S"],
+            ["P15DT12H",{"smallestUnit":"month","roundingMode":"halfEven","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P15DT12H",{"smallestUnit":"month","roundingMode":"halfEven","relativeTo":"2024-02-01"},"PT0S"],
+            ["P183D",{"smallestUnit":"year","roundingMode":"halfEven","relativeTo":"2024-01-01"},"PT0S"],
+            ["-P183D",{"smallestUnit":"year","roundingMode":"halfEven","relativeTo":"2025-01-01"},"PT0S"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            assertEquals(Temporal.Duration.from(cases[i][0]).round(cases[i][1]).toString(),
+                cases[i][2], cases[i][0] + " case " + i);
+        }
+    });
+
+    test("F10 calendar rounding rejects mixed units with increments above one", function () {
+        assertThrows(function () {
+            Temporal.Duration.from("P1Y").round({ smallestUnit: "month", roundingIncrement: 2, relativeTo: "2024-01-01" });
+        }, "mixed calendar units with increment 2");
+    });
+
+    test("F09 string precision and rounding carries match native Temporal", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["PT1.999S",{"fractionalSecondDigits":2,"roundingMode":"halfExpand"},"PT2.00S"],
+            ["PT1S",{"smallestUnit":"millisecond"},"PT1.000S"],
+            ["P1Y",{"smallestUnit":"second"},"P1YT0S"],
+            ["-PT0.001S",{"fractionalSecondDigits":2},"PT0.00S"],
+            ["PT1M59.999S",{"fractionalSecondDigits":2,"roundingMode":"halfExpand"},"PT2M0.00S"],
+            ["P1YT23H59M59.999S",{"fractionalSecondDigits":2,"roundingMode":"halfExpand"},"P1Y1DT0.00S"],
+            ["P1DT23H59M59.999S",{"fractionalSecondDigits":2,"roundingMode":"halfExpand"},"P2DT0.00S"],
+            ["P1WT25H",{"fractionalSecondDigits":2},"P1W1DT1H0.00S"],
+            ["PT59.999S",{"fractionalSecondDigits":2,"roundingMode":"halfExpand"},"PT60.00S"],
+            ["PT1H120M",{"smallestUnit":"second"},"PT3H0S"],
+            ["PT1.999S",{"smallestUnit":"second","fractionalSecondDigits":2},"PT1S"],
+            ["PT1S",{"smallestUnit":"milliseconds","fractionalSecondDigits":0},"PT1.000S"],
+            ["P1Y",{"fractionalSecondDigits":3},"P1YT0.000S"],
+            ["-P1Y",{"fractionalSecondDigits":0},"-P1YT0S"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            assertEquals(Temporal.Duration.from(cases[i][0]).toString(cases[i][1]),
+                cases[i][2], cases[i][0] + " case " + i);
+        }
+    });
+
+    test("F09 string rounding modes handle positive and negative ties", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"ceil"},"PT2.00S"],
+            ["-PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"ceil"},"-PT1.99S"],
+            ["PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"ceil"},"PT1.99S"],
+            ["-PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"ceil"},"-PT1.98S"],
+            ["PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"floor"},"PT1.99S"],
+            ["-PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"floor"},"-PT2.00S"],
+            ["PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"floor"},"PT1.98S"],
+            ["-PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"floor"},"-PT1.99S"],
+            ["PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"expand"},"PT2.00S"],
+            ["-PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"expand"},"-PT2.00S"],
+            ["PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"expand"},"PT1.99S"],
+            ["-PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"expand"},"-PT1.99S"],
+            ["PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"trunc"},"PT1.99S"],
+            ["-PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"trunc"},"-PT1.99S"],
+            ["PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"trunc"},"PT1.98S"],
+            ["-PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"trunc"},"-PT1.98S"],
+            ["PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"halfCeil"},"PT2.00S"],
+            ["-PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"halfCeil"},"-PT1.99S"],
+            ["PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"halfCeil"},"PT1.99S"],
+            ["-PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"halfCeil"},"-PT1.98S"],
+            ["PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"halfFloor"},"PT1.99S"],
+            ["-PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"halfFloor"},"-PT2.00S"],
+            ["PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"halfFloor"},"PT1.98S"],
+            ["-PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"halfFloor"},"-PT1.99S"],
+            ["PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"halfExpand"},"PT2.00S"],
+            ["-PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"halfExpand"},"-PT2.00S"],
+            ["PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"halfExpand"},"PT1.99S"],
+            ["-PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"halfExpand"},"-PT1.99S"],
+            ["PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"halfTrunc"},"PT1.99S"],
+            ["-PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"halfTrunc"},"-PT1.99S"],
+            ["PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"halfTrunc"},"PT1.98S"],
+            ["-PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"halfTrunc"},"-PT1.98S"],
+            ["PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"halfEven"},"PT2.00S"],
+            ["-PT1.995S",{"fractionalSecondDigits":2,"roundingMode":"halfEven"},"-PT2.00S"],
+            ["PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"halfEven"},"PT1.98S"],
+            ["-PT1.985S",{"fractionalSecondDigits":2,"roundingMode":"halfEven"},"-PT1.98S"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            assertEquals(Temporal.Duration.from(cases[i][0]).toString(cases[i][1]),
+                cases[i][2], cases[i][0] + " case " + i);
+        }
+    });
+
+    test("F09 string options reject unsupported units and invalid rounding modes", function () {
+        assertThrows(function () { Temporal.Duration.from("PT1S").toString({ smallestUnit: "day" }); }, "unsupported day");
+        assertThrows(function () { Temporal.Duration.from("PT1S").toString({ roundingMode: "oops" }); }, "invalid mode");
     });
 
     test("Duration.toString options match Node Temporal millisecond subset", function () {
@@ -426,6 +829,46 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assertThrowsWith(function () {
             Temporal.Duration.from("PT1S").toString({ fractionalSecondDigits: 10 });
         }, "RangeError", "fractionalSecondDigits value is out of range.", "fractionalSecondDigits range");
+    });
+
+
+    test("F02 fixed precision preserves negative hour and minute signs", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        assertEquals(Temporal.Duration.from({ hours: -1 }).toString({
+            fractionalSecondDigits: 3
+        }), "-PT1H0.000S", "negative hour keeps its sign");
+        assertEquals(Temporal.Duration.from({ minutes: -1 }).toString({
+            fractionalSecondDigits: 2
+        }), "-PT1M0.00S", "negative minute keeps its sign");
+    });
+
+    test("F02 higher fields keep the sign when the displayed fraction is zero", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        var cases = [
+            ["years", "-P1YT0.00S"], ["months", "-P1MT0.00S"],
+            ["weeks", "-P1WT0.00S"], ["days", "-P1DT0.00S"],
+            ["hours", "-PT1H0.00S"], ["minutes", "-PT1M0.00S"]
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            var fields = { milliseconds: -1 };
+            fields[cases[i][0]] = -1;
+            assertEquals(Temporal.Duration.from(fields).toString({
+                fractionalSecondDigits: 2
+            }), cases[i][1], "negative " + cases[i][0] + " with a hidden fraction");
+        }
+    });
+
+    test("F02 displayed zero stays unsigned and nonzero fractions stay negative", function () {
+        // Native Temporal, Node v26.5.0 reference strings.
+        assertEquals(Temporal.Duration.from({ milliseconds: -0 }).toString({
+            fractionalSecondDigits: 2
+        }), "PT0.00S", "literal negative zero");
+        assertEquals(Temporal.Duration.from({ milliseconds: -1 }).toString({
+            fractionalSecondDigits: 2
+        }), "PT0.00S", "negative fraction displayed as zero");
+        assertEquals(Temporal.Duration.from({ milliseconds: -10 }).toString({
+            fractionalSecondDigits: 2
+        }), "-PT0.01S", "visible negative fraction");
     });
 
     test("Duration.toLocaleString falls back to toString without the local Intl subset", function () {
@@ -613,6 +1056,35 @@ if (typeof require === "function" && typeof process !== "undefined") {
         assertAlmostEquals(duration.total({ unit: "day", relativeTo: relative }), 366.00001157407405, 0.000000000001, "P1YT1S total days");
         assertAlmostEquals(duration.total({ unit: "second", relativeTo: relative }), 31622401, 0.000000000001, "P1YT1S total seconds");
         assertAlmostEquals(duration.total({ unit: "millisecond", relativeTo: relative }), 31622401000, 0.000000000001, "P1YT1S total milliseconds");
+    });
+
+
+    test("F01 zero Duration totals return without calendar loops", function () {
+        // Native Temporal, Node v26.5.0: both totals are 0.
+        var zero = Temporal.Duration.from({ seconds: 0 });
+        assertEquals(zero.total({ unit: "month", relativeTo: "2024-01-01" }), 0, "zero month total");
+        assertEquals(zero.total({ unit: "year", relativeTo: "2024-01-01" }), 0, "zero year total");
+    });
+
+    test("F01 zero Duration rounds return without calendar loops", function () {
+        // Native Temporal, Node v26.5.0: both results are PT0S.
+        var zero = Temporal.Duration.from({ seconds: 0 });
+        assertEquals(zero.round({
+            largestUnit: "year", smallestUnit: "day", relativeTo: "2024-01-01"
+        }).toString(), "PT0S", "zero rounded with year largestUnit");
+        assertEquals(zero.round({
+            largestUnit: "month", smallestUnit: "day", relativeTo: "2024-01-01"
+        }).toString(), "PT0S", "zero rounded with month largestUnit");
+    });
+
+    test("F01 nonzero Durations can round to zero calendar results", function () {
+        // Native Temporal, Node v26.5.0: positive and negative truncation yield PT0S.
+        assertEquals(Temporal.Duration.from({ seconds: 1 }).round({
+            largestUnit: "year", smallestUnit: "day", roundingMode: "trunc", relativeTo: "2024-01-01"
+        }).toString(), "PT0S", "positive duration rounds to zero");
+        assertEquals(Temporal.Duration.from({ seconds: -1 }).round({
+            largestUnit: "month", smallestUnit: "day", roundingMode: "trunc", relativeTo: "2024-01-01"
+        }).toString(), "PT0S", "negative duration rounds to zero");
     });
 
     test("Duration.round balances milliseconds back to calendar fields with day serials", function () {

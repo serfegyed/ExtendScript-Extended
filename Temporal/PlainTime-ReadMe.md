@@ -12,7 +12,7 @@ This is not a complete Temporal polyfill. The implementation is intentionally li
 ## Files
 
 - Active implementation: `Lib/Temporal.PlainTime.js`
-- Tests: `Test/tests-PlainTime.js`
+- Tests: `Test/tests-PlainTime.js` (Node and ESTK: 10 passed, 0 failed; validated 2026-09-12)
 - Required includes: `Lib/Temporal-core.js`, `Lib/Temporal.Duration.js`, `Lib/Temporal.PlainTime.js`
 
 Include `Lib/Temporal.PlainDate.js` and `Lib/Temporal.PlainDateTime.js` after PlainTime when date/time conversion methods are needed.
@@ -180,4 +180,3 @@ Temporal.PlainDate
 These limits keep the implementation aligned with the repository's ExtendScript/InDesign target instead of expanding toward a full polyfill.
 
 `toLocaleString(locales, options)` is implemented on `Temporal.PlainTime`. It delegates to the local `Intl.DateTimeFormat` subset when that formatter is loaded; otherwise it falls back to `toString()`. It does not invent a date, so no DST-dependent offset is appended.
-

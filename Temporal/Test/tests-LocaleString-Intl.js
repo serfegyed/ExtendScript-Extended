@@ -22,7 +22,9 @@ if (typeof require === "function" && typeof process !== "undefined") {
         }
 
         function loadIntl(fileName) {
-            (0, eval)(fs.readFileSync(path.join(intlRoot, fileName), "utf8"));
+            Intl = new Function("Intl", "require", "__dirname",
+                fs.readFileSync(path.join(intlRoot, fileName), "utf8") + "\nreturn Intl;"
+            )(Intl, require, intlRoot);
         }
 
         loadIntl("Intl-core.js");

@@ -12,7 +12,7 @@ This is a focused ExtendScript/InDesign subset, not a complete Temporal polyfill
 ## Files
 
 - Active implementation: `Lib/Temporal.PlainMonthDay.js`
-- Tests: `Test/tests-PlainMonthDay.js`
+- Tests: `Test/tests-PlainMonthDay.js` (Node and ESTK: 10 passed, 0 failed; validated 2026-09-12)
 - Required include: `Lib/Temporal-core.js`, `Lib/Temporal.PlainMonthDay.js`
 
 Include `Lib/Temporal.PlainDate.js` when `toPlainDate()` is needed.
@@ -116,6 +116,5 @@ Temporal.PlainMonthDay
 - no `add()`, `subtract()`, `until()`, or `since()`
 - no `withCalendar()`
 - no named-zone rule lookup, DST calculation, or time-zone APIs
-- no localized MonthDay formatting; `toLocaleString()` currently keeps ISO output
+- optional locale formatting uses the local Intl.DateTimeFormat.formatToParts subset and displays month/day parts only; without it, toLocaleString() returns ISO output
 - no full Node Temporal object-shape parity
-
