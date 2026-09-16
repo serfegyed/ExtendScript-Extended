@@ -17,6 +17,7 @@ function Set(elements) {
 
     this._data = [];
     this._records = [];
+    this._nextId = 0;
     this.size = 0;
 
     if (elements instanceof Array) {
@@ -34,9 +35,10 @@ Set.prototype.indexOf = function (value) {
 };
 
 Set.prototype.add = function (value) {
+    if (value === 0) value = 0;
     if (this.indexOf(value) === -1) {
         this._data.push(value);
-        this._records.push({value: value, active: true});
+        this._records.push({id: this._nextId++, value: value});
         this.size = this._data.length;
     }
     return this;
@@ -48,18 +50,11 @@ Set.prototype.has = function (value) {
 
 Set.prototype.delete = function (value) {
     var index = this.indexOf(value);
-    var i;
 
     if (index === -1) return false;
 
     this._data.splice(index, 1);
-    for (i = 0; i < this._records.length; i++) {
-        if (this._records[i].active &&
-                __SetSameValueZero__(this._records[i].value, value)) {
-            this._records[i].active = false;
-            break;
-        }
-    }
+    this._records.splice(index, 1);
     this.size = this._data.length;
     return true;
 };

@@ -8,20 +8,22 @@ Set.prototype.isDisjointFrom = function (other) {
     var record = __getSetRecord__(other);
     var iterator;
     var item;
-    var i;
 
     if (this.size <= record.size) {
-        for (i = 0; i < this._data.length; i++) {
-            if (record.has.call(record.object, this._data[i])) return false;
-        }
-    } else {
-        iterator = record.keys.call(record.object);
-        if (!iterator || typeof iterator.next !== "function") {
-            throw new TypeError("Set-like keys() must return an iterator.");
-        }
+        iterator = this.values();
         item = iterator.next();
         while (!item.done) {
-            if (this.has(item.value)) return false;
+            if (record.has.call(record.object, item.value)) return false;
+            item = iterator.next();
+        }
+    } else {
+        iterator = __SetIterator__(record.keys.call(record.object));
+        item = iterator.next();
+        while (!item.done) {
+            if (this.has(item.value)) {
+                iterator.close();
+                return false;
+            }
             item = iterator.next();
         }
     }

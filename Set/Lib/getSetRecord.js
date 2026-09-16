@@ -6,6 +6,8 @@
  */
 function __getSetRecord__(object) {
     var size;
+    var has;
+    var keys;
 
     if (object === null || object === undefined ||
             (typeof object !== "object" && typeof object !== "function")) {
@@ -20,9 +22,14 @@ function __getSetRecord__(object) {
     if (size < 0) {
         throw new RangeError("Set-like size must not be negative.");
     }
-    if (typeof object.has !== "function" || typeof object.keys !== "function") {
+    has = object.has;
+    if (typeof has !== "function") {
+        throw new TypeError("Set-like value must provide has() and keys().");
+    }
+    keys = object.keys;
+    if (typeof keys !== "function") {
         throw new TypeError("Set-like value must provide has() and keys().");
     }
 
-    return {object: object, size: size, has: object.has, keys: object.keys};
+    return {object: object, size: size, has: has, keys: keys};
 }

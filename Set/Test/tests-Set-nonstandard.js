@@ -42,6 +42,7 @@ if (isNodeRuntime) {
             "../Lib/entries.js",
             "../Lib/forEach.js",
             "../Lib/getSetRecord.js",
+            "../Lib/setIterator.js",
             "../Lib/union.js",
             "../Lib/intersection.js",
             "../Lib/difference.js",

@@ -7,12 +7,9 @@
 Set.prototype.union = function (other) {
     var record = __getSetRecord__(other);
     var result = new Set(this);
-    var iterator = record.keys.call(record.object);
+    var iterator = __SetIterator__(record.keys.call(record.object));
     var item;
 
-    if (!iterator || typeof iterator.next !== "function") {
-        throw new TypeError("Set-like keys() must return an iterator.");
-    }
     item = iterator.next();
     while (!item.done) {
         result.add(item.value);

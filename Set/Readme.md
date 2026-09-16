@@ -35,8 +35,10 @@ objects expose `next()` but not the ES6 symbol iterator protocol.
 
 Set values use SameValueZero equality. Iteration is live: deletions are skipped,
 new values are visited, and a deleted then re-added value receives a new position.
-The internal iteration record list intentionally retains inactive records so
-existing iterators remain valid.
+The internal record list contains only current values. Each insertion receives
+a monotonically increasing ID. Iterators use binary search to find the next ID,
+so deletion and clear can release records without invalidating live iterators.
+Clear preserves the ID counter. Completed iterators remain completed.
 
 ## Project extensions
 
@@ -88,9 +90,23 @@ bundles do not require external helper files.
 
 ## Tests
 
-- `Test/tests-Set-standard.js`: standard surface, 13 tests
+- `Test/tests-Set-standard.js`: standard surface, 25 shared tests + 1 Node-only accessor test
 - `Test/tests-Set-operators.js`: ESTK operator overloads, 2 tests
 - `Test/tests-Set-nonstandard.js`: project extensions, 15 tests
 
 The standard and non-standard harnesses run in ESTK and Node.js. The operator
 harness is ESTK-only and skips itself under Node.js.
+
+## Development history
+
+- `History/0`: original version before dense record storage.
+- `History/1`: dense records, insertion IDs, permanent iterator completion,
+  and storage/iteration regression tests.
+- `History/2`: mutation-safe composition methods and regression tests.
+- `History/3`: normalize negative zero to positive zero on insertion.
+- `History/4`: capture and validate Set-like iterators; close on early exit.
+- `History/5`: read Set-like methods once and correct reduce documentation.
+
+The active version remains in this directory. History folders are snapshots;
+run the shared ESTK harness from the active `Test` directory so its relative
+Console include resolves correctly.

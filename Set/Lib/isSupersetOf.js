@@ -11,13 +11,13 @@ Set.prototype.isSupersetOf = function (other) {
     var item;
 
     if (this.size < record.size) return false;
-    iterator = record.keys.call(record.object);
-    if (!iterator || typeof iterator.next !== "function") {
-        throw new TypeError("Set-like keys() must return an iterator.");
-    }
+    iterator = __SetIterator__(record.keys.call(record.object));
     item = iterator.next();
     while (!item.done) {
-        if (!this.has(item.value)) return false;
+        if (!this.has(item.value)) {
+            iterator.close();
+            return false;
+        }
         item = iterator.next();
     }
     return true;

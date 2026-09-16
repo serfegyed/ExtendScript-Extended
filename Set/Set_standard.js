@@ -8,6 +8,7 @@
 //@include "./Lib/entries.js"
 //@include "./Lib/forEach.js"
 //@include "./Lib/getSetRecord.js"
+//@include "./Lib/setIterator.js"
 //@include "./Lib/union.js"
 //@include "./Lib/intersection.js"
 //@include "./Lib/difference.js"

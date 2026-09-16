@@ -9,19 +9,18 @@ Set.prototype.intersection = function (other) {
     var result = new Set();
     var iterator;
     var item;
-    var i;
 
     if (this.size <= record.size) {
-        for (i = 0; i < this._data.length; i++) {
-            if (record.has.call(record.object, this._data[i])) {
-                result.add(this._data[i]);
+        iterator = this.values();
+        item = iterator.next();
+        while (!item.done) {
+            if (record.has.call(record.object, item.value)) {
+                result.add(item.value);
             }
+            item = iterator.next();
         }
     } else {
-        iterator = record.keys.call(record.object);
-        if (!iterator || typeof iterator.next !== "function") {
-            throw new TypeError("Set-like keys() must return an iterator.");
-        }
+        iterator = __SetIterator__(record.keys.call(record.object));
         item = iterator.next();
         while (!item.done) {
             if (this.has(item.value)) result.add(item.value);

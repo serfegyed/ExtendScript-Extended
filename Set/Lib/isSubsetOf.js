@@ -7,11 +7,15 @@
  */
 Set.prototype.isSubsetOf = function (other) {
     var record = __getSetRecord__(other);
-    var i;
+    var iterator;
+    var item;
 
     if (this.size > record.size) return false;
-    for (i = 0; i < this._data.length; i++) {
-        if (!record.has.call(record.object, this._data[i])) return false;
+    iterator = this.values();
+    item = iterator.next();
+    while (!item.done) {
+        if (!record.has.call(record.object, item.value)) return false;
+        item = iterator.next();
     }
 
     return true;
